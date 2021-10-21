@@ -15,6 +15,9 @@ export default function Home() {
 
       <main className={styles.main}>
         <div className={styles.grid}>
+          <a id="connectWeb3Button" className={styles.card}>
+            <p>CONNECT METAMASK</p>
+          </a>
           <p className={styles.toadtitle}> TOADZGOTCHI </p>
           <a id="feedButton" className={styles.card}>
             <p>FEED</p>
