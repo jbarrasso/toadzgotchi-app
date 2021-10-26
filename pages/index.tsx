@@ -1,3 +1,4 @@
+import { formatEther } from "@ethersproject/units";
 import { useWeb3React } from "@web3-react/core";
 import Head from "next/head";
 import Link from "next/link";
@@ -6,48 +7,52 @@ import ETHBalance from "../components/ETHBalance";
 import useEagerConnect from "../hooks/useEagerConnect";
 
 function Home() {
-  const { account, library } = useWeb3React();
+  const { account, library, active} = useWeb3React();
 
   const triedToEagerConnect = useEagerConnect();
 
   const isConnected = typeof account === "string" && !!library;
 
+  //isConnected = true;
+
+  console.log(isConnected)
+
   return (
     <div>
       <Head>
-        <title>next-web3-boilerplate</title>
+        <title>Toadzgotchi</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <header>
         <nav>
-          <Link href="/">
+          {/* <Link href="/">
             <a>next-web3-boilerplate</a>
-          </Link>
+          </Link> */}
 
-          <Account triedToEagerConnect={triedToEagerConnect} />
+          {isConnected && (
+            <ETHBalance />
+          )}
+
+          <Account triedToEagerConnect={triedToEagerConnect} color='red' />
         </nav>
       </header>
 
       <main>
         <h1>
-          Welcome to{" "}
-          <a href="https://github.com/mirshko/next-web3-boilerplate">
-            next-web3-boilerplate
-          </a>
+          TOADZGOTCHI
         </h1>
-
-        {isConnected && (
-          <section>
-            <ETHBalance />
-          </section>
-        )}
       </main>
 
       <style jsx>{`
         nav {
           display: flex;
           justify-content: space-between;
+          padding: 10px;
+        }
+        
+        button {
+          background-color: red;
         }
 
         main {

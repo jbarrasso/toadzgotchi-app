@@ -1,5 +1,6 @@
 import { useWeb3React } from "@web3-react/core";
 import { UserRejectedRequestError } from "@web3-react/injected-connector";
+import { redirect } from "next/dist/server/api-utils";
 import { useEffect, useState } from "react";
 import { injected } from "../connectors";
 import useENSName from "../hooks/useENSName";
@@ -8,9 +9,10 @@ import { formatEtherscanLink, shortenHex } from "../util";
 
 type Props = {
   triedToEagerConnect: boolean;
+  color: string;
 };
 
-const Account = ({ triedToEagerConnect }: Props) => {
+const Account = ({ triedToEagerConnect, color }: Props) => {
   const { active, error, activate, chainId, account, setError } =
     useWeb3React();
 
@@ -45,10 +47,10 @@ const Account = ({ triedToEagerConnect }: Props) => {
       <div>
         {isWeb3Available ? (
           <button
+            style={{backgroundColor: color}}
             disabled={connecting}
             onClick={() => {
               setConnecting(true);
-
               activate(injected, undefined, true).catch((error) => {
                 // ignore the error if it's a user rejected request
                 if (error instanceof UserRejectedRequestError) {
