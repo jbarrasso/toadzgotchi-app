@@ -47,9 +47,7 @@ const Account = ({ triedToEagerConnect, color, padding, borderRadius, fontFamily
 
   if (typeof account !== "string") {
     return (
-      <div
-        style={{padding: padding}}
-      >
+      <div style={{padding: padding}}>
         {isWeb3Available ? (
           <button
             style={{backgroundColor: color,
@@ -80,8 +78,7 @@ const Account = ({ triedToEagerConnect, color, padding, borderRadius, fontFamily
   }
 
   return (
-    <a style={{ padding: padding,
-      }}
+    <a style={{ padding: padding }}
       {...{
         href: formatEtherscanLink("Account", [chainId, account]),
         target: "_blank",
