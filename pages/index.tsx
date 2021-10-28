@@ -1,7 +1,7 @@
-import { formatEther } from "@ethersproject/units";
+//import { formatEther } from "@ethersproject/units";
 import { useWeb3React } from "@web3-react/core";
 import Head from "next/head";
-import Link from "next/link";
+//import Link from "next/link";
 import Account from "../components/Account";
 import ETHBalance from "../components/ETHBalance";
 import useEagerConnect from "../hooks/useEagerConnect";
@@ -11,11 +11,13 @@ function Home() {
 
   const triedToEagerConnect = useEagerConnect();
 
-  const isConnected = typeof account === "string" && !!library;
+  let isConnected = typeof account === "string" && !!library;
 
-  //isConnected = true;
+  isConnected = true;
 
   console.log(isConnected)
+
+  //const Pixeled = 
 
   return (
     <div>
@@ -30,11 +32,20 @@ function Home() {
             <a>next-web3-boilerplate</a>
           </Link> */}
 
-          {isConnected && (
-            <ETHBalance />
-          )}
+          {/* {isConnected && (
+            <ETHBalance
+              margin='0px'
+              padding='10px'
+            />
+          )} */}
 
-          <Account triedToEagerConnect={triedToEagerConnect} color='red' />
+          <Account
+            triedToEagerConnect={triedToEagerConnect}
+            color='white'
+            padding='10px'
+            borderRadius='10px'
+            fontFamily='Pixeled'
+          />
         </nav>
       </header>
 
@@ -46,13 +57,14 @@ function Home() {
 
       <style jsx>{`
         nav {
+          font-family: Pixeled;
           display: flex;
-          justify-content: space-between;
+          justify-content: flex-end;
           padding: 10px;
         }
         
-        button {
-          background-color: red;
+        h1 {
+          font-family: Pixeled;
         }
 
         main {

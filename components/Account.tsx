@@ -10,9 +10,12 @@ import { formatEtherscanLink, shortenHex } from "../util";
 type Props = {
   triedToEagerConnect: boolean;
   color: string;
+  padding: string;
+  borderRadius: string;
+  fontFamily: string;
 };
 
-const Account = ({ triedToEagerConnect, color }: Props) => {
+const Account = ({ triedToEagerConnect, color, padding, borderRadius, fontFamily }: Props) => {
   const { active, error, activate, chainId, account, setError } =
     useWeb3React();
 
@@ -44,10 +47,16 @@ const Account = ({ triedToEagerConnect, color }: Props) => {
 
   if (typeof account !== "string") {
     return (
-      <div>
+      <div
+        style={{padding: padding}}
+      >
         {isWeb3Available ? (
           <button
-            style={{backgroundColor: color}}
+            style={{backgroundColor: color,
+                    borderRadius: borderRadius,
+                    padding: padding,
+                    fontFamily: fontFamily,
+                  }}
             disabled={connecting}
             onClick={() => {
               setConnecting(true);
@@ -61,17 +70,18 @@ const Account = ({ triedToEagerConnect, color }: Props) => {
               });
             }}
           >
-            {isMetaMaskInstalled ? "Connect to MetaMask" : "Connect to Wallet"}
+            {isMetaMaskInstalled ? "CONNECT METAMASK" : "CONNECT WALLET"}
           </button>
         ) : (
-          <button onClick={startOnboarding}>Install Metamask</button>
+          <button onClick={startOnboarding}>INSTALL METAMASK</button>
         )}
       </div>
     );
   }
 
   return (
-    <a
+    <a style={{ padding: padding,
+      }}
       {...{
         href: formatEtherscanLink("Account", [chainId, account]),
         target: "_blank",
