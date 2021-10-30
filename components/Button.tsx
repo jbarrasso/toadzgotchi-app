@@ -1,6 +1,7 @@
 type Props = {
     text: string;
     display: string;
+    flex: string;
     color: string;
     backgroundColor: string;
     width: string;
@@ -10,10 +11,11 @@ type Props = {
     borderRadius: string;
 };
 
-const Button = ({ text, display, color, backgroundColor, width, margin, padding, border, borderRadius }: Props) => {
+const Button = ({ text, display, flex, color, backgroundColor, width, margin, padding, border, borderRadius }: Props) => {
     return (
         <div style={{color: color,
                      display: display,
+                     flex: flex,
                      backgroundColor: backgroundColor,
                      width: width,
                      margin: margin,

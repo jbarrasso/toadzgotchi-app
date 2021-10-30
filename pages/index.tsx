@@ -1,9 +1,10 @@
 //import { formatEther } from "@ethersproject/units";
 import { useWeb3React } from "@web3-react/core";
 import Head from "next/head";
+import Image from "next/image";
 import Button from "../components/Button";
 import Account from "../components/Account";
-import ETHBalance from "../components/ETHBalance";
+//import ETHBalance from "../components/ETHBalance";
 import useEagerConnect from "../hooks/useEagerConnect";
 import ProgressBar from "../components/ProgressBar";
 
@@ -23,6 +24,15 @@ function Home() {
 
   return (
     <div>
+      <div className='bgWrap'>
+        <Image
+          alt='Swamp'
+          src='/img/ToadzBG-Sample2.png'
+          layout='fill'
+          objectFit='fill'
+          quality={100}
+        />
+      </div>
       <Head>
         <title>Toadzgotchi</title>
         <link rel="icon" href="/favicon.ico" />
@@ -51,81 +61,91 @@ function Home() {
         <h1>
           TOADZGOTCHI
         </h1>
-        <section className='playerButtons'>
+        <section className='playerActions'>
+          <div className='feedDiv'>
+            <Button
+              text='FEED'
+              display=''
+              flex=''
+              color='#332020'
+              backgroundColor='#b0a28d'
+              width='100px'
+              margin='10px'
+              padding='0px'
+              border=' 2px solid #673c37'
+              borderRadius='0px'
+            />
+            <ProgressBar
+              text='HUNGER'
+              display=''
+              flex=''
+              color='#332020'
+              backgroundColor='#b0a28d'
+              width='100px'
+              margin='0px'
+              padding='0px'
+              border=' 2px solid #673c37'
+              borderRadius='0px'
+              progressValue={50}
+              progressMaxValue={100}
+            />
+          </div>
+          <div className='playDiv'>
+            <Button
+              text='PLAY'
+              display=''
+              flex=''
+              color='#332020'
+              backgroundColor='#b0a28d'
+              width='100px'
+              margin='10px'
+              padding='0px'
+              border=' 2px solid #673c37'
+              borderRadius='0px'
+            />
+            <ProgressBar
+              text='MOOD'
+              display=''
+              flex=''
+              color='#332020'
+              backgroundColor='#b0a28d'
+              width='100px'
+              margin='0px'
+              padding='0px'
+              border=' 2px solid #673c37'
+              borderRadius='0px'
+              progressValue={50}
+              progressMaxValue={100}
+            />
+          </div>
+          <div className='sleepDiv'>
           <Button
-            text='FEED'
-            display=''
-            color='#332020'
-            backgroundColor='#b0a28d'
-            width='100px'
-            margin='10px'
-            padding='0px'
-            border=' 2px solid #673c37'
-            borderRadius='0px'
-          />
-          <Button
-            text='PLAY'
-            display=''
-            color='#332020'
-            backgroundColor='#b0a28d'
-            width='100px'
-            margin='10px'
-            padding='0px'
-            border=' 2px solid #673c37'
-            borderRadius='0px'
-          />
-          <Button
-            text='SLEEP'
-            display=''
-            color='#332020'
-            backgroundColor='#b0a28d'
-            width='100px'
-            margin='10px'
-            padding='0px'
-            border=' 2px solid #673c37'
-            borderRadius='0px'
-          />
-        </section>
-        <section className='statusBars'>
+              text='SLEEP'
+              display=''
+              flex=''
+              color='#332020'
+              backgroundColor='#b0a28d'
+              width='100px'
+              margin='10px'
+              padding='0px'
+              border=' 2px solid #673c37'
+              borderRadius='0px'
+            />
           <ProgressBar
-            text='HUNGER'
-            display=''
-            color='#332020'
-            backgroundColor='#b0a28d'
-            width='120px'
-            margin='10px'
-            padding='0px'
-            border=' 2px solid #673c37'
-            borderRadius='0px'
-            progressValue={50}
-            progressMaxValue={100}
-          />
-          <ProgressBar
-            text='MOOD'
-            display=''
-            color='#332020'
-            backgroundColor='#b0a28d'
-            width='120px'
-            margin='10px'
-            padding='0px'
-            border=' 2px solid #673c37'
-            borderRadius='0px'
-            progressValue={50}
-            progressMaxValue={100}
-          />
-          <ProgressBar
-            text='REST'
-            display=''
-            color='#332020'
-            backgroundColor='#b0a28d'
-            width='120px'
-            margin='10px'
-            padding='0px'
-            border=' 2px solid #673c37'
-            borderRadius='0px'
-            progressValue={50}
-            progressMaxValue={100}
-          />
+              text='REST'
+              display=''
+              flex=''
+              color='#332020'
+              backgroundColor='#b0a28d'
+              width='100px'
+              margin='0px'
+              padding='0px'
+              border=' 2px solid #673c37'
+              borderRadius='0px'
+              progressValue={50}
+              progressMaxValue={100}
+            />
+          </div>
         </section>
       </main>
 
@@ -135,19 +155,40 @@ function Home() {
           text-align: center;
         }
 
+        .bgWrap {
+          position: fixed;
+          height: 100vh;
+          width: 100vw;
+          overflow: hidden;
+          z-index: -1;
+        }
+
         main {
           font-family: Pixeled;
           text-align: center;
         }
 
         nav {
+          height:300px;
           display: flex;
           justify-content: flex-end;
           padding: 10px;
         }
         
+        .feedSection {
+          display:inline-block;
+        }
+        .playSection {
+          display:inline-block;
+        }
+        .sleepSection {
+          display:inline-block;
+        }
+
         section {
           display: flex;
+          flex-direction: row;
+          flex-wrap: wrap;
           justify-content: center;
         }
       `}</style>
