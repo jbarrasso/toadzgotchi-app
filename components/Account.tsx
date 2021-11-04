@@ -10,7 +10,7 @@ import { formatEtherscanLink, shortenHex } from "../util";
 type Props = {
   triedToEagerConnect: boolean;
   color: string;
-  padding: string;
+  padding: string; 
   borderRadius: string;
   fontFamily: string;
 };
