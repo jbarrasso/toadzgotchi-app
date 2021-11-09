@@ -4,20 +4,18 @@ type Props = {
     flex: string;
     color: string;
     backgroundColor: string;
-    width: string;
     margin: string;
     padding: string;
     border: string;
     borderRadius: string;
 };
 
-const Button = ({ text, display, flex, color, backgroundColor, width, margin, padding, border, borderRadius }: Props) => {
+const Button = ({ text, display, flex, color, backgroundColor, margin, padding, border, borderRadius }: Props) => {
     return (
         <div style={{color: color,
                      display: display,
                      flex: flex,
                      backgroundColor: backgroundColor,
-                     width: width,
                      margin: margin,
                      padding: padding,
                      border: border,
