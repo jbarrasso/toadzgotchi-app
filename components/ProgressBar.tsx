@@ -4,7 +4,6 @@ type Props = {
     flex: string;
     color: string;
     backgroundColor: string;
-
     margin: string;
     padding: string;
     border: string;
@@ -19,7 +18,6 @@ const ProgressBar = ({ text, display, flex, color, backgroundColor,  margin, pad
                      display: display,
                      flex: flex,
                      backgroundColor: backgroundColor,
-
                      margin: margin,
                      padding: padding,
                      border: border,

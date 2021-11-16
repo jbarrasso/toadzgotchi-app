@@ -10,9 +10,11 @@ import Button from "../components/Button";
 import Account from "../components/Account";
 import useEagerConnect from "../hooks/useEagerConnect";
 import ProgressBar from "../components/ProgressBar";
-import { useState } from 'react';
+import { useState } from 'react'
 import { ethers } from 'ethers'
-import Greeter from '../artifacts/contracts/Greeter.sol/Greeter.json'
+import Toadzgotchi from '../artifacts/contracts/Toadzgotchi.sol/Toadzgotchi.json'
+
+const toadzgotchiAddress = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
 
 function Home() {
   const { account, library, active} = useWeb3React();
@@ -20,12 +22,30 @@ function Home() {
   const triedToEagerConnect = useEagerConnect();
 
   const isConnected = typeof account === "string" && !!library;
+  const updateProgressBar = () => {
+    console.log('click')
+  }
+
+  const [hunger, setHunger] = useState(() => {
+    return 50
+  })
+  const [mood, setMood] = useState(() => {
+    return 50
+  })
+  const [rest, setRest] = useState(() => {
+    return 50
+  })
 
   //isConnected = true;
   //console.log(library.blockNumber)
   // store greeting in local state
-  const [greeting, setGreetingValue] = useState()
-  const greeterAddress = '0x5fbdb2315678afecb367f032d93f642f64180aa3'
+  const [food, setFood] = useState(() => {
+    return 50
+  })
+
+  function updateHunger() {
+    setHunger(food)
+  }
 
   // request access to the user's MetaMask account
   async function requestAccount() {
@@ -33,12 +53,31 @@ function Home() {
   }
 
   // call the smart contract, read the current greeting value
-  async function fetchGreeting() {
+  async function readToadStats() {
+    console.log(window.ethereum)
     if (typeof window.ethereum !== 'undefined') {
       const provider = new ethers.providers.Web3Provider(window.ethereum)
-      const contract = new ethers.Contract(greeterAddress, Greeter.abi, provider)
+      const signer = provider.getSigner()
+      const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
       try {
-        const data = await contract.greet()
+        const data = await contract.readToadStats()
+        console.log('data: ', data[0], data[1].toNumber(), data[2].toNumber(), data[3].toNumber())
+      } catch (err) {
+        console.log("Error: ", err)
+      }
+    }    
+  }
+
+  async function readMsgSender() {
+    console.log(window.ethereum)                            
+    if (typeof window.ethereum !== 'undefined') {
+      const provider = new ethers.providers.Web3Provider(window.ethereum)
+      const signer = provider.getSigner()
+      console.log(provider)
+      console.log(signer)
+      const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+      try {
+        const data = await contract.returnMsgSender()
         console.log('data: ', data)
       } catch (err) {
         console.log("Error: ", err)
@@ -47,16 +86,16 @@ function Home() {
   }
 
   // call the smart contract, send an update
-  async function setGreeting() {
-    if (!greeting) return
+  async function feedToad() {
+    if (!food) return
     if (typeof window.ethereum !== 'undefined') {
       await requestAccount()
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner()
-      const contract = new ethers.Contract(greeterAddress, Greeter.abi, signer)
-      const transaction = await contract.setGreeting(greeting)
+      const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+      const transaction = await contract.feedToad(food)
       await transaction.wait()
-      fetchGreeting()
+      await readToadStats()
     }
   }
 
@@ -85,7 +124,6 @@ function Home() {
               padding='10px'
             />
           )} */}
-
           <Account
             triedToEagerConnect={triedToEagerConnect}
             color='white'
@@ -115,6 +153,7 @@ function Home() {
                   padding='0px'
                   border=' 2px solid #673c37'
                   borderRadius='0px'
+                  onClick={feedToad}
                 />
                 <ProgressBar
                   text='HUNGER'
@@ -126,7 +165,7 @@ function Home() {
                   padding='0px'
                   border=' 2px solid #673c37'
                   borderRadius='0px'
-                  progressValue={50}
+                  progressValue={hunger}
                   progressMaxValue={100}
                 />
               </div>
@@ -135,12 +174,13 @@ function Home() {
                   text='PLAY'
                   display=''
                   flex=''
-                  color='#332020'
+                  color='#332020' 
                   backgroundColor='#b0a28d'
                   margin='10px'
                   padding='0px'
                   border=' 2px solid #673c37'
                   borderRadius='0px'
+                  onClick={updateProgressBar}
                 />
                 <ProgressBar
                   text='MOOD'
@@ -152,7 +192,7 @@ function Home() {
                   padding='0px'
                   border=' 2px solid #673c37'
                   borderRadius='0px'
-                  progressValue={50}
+                  progressValue={mood}
                   progressMaxValue={100}
                 />
               </div>
@@ -167,6 +207,7 @@ function Home() {
                   padding='0px'
                   border=' 2px solid #673c37'
                   borderRadius='0px'
+                  onClick={updateProgressBar}
                 />
               <ProgressBar
                   text='REST'
@@ -178,11 +219,27 @@ function Home() {
                   padding='0px'
                   border=' 2px solid #673c37'
                   borderRadius='0px'
-                  progressValue={50}
+                  progressValue={rest}
                   progressMaxValue={100}
                 />
               </div>
             </section>
+            <button onClick={readToadStats}>Read Toad Stats</button>
+            <Button
+                  text='Start Game'
+                  display=''
+                  flex=''
+                  color='#332020'
+                  backgroundColor='#b0a28d'
+                  margin='10px'
+                  padding='0px'
+                  border=' 2px solid #673c37'
+                  borderRadius='0px'
+                  onClick={updateProgressBar}
+                />
+            <button onClick={feedToad}>Feed Toad</button>
+            <button onClick={readMsgSender}>Read msg.sender</button>
+
           </div>
         </div>
       </main>
