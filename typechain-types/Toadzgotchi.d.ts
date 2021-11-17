@@ -22,17 +22,23 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 interface ToadzgotchiInterface extends ethers.utils.Interface {
   functions: {
     "feedToad(uint256)": FunctionFragment;
+    "playToad(uint256)": FunctionFragment;
     "readToadHunger()": FunctionFragment;
     "readToadPlay()": FunctionFragment;
     "readToadSleep()": FunctionFragment;
     "readToadStats()": FunctionFragment;
     "returnMsgSender()": FunctionFragment;
+    "sleepToad(uint256)": FunctionFragment;
     "startGame()": FunctionFragment;
     "toadStats(address)": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "feedToad",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "playToad",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -55,10 +61,15 @@ interface ToadzgotchiInterface extends ethers.utils.Interface {
     functionFragment: "returnMsgSender",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "sleepToad",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "startGame", values?: undefined): string;
   encodeFunctionData(functionFragment: "toadStats", values: [string]): string;
 
   decodeFunctionResult(functionFragment: "feedToad", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "playToad", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "readToadHunger",
     data: BytesLike
@@ -79,6 +90,7 @@ interface ToadzgotchiInterface extends ethers.utils.Interface {
     functionFragment: "returnMsgSender",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "sleepToad", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "startGame", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "toadStats", data: BytesLike): Result;
 
@@ -130,7 +142,12 @@ export class Toadzgotchi extends BaseContract {
 
   functions: {
     feedToad(
-      newHungerValue: BigNumberish,
+      feedValue: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    playToad(
+      playValue: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -145,15 +162,20 @@ export class Toadzgotchi extends BaseContract {
     ): Promise<
       [
         [boolean, BigNumber, BigNumber, BigNumber] & {
-          isInSwamp: boolean;
-          hungerValue: BigNumber;
-          playValue: BigNumber;
-          sleepValue: BigNumber;
+          isVibing: boolean;
+          isFedValue: BigNumber;
+          isHappyValue: BigNumber;
+          isRestedValue: BigNumber;
         }
       ]
     >;
 
     returnMsgSender(overrides?: CallOverrides): Promise<[string]>;
+
+    sleepToad(
+      sleepValue: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     startGame(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -164,16 +186,21 @@ export class Toadzgotchi extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [boolean, BigNumber, BigNumber, BigNumber] & {
-        isInSwamp: boolean;
-        hungerValue: BigNumber;
-        playValue: BigNumber;
-        sleepValue: BigNumber;
+        isVibing: boolean;
+        isFedValue: BigNumber;
+        isHappyValue: BigNumber;
+        isRestedValue: BigNumber;
       }
     >;
   };
 
   feedToad(
-    newHungerValue: BigNumberish,
+    feedValue: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  playToad(
+    playValue: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -187,14 +214,19 @@ export class Toadzgotchi extends BaseContract {
     overrides?: CallOverrides
   ): Promise<
     [boolean, BigNumber, BigNumber, BigNumber] & {
-      isInSwamp: boolean;
-      hungerValue: BigNumber;
-      playValue: BigNumber;
-      sleepValue: BigNumber;
+      isVibing: boolean;
+      isFedValue: BigNumber;
+      isHappyValue: BigNumber;
+      isRestedValue: BigNumber;
     }
   >;
 
   returnMsgSender(overrides?: CallOverrides): Promise<string>;
+
+  sleepToad(
+    sleepValue: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   startGame(
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -205,18 +237,17 @@ export class Toadzgotchi extends BaseContract {
     overrides?: CallOverrides
   ): Promise<
     [boolean, BigNumber, BigNumber, BigNumber] & {
-      isInSwamp: boolean;
-      hungerValue: BigNumber;
-      playValue: BigNumber;
-      sleepValue: BigNumber;
+      isVibing: boolean;
+      isFedValue: BigNumber;
+      isHappyValue: BigNumber;
+      isRestedValue: BigNumber;
     }
   >;
 
   callStatic: {
-    feedToad(
-      newHungerValue: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    feedToad(feedValue: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    playToad(playValue: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     readToadHunger(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -228,14 +259,19 @@ export class Toadzgotchi extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [boolean, BigNumber, BigNumber, BigNumber] & {
-        isInSwamp: boolean;
-        hungerValue: BigNumber;
-        playValue: BigNumber;
-        sleepValue: BigNumber;
+        isVibing: boolean;
+        isFedValue: BigNumber;
+        isHappyValue: BigNumber;
+        isRestedValue: BigNumber;
       }
     >;
 
     returnMsgSender(overrides?: CallOverrides): Promise<string>;
+
+    sleepToad(
+      sleepValue: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     startGame(overrides?: CallOverrides): Promise<void>;
 
@@ -244,10 +280,10 @@ export class Toadzgotchi extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [boolean, BigNumber, BigNumber, BigNumber] & {
-        isInSwamp: boolean;
-        hungerValue: BigNumber;
-        playValue: BigNumber;
-        sleepValue: BigNumber;
+        isVibing: boolean;
+        isFedValue: BigNumber;
+        isHappyValue: BigNumber;
+        isRestedValue: BigNumber;
       }
     >;
   };
@@ -256,7 +292,12 @@ export class Toadzgotchi extends BaseContract {
 
   estimateGas: {
     feedToad(
-      newHungerValue: BigNumberish,
+      feedValue: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    playToad(
+      playValue: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -270,6 +311,11 @@ export class Toadzgotchi extends BaseContract {
 
     returnMsgSender(overrides?: CallOverrides): Promise<BigNumber>;
 
+    sleepToad(
+      sleepValue: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     startGame(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -279,7 +325,12 @@ export class Toadzgotchi extends BaseContract {
 
   populateTransaction: {
     feedToad(
-      newHungerValue: BigNumberish,
+      feedValue: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    playToad(
+      playValue: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -292,6 +343,11 @@ export class Toadzgotchi extends BaseContract {
     readToadStats(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     returnMsgSender(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    sleepToad(
+      sleepValue: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     startGame(
       overrides?: Overrides & { from?: string | Promise<string> }

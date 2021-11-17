@@ -10,41 +10,76 @@ import Button from "../components/Button";
 import Account from "../components/Account";
 import useEagerConnect from "../hooks/useEagerConnect";
 import ProgressBar from "../components/ProgressBar";
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 import Toadzgotchi from '../artifacts/contracts/Toadzgotchi.sol/Toadzgotchi.json'
 
-const toadzgotchiAddress = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
+const toadzgotchiAddress = '0x4826533B4897376654Bb4d4AD88B7faFD0C98528'
 
 function Home() {
   const { account, library, active} = useWeb3React();
 
   const triedToEagerConnect = useEagerConnect();
-
+  
   const isConnected = typeof account === "string" && !!library;
   const updateProgressBar = () => {
     console.log('click')
   }
-
-  const [hunger, setHunger] = useState(() => {
-    return 50
+ 
+  const [isFed, setIsFed] = useState(() => {
+    return 0
   })
-  const [mood, setMood] = useState(() => {
-    return 50
+  const [isHappy, setIsHappy] = useState(() => {
+    return 0
   })
-  const [rest, setRest] = useState(() => {
-    return 50
-  })
-
-  //isConnected = true;
-  //console.log(library.blockNumber)
-  // store greeting in local state
-  const [food, setFood] = useState(() => {
-    return 50
+  const [isRested, setIsRested] = useState(() => {
+    return 0
   })
 
-  function updateHunger() {
-    setHunger(food)
+  const [feedValue, setFeed] = useState(() => {
+    return 5
+  })
+  const [playValue, setPlay] = useState(() => {
+    return 5
+  })
+  const [sleepValue, setSleep] = useState(() => {
+    return 5
+  })
+
+  useEffect(() => {
+    async function getToadStats() {
+      if (typeof window.ethereum !== 'undefined') {
+        const provider = new ethers.providers.Web3Provider(window.ethereum)
+        const signer = provider.getSigner()
+        const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+        try {
+          const data = await contract.readToadStats()
+          setIsFed(data[1].toNumber())
+          setIsHappy(data[2].toNumber())
+          setIsRested(data[3].toNumber())
+          console.log(`current state isFed is ${isFed}`)
+          console.log(`current state isHappy is ${isHappy}`)
+          console.log(`current state isRested is ${isRested}`)
+          return (data)
+        } catch (err) {
+          console.log("Error: ", err)
+        }
+      }
+    }
+    getToadStats()
+  }, [isFed, isHappy, isRested])
+
+  function updateIsFed() {
+    setIsFed(prevIsFed => prevIsFed + feedValue)
+    //isFed updates only when parent function is done running
+  }
+  function updateIsHappy() {
+    setIsHappy(prevIsHappy => prevIsHappy + playValue)
+    //isHappy updates only when parent function is done running
+  }
+  function updateIsRested() {
+    setIsRested(prevIsRested => prevIsRested + sleepValue)
+    //isRested updates only when parent function is done running
   }
 
   // request access to the user's MetaMask account
@@ -52,9 +87,7 @@ function Home() {
     await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
   }
 
-  // call the smart contract, read the current greeting value
-  async function readToadStats() {
-    console.log(window.ethereum)
+  async function readToadStatsNext() {
     if (typeof window.ethereum !== 'undefined') {
       const provider = new ethers.providers.Web3Provider(window.ethereum)
       const signer = provider.getSigner()
@@ -62,19 +95,18 @@ function Home() {
       try {
         const data = await contract.readToadStats()
         console.log('data: ', data[0], data[1].toNumber(), data[2].toNumber(), data[3].toNumber())
+        return (data)
       } catch (err) {
         console.log("Error: ", err)
       }
-    }    
+    }
   }
 
   async function readMsgSender() {
-    console.log(window.ethereum)                            
+    //console.log(window.ethereum)                            
     if (typeof window.ethereum !== 'undefined') {
       const provider = new ethers.providers.Web3Provider(window.ethereum)
       const signer = provider.getSigner()
-      console.log(provider)
-      console.log(signer)
       const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
       try {
         const data = await contract.returnMsgSender()
@@ -85,17 +117,55 @@ function Home() {
     }    
   }
 
-  // call the smart contract, send an update
   async function feedToad() {
-    if (!food) return
+    if (!feedValue) return
+    if (isFed >= 100){
+      console.log('Toad is already well fed to 100! Reset to zero')
+    } 
     if (typeof window.ethereum !== 'undefined') {
       await requestAccount()
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner()
       const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-      const transaction = await contract.feedToad(food)
+      console.log(`commence feeding. current state isFed value is ${isFed}, being fed ${feedValue}`)
+      const transaction = await contract.feedToad(feedValue)
       await transaction.wait()
-      await readToadStats()
+      await readToadStatsNext()
+      updateIsFed()
+    }
+  }
+  async function playToad() {
+    if (!playValue) return
+    if (isHappy >= 100){
+      console.log('Toad is already happy to 100! Reset to zero')
+    } 
+    if (typeof window.ethereum !== 'undefined') {
+      await requestAccount()
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner()
+      const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+      console.log(`commence play. current state isHappy is ${isHappy}, being played ${playValue}`)
+      const transaction = await contract.playToad(playValue)
+      await transaction.wait()
+      await readToadStatsNext()
+      updateIsHappy()
+    }
+  }
+  async function sleepToad() {
+    if (!sleepValue) return
+    if (isRested >= 100){
+      console.log('Toad is already well rested to 100! Reset to zero')
+    } 
+    if (typeof window.ethereum !== 'undefined') {
+      await requestAccount()
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner()
+      const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+      console.log(`commence sleep. current state isRested is ${isRested}, being slept ${sleepValue}`)
+      const transaction = await contract.sleepToad(sleepValue)
+      await transaction.wait()
+      await readToadStatsNext()
+      updateIsRested()
     }
   }
 
@@ -165,7 +235,7 @@ function Home() {
                   padding='0px'
                   border=' 2px solid #673c37'
                   borderRadius='0px'
-                  progressValue={hunger}
+                  progressValue={isFed}
                   progressMaxValue={100}
                 />
               </div>
@@ -180,7 +250,7 @@ function Home() {
                   padding='0px'
                   border=' 2px solid #673c37'
                   borderRadius='0px'
-                  onClick={updateProgressBar}
+                  onClick={playToad}
                 />
                 <ProgressBar
                   text='MOOD'
@@ -192,7 +262,7 @@ function Home() {
                   padding='0px'
                   border=' 2px solid #673c37'
                   borderRadius='0px'
-                  progressValue={mood}
+                  progressValue={isHappy}
                   progressMaxValue={100}
                 />
               </div>
@@ -207,7 +277,7 @@ function Home() {
                   padding='0px'
                   border=' 2px solid #673c37'
                   borderRadius='0px'
-                  onClick={updateProgressBar}
+                  onClick={sleepToad}
                 />
               <ProgressBar
                   text='REST'
@@ -219,13 +289,13 @@ function Home() {
                   padding='0px'
                   border=' 2px solid #673c37'
                   borderRadius='0px'
-                  progressValue={rest}
+                  progressValue={isRested}
                   progressMaxValue={100}
                 />
               </div>
             </section>
-            <button onClick={readToadStats}>Read Toad Stats</button>
-            <Button
+            <button onClick={readToadStatsNext}>Read Toad Stats</button>
+            {/* <Button
                   text='Start Game'
                   display=''
                   flex=''
@@ -237,8 +307,7 @@ function Home() {
                   borderRadius='0px'
                   onClick={updateProgressBar}
                 />
-            <button onClick={feedToad}>Feed Toad</button>
-            <button onClick={readMsgSender}>Read msg.sender</button>
+            <button onClick={readMsgSender}>Read msg.sender</button> */}
 
           </div>
         </div>

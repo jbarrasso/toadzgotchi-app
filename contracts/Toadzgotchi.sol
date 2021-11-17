@@ -6,10 +6,10 @@ import "hardhat/console.sol";
 contract Toadzgotchi {
 
     struct ToadStats {
-        bool isInSwamp;
-        uint256 hungerValue;
-        uint256 playValue;
-        uint256 sleepValue;
+        bool isVibing;
+        uint256 isFedValue;
+        uint256 isHappyValue;
+        uint256 isRestedValue;
     }
 
     mapping(address => ToadStats) public toadStats;
@@ -21,13 +21,13 @@ contract Toadzgotchi {
     // }
 
     function readToadHunger() public view returns (uint256) {
-        return toadStats[msg.sender].hungerValue;
+        return toadStats[msg.sender].isFedValue;
     }
     function readToadPlay() public view returns (uint256) {
-        return toadStats[msg.sender].playValue;
+        return toadStats[msg.sender].isHappyValue;
     }
     function readToadSleep() public view returns (uint256) {
-        return toadStats[msg.sender].sleepValue;
+        return toadStats[msg.sender].isRestedValue;
     }
     function readToadStats() public view returns (ToadStats memory) {
         //from 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 (hardhat acc 0 provider)
@@ -38,14 +38,34 @@ contract Toadzgotchi {
         //returns 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 (hardhat acc 0 provider)
     }
 
-    function feedToad(uint256 newHungerValue) public {
+    function feedToad(uint256 feedValue) public {
         //from 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 (hardhat acc 1 provider.signer)
-        console.log("Changing hungerValue from '%s' to '%s'", toadStats[msg.sender].hungerValue, newHungerValue);
-        toadStats[msg.sender].hungerValue = newHungerValue;
+        console.log("Adding '%s' to isFedValue", feedValue);
+        if (toadStats[msg.sender].isFedValue >= 100) {
+            toadStats[msg.sender].isFedValue = 0;
+        }
+        toadStats[msg.sender].isFedValue = toadStats[msg.sender].isFedValue + feedValue;
     }
+    function playToad(uint256 playValue) public {
+        //from 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 (hardhat acc 1 provider.signer)
+        console.log("Adding '%s' to isHappyValue", playValue);
+        if (toadStats[msg.sender].isHappyValue >= 100) {
+            toadStats[msg.sender].isHappyValue = 0;
+        }
+        toadStats[msg.sender].isHappyValue = toadStats[msg.sender].isHappyValue + playValue;
+    }
+    function sleepToad(uint256 sleepValue) public {
+        //from 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 (hardhat acc 1 provider.signer)
+        console.log("Adding '%s' to isRestedValue", sleepValue);
+        if (toadStats[msg.sender].isRestedValue >= 100) {
+            toadStats[msg.sender].isRestedValue = 0;
+        }
+        toadStats[msg.sender].isRestedValue = toadStats[msg.sender].isRestedValue + sleepValue;
+    }
+
     function startGame() public {
-        toadStats[msg.sender].isInSwamp = true;
-        console.log("'%s' has started game. '%s'", msg.sender, toadStats[msg.sender].isInSwamp);
+        toadStats[msg.sender].isVibing = true;
+        console.log("'%s' has started game. '%s'", msg.sender, toadStats[msg.sender].isVibing);
     }
 }
 
