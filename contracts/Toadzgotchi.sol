@@ -10,15 +10,12 @@ contract Toadzgotchi {
         uint256 isFedValue;
         uint256 isHappyValue;
         uint256 isRestedValue;
+        uint256 toadLevel;
     }
 
     mapping(address => ToadStats) public toadStats;
 
     constructor() {}
-
-    // function logMsgSender(_address) public view returns (address) {
-    //     return ;
-    // }
 
     function readToadHunger() public view returns (uint256) {
         return toadStats[msg.sender].isFedValue;

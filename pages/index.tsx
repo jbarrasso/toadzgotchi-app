@@ -1,6 +1,6 @@
 //import { formatEther } from "@ethersproject/units";
 //import { parseBalance } from "../util";
-//import ETHBalance from "../components/ETHBalance";
+import ETHBalance from "../components/ETHBalance";
 //import useETHBalance from "../hooks/useETHBalance";
 
 import { useWeb3React } from "@web3-react/core";
@@ -10,22 +10,44 @@ import Button from "../components/Button";
 import Account from "../components/Account";
 import useEagerConnect from "../hooks/useEagerConnect";
 import ProgressBar from "../components/ProgressBar";
-import { useState, useEffect } from 'react'
-import { ethers } from 'ethers'
+import { useState, useEffect, useRef } from 'react'
+import { ethers, providers } from 'ethers'
 import Toadzgotchi from '../artifacts/contracts/Toadzgotchi.sol/Toadzgotchi.json'
+import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
+import { NoEthereumProviderError } from "@web3-react/injected-connector";
+import detectEthereumProvider from '@metamask/detect-provider';
 
-const toadzgotchiAddress = '0x4826533B4897376654Bb4d4AD88B7faFD0C98528'
+const toadzgotchiAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+
+//Anonymous function expression to return a global object of Ethereum injection.
+//To access provider object of class Web3Provider, instantiate it inside the Home function.
+//provider can only instantiated and used inside aysnc functions.
+const ethereum = () => {
+  return (window as any).ethereum
+}
+
+// This works but returns <promise> regardless if called outside or inside Home
+// const eth = async() => {
+//   const provider = new ethers.providers.Web3Provider(await (window as any).ethereum)
+//   return provider
+// }
 
 function Home() {
-  const { account, library, active} = useWeb3React();
+  const [renderCount, setrenderCount] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isWalletConnected, setIsWalletConnected] = useState(false)
+  const [isWeb3Injected, setIsWeb3Injected] = useState(false)
 
+  const { account, library, active} = useWeb3React();
   const triedToEagerConnect = useEagerConnect();
   
-  const isConnected = typeof account === "string" && !!library;
-  const updateProgressBar = () => {
-    console.log('click')
-  }
- 
+  //let isConnected = typeof account === "string" && !!library;
+
+  //Define global variable of class Web3Provider (undefined).
+  //Assign provider in async checkWeb3() on re-render.
+  //provider only can be instantiated and used inside async functions.
+
+
   const [isFed, setIsFed] = useState(() => {
     return 0
   })
@@ -46,28 +68,59 @@ function Home() {
     return 5
   })
 
-  useEffect(() => {
-    async function getToadStats() {
-      if (typeof window.ethereum !== 'undefined') {
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
-        const signer = provider.getSigner()
-        const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-        try {
-          const data = await contract.readToadStats()
-          setIsFed(data[1].toNumber())
-          setIsHappy(data[2].toNumber())
-          setIsRested(data[3].toNumber())
-          console.log(`current state isFed is ${isFed}`)
-          console.log(`current state isHappy is ${isHappy}`)
-          console.log(`current state isRested is ${isRested}`)
-          return (data)
-        } catch (err) {
-          console.log("Error: ", err)
-        }
+  async function checkWeb3() {
+    if (ethereum() == undefined || null) {
+      console.log('Web3 is not injected')      
+      return
+    } else {
+      setIsWeb3Injected(true) //re-renders page
+      console.log('Web3 is injected')
+      try {
+        const tryProvider = new ethers.providers.Web3Provider(ethereum())
+        const trySigner = tryProvider.getSigner()
+        const tryAddress = await trySigner.getAddress()
+        console.log(tryProvider, trySigner, tryAddress)
+        setIsWalletConnected(true) //re-renders page
+        console.log('Wallect is connected')
+      } catch (err) {
+        console.log("Wallet is not connected. Cannot instantiate provider or get signer", err)
       }
     }
-    getToadStats()
-  }, [isFed, isHappy, isRested])
+  }
+ 
+  //paints page, then runs
+  useEffect(() => {
+    console.log('Running useEffect checkweb3')
+    checkWeb3()
+  }, [])
+
+  // useEffect(() => {
+  //   console.log('signer changed')
+  // }, [signer])
+
+
+  // useEffect(() => {
+  //   async function readToadStatsNext() {
+  //     if (typeof window.ethereum !== 'undefined') {
+  //       const provider = new ethers.providers.Web3Provider(window.ethereum)
+  //       const signer = provider.getSigner()
+  //       const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+  //       try {
+  //         const data = await contract.readToadStats()
+  //         setIsFed(data[1].toNumber())
+  //         setIsHappy(data[2].toNumber())
+  //         setIsRested(data[3].toNumber())
+  //         console.log(`current state isFed is ${isFed}`)
+  //         console.log(`current state isHappy is ${isHappy}`)
+  //         console.log(`current state isRested is ${isRested}`)
+  //         return (data)
+  //       } catch (err) {
+  //         console.log("Error: ", err)
+  //       }
+  //     }
+  //   }
+  //   readToadStatsNext()
+  // }, [isFed, isHappy, isRested])
 
   function updateIsFed() {
     setIsFed(prevIsFed => prevIsFed + feedValue)
@@ -84,7 +137,7 @@ function Home() {
 
   // request access to the user's MetaMask account
   async function requestAccount() {
-    await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
+    await ethereum().request({ method: 'eth_requestAccounts' });
   }
 
   async function readToadStatsNext() {
@@ -122,11 +175,10 @@ function Home() {
     if (isFed >= 100){
       console.log('Toad is already well fed to 100! Reset to zero')
     } 
-    if (typeof window.ethereum !== 'undefined') {
-      await requestAccount()
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner()
-      const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+    if (isWalletConnected) {
+      const tryProvider = new ethers.providers.Web3Provider(ethereum())
+      const trySigner = await tryProvider.getSigner()
+      const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, trySigner)
       console.log(`commence feeding. current state isFed value is ${isFed}, being fed ${feedValue}`)
       const transaction = await contract.feedToad(feedValue)
       await transaction.wait()
@@ -188,19 +240,16 @@ function Home() {
 
       <header>
         <nav>
-          {/* {isConnected && (
-            <ETHBalance
-              margin='0px'
-              padding='10px'
-            />
-          )} */}
+          {/* add fider feedback button */}
+          {isWalletConnected && (
           <Account
-            triedToEagerConnect={triedToEagerConnect}
+            isWalletConnected={isWalletConnected}
             color='white'
             padding='10px'
             borderRadius='10px'
             fontFamily='Pixeled'
           />
+          )}
         </nav>
       </header>
 
@@ -295,7 +344,7 @@ function Home() {
               </div>
             </section>
             <button onClick={readToadStatsNext}>Read Toad Stats</button>
-            {/* <Button
+            <Button
                   text='Start Game'
                   display=''
                   flex=''
@@ -305,10 +354,9 @@ function Home() {
                   padding='0px'
                   border=' 2px solid #673c37'
                   borderRadius='0px'
-                  onClick={updateProgressBar}
+                  onClick={readToadStatsNext}
                 />
-            <button onClick={readMsgSender}>Read msg.sender</button> */}
-
+            {/* <button onClick={readMsgSender}>Read msg.sender</button> */}
           </div>
         </div>
       </main>
