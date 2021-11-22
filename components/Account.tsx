@@ -6,8 +6,14 @@ import { injected } from "../connectors";
 import useENSName from "../hooks/useENSName";
 import useMetaMaskOnboarding from "../hooks/useMetaMaskOnboarding";
 import { formatEtherscanLink, shortenHex } from "../util";
-import provider from "../pages/index"
-import requestAccount from "../pages/index"
+import {provider} from "../pages/index"
+import {signer} from "../pages/index"
+import { address } from "../pages/index"
+import { requestAccount } from "../pages/index"
+import { handleAccountsChanged } from "../pages/index"
+import { ethereum } from "../pages/index"
+import { checkWeb3 } from "../pages/index";
+import { ethers } from "ethers";
 
 type Props = {
   isWalletConnected: boolean;
@@ -16,17 +22,8 @@ type Props = {
   borderRadius: string;
   fontFamily: string;
 };
-// const ethereum = () => {
-//   return (window as any).ethereum
-// }
-const Account = ({
-  isWalletConnected,
-  color,
-  padding,
-  borderRadius,
-  fontFamily,
-}: Props) => {
-  // manage connecting state for injected connector
+const Account = ({isWalletConnected, color, padding, borderRadius, fontFamily }: Props) => {
+
   const [connecting, setConnecting] = useState(false);
 
   const { active, error, activate, chainId, account, setError } =
@@ -41,47 +38,32 @@ const Account = ({
 
   const ENSName = useENSName(account);
 
-  // async function requestAccount() {
-  //   await ethereum().request({ method: 'eth_requestAccounts' });
-  // }
-
-  // useEffect(() => {
-  //   if (active || error) {
-  //     setConnecting(false);
-  //     stopOnboarding();
-  //   }
-  // }, [active, error]);
-
-  // if (error) {
-  //   return null;
-  // }
-
-  // if (!triedToEagerConnect) {
-  //   return null;
-  // }
-
-  console.log(isWalletConnected) //runs before checkWeb3
-  return (
-      <button
-        disabled={connecting}
-        onClick={() => {
-          setConnecting(true);
-        }}>
-        {isMetaMaskInstalled ? "CONNECT METAMASK" : "CONNECT WALLET"}
-      </button>
-  );
-
-  return (
-    <a
-      {...{
-        href: formatEtherscanLink("Account", [chainId, account]),
+  if (!isWalletConnected) {
+    return (
+        <button
+          disabled={connecting}
+          onClick={() => {
+            setConnecting(true)
+            requestAccount().catch((error) => {
+              if (error) {
+                setConnecting(false)
+              }
+            })
+          }}>
+          {isMetaMaskInstalled ? "CONNECT METAMASK" : "CONNECT WALLET"}
+        </button>
+    );
+  } else {
+    return (
+      <a {...{
+        href: formatEtherscanLink("Account", [chainId, address]),
         target: "_blank",
         rel: "noopener noreferrer",
-      }}
-    >
-      {/* {ENSName || `${shortenHex(account, 4)}`} */}
-    </a>
-  );
+        }}>
+        {ENSName || `${shortenHex(address, 4)}`}
+      </a>
+    );
+  }
 };
 
 export default Account;
