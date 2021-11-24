@@ -17,6 +17,14 @@ contract Toadzgotchi {
 
     constructor() {}
 
+    function startVibing() public {
+        if (toadStats[msg.sender].isVibing = true) {
+            return;
+        } else {
+            console.log("'%s' has started game. '%s'", msg.sender, toadStats[msg.sender].isVibing);
+            toadStats[msg.sender].isVibing = true;
+        }
+    }
     function readToadHunger() public view returns (uint256) {
         return toadStats[msg.sender].isFedValue;
     }
@@ -58,11 +66,6 @@ contract Toadzgotchi {
             toadStats[msg.sender].isRestedValue = 0;
         }
         toadStats[msg.sender].isRestedValue = toadStats[msg.sender].isRestedValue + sleepValue;
-    }
-
-    function startGame() public {
-        toadStats[msg.sender].isVibing = true;
-        console.log("'%s' has started game. '%s'", msg.sender, toadStats[msg.sender].isVibing);
     }
 }
 
