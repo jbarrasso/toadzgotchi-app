@@ -7,7 +7,7 @@ import ProgressBar from "../components/ProgressBar";
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 
-const toadzgotchiAddress = '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82'
+const toadzgotchiAddress = '0xF8e31cb472bc70500f08Cd84917E5A1912Ec8397'
 export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let address: string;
@@ -53,12 +53,51 @@ export const handleAccountsChanged = async(setIsWalletConnected) => {
       } else {
         setIsWalletConnected(false)
       }
-      window.location.reload()
+      window.location.reload() //allows wallet to update as toggling between wallets doesn't affect state
     });
   }
 }
 export const requestAccount = async() => {
   await ethereum().request({ method: 'eth_requestAccounts' });
+}
+export const calcDecay = async(i: number) => {
+  if (ethereum() !== undefined || null) {
+    const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+    const data = await contract.readToadStats()
+    const currentBlock = await provider.getBlockNumber()
+    const timeElapsed = currentBlock - data[i]
+    let decayBy: number
+    let decayedValue: number
+    if (timeElapsed <= 1) {
+      decayBy = 0;
+    } else if (timeElapsed >= 2 && timeElapsed <= 4) {
+      decayBy = 10;
+    } else if (timeElapsed >= 5 && timeElapsed <= 7) {
+      decayBy = 20;
+    } else if (timeElapsed >= 8 && timeElapsed <= 10) {
+      decayBy = 30;
+    } else if (timeElapsed >= 11 && timeElapsed <= 13) {
+      decayBy = 40;
+    } else if (timeElapsed >= 14 && timeElapsed <= 16) {
+      decayBy = 50;
+    } else if (timeElapsed >= 17 && timeElapsed <= 19) {
+      decayBy = 60;
+    } else if (timeElapsed >= 20 && timeElapsed <= 22) {
+      decayBy = 70;
+    } else if (timeElapsed >= 23 && timeElapsed <= 25) {
+      decayBy = 80;
+    } else if (timeElapsed >= 26 && timeElapsed <= 28) {
+      decayBy = 90;
+    } else {
+      //call some function?
+      decayBy = 110;
+    }
+    decayedValue = data[i-1].toNumber() - decayBy
+    if (decayedValue < 0) {
+      decayedValue = 0
+    }
+    return (decayedValue)
+  }
 }
 
 // This works but returns <promise> regardless if called outside or inside Home
@@ -73,6 +112,7 @@ function Home() {
   const [isWalletConnected, setIsWalletConnected] = useState(false)
   const [isWeb3Injected, setIsWeb3Injected] = useState(false)
 
+
   useEffect(() => {
     setIsLoading(true)
     console.log('Running useEffect checkweb3') //logs second
@@ -81,35 +121,14 @@ function Home() {
   }, [])
 
   const [isVibing, setIsVibing] = useState(false)
-  const [isFed, setIsFed] = useState(() => { return 0 })
-  const [isHappy, setIsHappy] = useState(() => { return 0 })
-  const [isRested, setIsRested] = useState(() => { return 0 })
-  const [feedValue, setFeed] = useState(() => { return 25 })
-  const [playValue, setPlay] = useState(() => { return 25 })
-  const [sleepValue, setSleep] = useState(() => { return 25 })
+  const [isFed, setIsFed] = useState(() => { return 100 })
+  const [isHappy, setIsHappy] = useState(() => { return 100 })
+  const [isRested, setIsRested] = useState(() => { return 100 })
+  const [feedValue, setFeed] = useState(() => { return 10 })
+  const [playValue, setPlay] = useState(() => { return 10 })
+  const [sleepValue, setSleep] = useState(() => { return 10 })
 
   useEffect(() => {
-    async function readToadStats() {
-      if (ethereum()) {
-        console.log('running useEffect readtoadstats') //logs fourth
-        const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-        try {
-          const data = await contract.readToadStats()
-          setIsVibing(data[0])
-          setIsFed(data[1].toNumber())
-          setIsHappy(data[2].toNumber())
-          setIsRested(data[3].toNumber())
-          setIsLoading(false)
-          console.log(`is toad vibing?: ${data[0]}
-            current state isFed: ${isFed},
-            isHappy: ${isHappy},
-            isRested: ${isRested}`)
-          return (data)
-        } catch (err) {
-          console.log('Cannot read toad stats', err)
-        }
-      }
-    }
     readToadStats()
   }, [isFed, isHappy, isRested, address])
 
@@ -128,16 +147,52 @@ function Home() {
 
   async function readToadStats() {
     if (ethereum()) {
-      const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+      console.log('running useEffect readtoadstats') //logs fourth
       try {
+        const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
         const data = await contract.readToadStats()
-        console.log('data: ', data[0], data[1].toNumber(), data[2].toNumber(), data[3].toNumber())
+        setIsVibing(data[0])
+        setIsFed(await calcDecay(3))
+        setIsHappy(await calcDecay(5))
+        setIsRested(await calcDecay(7))
+        setIsLoading(false)
+        console.log(`isVibing: ${data[0]}
+        startVibingBlock: ${data[1].toNumber()}
+        isFed: ${data[2].toNumber()}
+        lastFeedBlock: ${data[3].toNumber()}
+        isHappy: ${data[4].toNumber()}
+        lastPlayBlock: ${data[5].toNumber()}
+        isRested: ${data[6].toNumber()}
+        lastSleepBlock: ${data[7].toNumber()}
+        toadXP: ${data[8].toNumber()}
+        toadLevel: ${data[9].toNumber()}
+        isDead: ${data[10]}`)
+        console.log(`just completed block number: ${await provider.getBlockNumber()}`)
         return (data)
       } catch (err) {
-        console.log("Error: ", err)
+        console.log('Cannot read toad stats', err)
       }
     }
   }
+  // async function readToadStats() {
+  //   if (ethereum()) {
+  //     const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+  //     try {
+  //       const data = await contract.readToadStats()
+  //       console.log(`isVibing: ${data[0]}
+  //       startVibingBlock: ${data[1].toNumber()}
+  //       isFed: ${data[2].toNumber()}
+  //       isHappy: ${data[3].toNumber()}
+  //       isRested: ${data[4].toNumber()}
+  //       toadXP: ${data[5].toNumber()}
+  //       toadLevel: ${data[6].toNumber()}`)
+  //       console.log(`current block number: ${await provider.getBlockNumber()}`)
+  //       return (data)
+  //     } catch (err) {
+  //       console.log("Error: ", err)
+  //     }
+  //   }
+  // }
   // async function readMsgSender() {
   //   //console.log(window.ethereum)                            
   //   if (ethereum()) {
@@ -160,6 +215,7 @@ function Home() {
         const transaction = await contract.startVibing()
         await transaction.wait()
         setIsVibing(true)
+        await readToadStats()
       } catch(err) {
         console.log(err)
       }
@@ -172,7 +228,7 @@ function Home() {
       console.log(`commence feeding. current state isFed value is ${isFed}, being fed ${feedValue}`)
       const transaction = await contract.feedToad(feedValue)
       await transaction.wait()
-      await readToadStats()
+      //await readToadStats()
       updateIsFed()
     }
   }
@@ -183,7 +239,7 @@ function Home() {
       console.log(`commence play. current state isHappy is ${isHappy}, being played ${playValue}`)
       const transaction = await contract.playToad(playValue)
       await transaction.wait()
-      await readToadStats()
+      //await readToadStats()
       updateIsHappy()
     }
   }
@@ -194,7 +250,7 @@ function Home() {
       console.log(`commence sleep. current state isRested is ${isRested}, being slept ${sleepValue}`)
       const transaction = await contract.sleepToad(sleepValue)
       await transaction.wait()
-      await readToadStats()
+      //await readToadStats()
       updateIsRested()
     }
   }
@@ -389,7 +445,7 @@ function Home() {
                   />
                 </div>
               </section>)}
-              {/* <button onClick={readToadStats}>Read Toad Stats</button> */}
+              <button onClick={readToadStats}>Read Toad Stats</button>
               {!isVibing && (
               <Button
                     text="START VIBIN'"

@@ -21,7 +21,13 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface ToadzgotchiInterface extends ethers.utils.Interface {
   functions: {
+    "calcDecayFeed()": FunctionFragment;
+    "calcDecayPlay()": FunctionFragment;
+    "calcDecaySleep()": FunctionFragment;
     "feedToad(uint256)": FunctionFragment;
+    "isFeedable()": FunctionFragment;
+    "isPlayable()": FunctionFragment;
+    "isSleepable()": FunctionFragment;
     "playToad(uint256)": FunctionFragment;
     "readToadHunger()": FunctionFragment;
     "readToadPlay()": FunctionFragment;
@@ -34,8 +40,32 @@ interface ToadzgotchiInterface extends ethers.utils.Interface {
   };
 
   encodeFunctionData(
+    functionFragment: "calcDecayFeed",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "calcDecayPlay",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "calcDecaySleep",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "feedToad",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isFeedable",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isPlayable",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isSleepable",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "playToad",
@@ -71,7 +101,25 @@ interface ToadzgotchiInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "toadStats", values: [string]): string;
 
+  decodeFunctionResult(
+    functionFragment: "calcDecayFeed",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "calcDecayPlay",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "calcDecaySleep",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "feedToad", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isFeedable", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isPlayable", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "isSleepable",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "playToad", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "readToadHunger",
@@ -147,10 +195,22 @@ export class Toadzgotchi extends BaseContract {
   interface: ToadzgotchiInterface;
 
   functions: {
+    calcDecayFeed(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    calcDecayPlay(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    calcDecaySleep(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     feedToad(
       feedValue: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    isFeedable(overrides?: CallOverrides): Promise<[boolean]>;
+
+    isPlayable(overrides?: CallOverrides): Promise<[boolean]>;
+
+    isSleepable(overrides?: CallOverrides): Promise<[boolean]>;
 
     playToad(
       playValue: BigNumberish,
@@ -167,12 +227,30 @@ export class Toadzgotchi extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [
-        [boolean, BigNumber, BigNumber, BigNumber, BigNumber] & {
+        [
+          boolean,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          boolean
+        ] & {
           isVibing: boolean;
+          startVibingTime: BigNumber;
           isFedValue: BigNumber;
+          lastFeedBlock: BigNumber;
           isHappyValue: BigNumber;
+          lastPlayBlock: BigNumber;
           isRestedValue: BigNumber;
+          lastSleepBlock: BigNumber;
+          toadXP: BigNumber;
           toadLevel: BigNumber;
+          isDead: boolean;
         }
       ]
     >;
@@ -192,20 +270,50 @@ export class Toadzgotchi extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<
-      [boolean, BigNumber, BigNumber, BigNumber, BigNumber] & {
+      [
+        boolean,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        boolean
+      ] & {
         isVibing: boolean;
+        startVibingTime: BigNumber;
         isFedValue: BigNumber;
+        lastFeedBlock: BigNumber;
         isHappyValue: BigNumber;
+        lastPlayBlock: BigNumber;
         isRestedValue: BigNumber;
+        lastSleepBlock: BigNumber;
+        toadXP: BigNumber;
         toadLevel: BigNumber;
+        isDead: boolean;
       }
     >;
   };
+
+  calcDecayFeed(overrides?: CallOverrides): Promise<BigNumber>;
+
+  calcDecayPlay(overrides?: CallOverrides): Promise<BigNumber>;
+
+  calcDecaySleep(overrides?: CallOverrides): Promise<BigNumber>;
 
   feedToad(
     feedValue: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  isFeedable(overrides?: CallOverrides): Promise<boolean>;
+
+  isPlayable(overrides?: CallOverrides): Promise<boolean>;
+
+  isSleepable(overrides?: CallOverrides): Promise<boolean>;
 
   playToad(
     playValue: BigNumberish,
@@ -221,12 +329,30 @@ export class Toadzgotchi extends BaseContract {
   readToadStats(
     overrides?: CallOverrides
   ): Promise<
-    [boolean, BigNumber, BigNumber, BigNumber, BigNumber] & {
+    [
+      boolean,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      boolean
+    ] & {
       isVibing: boolean;
+      startVibingTime: BigNumber;
       isFedValue: BigNumber;
+      lastFeedBlock: BigNumber;
       isHappyValue: BigNumber;
+      lastPlayBlock: BigNumber;
       isRestedValue: BigNumber;
+      lastSleepBlock: BigNumber;
+      toadXP: BigNumber;
       toadLevel: BigNumber;
+      isDead: boolean;
     }
   >;
 
@@ -245,17 +371,47 @@ export class Toadzgotchi extends BaseContract {
     arg0: string,
     overrides?: CallOverrides
   ): Promise<
-    [boolean, BigNumber, BigNumber, BigNumber, BigNumber] & {
+    [
+      boolean,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      boolean
+    ] & {
       isVibing: boolean;
+      startVibingTime: BigNumber;
       isFedValue: BigNumber;
+      lastFeedBlock: BigNumber;
       isHappyValue: BigNumber;
+      lastPlayBlock: BigNumber;
       isRestedValue: BigNumber;
+      lastSleepBlock: BigNumber;
+      toadXP: BigNumber;
       toadLevel: BigNumber;
+      isDead: boolean;
     }
   >;
 
   callStatic: {
+    calcDecayFeed(overrides?: CallOverrides): Promise<BigNumber>;
+
+    calcDecayPlay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    calcDecaySleep(overrides?: CallOverrides): Promise<BigNumber>;
+
     feedToad(feedValue: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    isFeedable(overrides?: CallOverrides): Promise<boolean>;
+
+    isPlayable(overrides?: CallOverrides): Promise<boolean>;
+
+    isSleepable(overrides?: CallOverrides): Promise<boolean>;
 
     playToad(playValue: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
@@ -268,12 +424,30 @@ export class Toadzgotchi extends BaseContract {
     readToadStats(
       overrides?: CallOverrides
     ): Promise<
-      [boolean, BigNumber, BigNumber, BigNumber, BigNumber] & {
+      [
+        boolean,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        boolean
+      ] & {
         isVibing: boolean;
+        startVibingTime: BigNumber;
         isFedValue: BigNumber;
+        lastFeedBlock: BigNumber;
         isHappyValue: BigNumber;
+        lastPlayBlock: BigNumber;
         isRestedValue: BigNumber;
+        lastSleepBlock: BigNumber;
+        toadXP: BigNumber;
         toadLevel: BigNumber;
+        isDead: boolean;
       }
     >;
 
@@ -290,12 +464,30 @@ export class Toadzgotchi extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<
-      [boolean, BigNumber, BigNumber, BigNumber, BigNumber] & {
+      [
+        boolean,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        boolean
+      ] & {
         isVibing: boolean;
+        startVibingTime: BigNumber;
         isFedValue: BigNumber;
+        lastFeedBlock: BigNumber;
         isHappyValue: BigNumber;
+        lastPlayBlock: BigNumber;
         isRestedValue: BigNumber;
+        lastSleepBlock: BigNumber;
+        toadXP: BigNumber;
         toadLevel: BigNumber;
+        isDead: boolean;
       }
     >;
   };
@@ -303,10 +495,22 @@ export class Toadzgotchi extends BaseContract {
   filters: {};
 
   estimateGas: {
+    calcDecayFeed(overrides?: CallOverrides): Promise<BigNumber>;
+
+    calcDecayPlay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    calcDecaySleep(overrides?: CallOverrides): Promise<BigNumber>;
+
     feedToad(
       feedValue: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    isFeedable(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isPlayable(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isSleepable(overrides?: CallOverrides): Promise<BigNumber>;
 
     playToad(
       playValue: BigNumberish,
@@ -336,10 +540,22 @@ export class Toadzgotchi extends BaseContract {
   };
 
   populateTransaction: {
+    calcDecayFeed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    calcDecayPlay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    calcDecaySleep(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     feedToad(
       feedValue: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    isFeedable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    isPlayable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    isSleepable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     playToad(
       playValue: BigNumberish,
