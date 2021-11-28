@@ -28,6 +28,7 @@ contract Toadzgotchi {
 
         toadStats[msg.sender].isVibing = true;
         toadStats[msg.sender].startVibingTime = block.number;
+        toadStats[msg.sender].toadLevel = 1;
 
         toadStats[msg.sender].isFedValue = 50;
         toadStats[msg.sender].lastFeedBlock = block.number;   
@@ -39,6 +40,18 @@ contract Toadzgotchi {
         toadStats[msg.sender].lastSleepBlock = block.number;
 
         console.log("'%s' has started game at block number '%s'", msg.sender, toadStats[msg.sender].startVibingTime);
+    }
+    function grantXP(uint256 giveXP) public {
+        uint256 leftoverXP = 0;
+        toadStats[msg.sender].toadXP = toadStats[msg.sender].toadXP + giveXP;
+
+        if (toadStats[msg.sender].toadXP >= 100) {
+            if (toadStats[msg.sender].toadXP > 100) {
+                leftoverXP = toadStats[msg.sender].toadXP - 100;
+            }
+            toadStats[msg.sender].toadLevel = toadStats[msg.sender].toadLevel + 1;
+            toadStats[msg.sender].toadXP = 0 + leftoverXP;
+        }
     }
     function readToadHunger() public view returns (uint256) {
         return toadStats[msg.sender].isFedValue;
@@ -185,21 +198,26 @@ contract Toadzgotchi {
         }
     }
     function isFeedable() public view returns (bool) {
-        //handle if value = 100
-        require(toadStats[msg.sender].isFedValue < 100, "Toad is fed");
         require(toadStats[msg.sender].isDead == false, "Toad is dead");
+        if (toadStats[msg.sender].isFedValue == 100) {
+            require(calcDecayFeed() > 0, "Toad is full, cannot feed");
+        }
         return true;
     }
     function isPlayable() public view returns (bool) {
         require(toadStats[msg.sender].isRestedValue >= 30, "Toad cannot play while sleepy");
-        require(toadStats[msg.sender].isHappyValue < 100, "Toad is fed");
         require(toadStats[msg.sender].isDead == false, "Toad is dead");
+        if (toadStats[msg.sender].isHappyValue == 100) {
+            require(calcDecayPlay() > 0, "Toad fully played, cannot play");
+        }
         return true;
     }
     function isSleepable() public view returns (bool) {
         require(toadStats[msg.sender].isFedValue >= 20, "Toad cannot sleep while starving");
-        require(toadStats[msg.sender].isRestedValue < 100, "Toad is fully rested");
         require(toadStats[msg.sender].isDead == false, "Toad is dead");
+        if (toadStats[msg.sender].isRestedValue == 100) {
+            require(calcDecaySleep() > 0, "Toad is full, cannot feed");
+        }
         return true;
     }
     function feedToad(uint256 feedValue) public {
@@ -221,7 +239,10 @@ contract Toadzgotchi {
         if (toadStats[msg.sender].isFedValue > 100) {
             toadStats[msg.sender].isFedValue = 100;
         }
+
         toadStats[msg.sender].lastFeedBlock = block.number;
+
+        grantXP(15);
     }
     function playToad(uint256 playValue) public {
         //maybe split into its own function? isFeedable() returns bool
@@ -243,7 +264,10 @@ contract Toadzgotchi {
         if (toadStats[msg.sender].isHappyValue > 100) {
             toadStats[msg.sender].isHappyValue = 100;
         }
+
         toadStats[msg.sender].lastPlayBlock = block.number;
+
+        grantXP(40);
     }
     function sleepToad(uint256 sleepValue) public {
         //maybe split into its own function? isFeedable() returns bool
@@ -265,6 +289,9 @@ contract Toadzgotchi {
         if (toadStats[msg.sender].isRestedValue > 100) {
             toadStats[msg.sender].isRestedValue = 100;
         }
+
         toadStats[msg.sender].lastSleepBlock = block.number;
+
+        grantXP(25);
     }
 }

@@ -25,6 +25,7 @@ interface ToadzgotchiInterface extends ethers.utils.Interface {
     "calcDecayPlay()": FunctionFragment;
     "calcDecaySleep()": FunctionFragment;
     "feedToad(uint256)": FunctionFragment;
+    "grantXP(uint256)": FunctionFragment;
     "isFeedable()": FunctionFragment;
     "isPlayable()": FunctionFragment;
     "isSleepable()": FunctionFragment;
@@ -53,6 +54,10 @@ interface ToadzgotchiInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "feedToad",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "grantXP",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -114,6 +119,7 @@ interface ToadzgotchiInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "feedToad", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "grantXP", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isFeedable", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isPlayable", data: BytesLike): Result;
   decodeFunctionResult(
@@ -203,6 +209,11 @@ export class Toadzgotchi extends BaseContract {
 
     feedToad(
       feedValue: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    grantXP(
+      giveXP: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -309,6 +320,11 @@ export class Toadzgotchi extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  grantXP(
+    giveXP: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   isFeedable(overrides?: CallOverrides): Promise<boolean>;
 
   isPlayable(overrides?: CallOverrides): Promise<boolean>;
@@ -406,6 +422,8 @@ export class Toadzgotchi extends BaseContract {
     calcDecaySleep(overrides?: CallOverrides): Promise<BigNumber>;
 
     feedToad(feedValue: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    grantXP(giveXP: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     isFeedable(overrides?: CallOverrides): Promise<boolean>;
 
@@ -506,6 +524,11 @@ export class Toadzgotchi extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    grantXP(
+      giveXP: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     isFeedable(overrides?: CallOverrides): Promise<BigNumber>;
 
     isPlayable(overrides?: CallOverrides): Promise<BigNumber>;
@@ -548,6 +571,11 @@ export class Toadzgotchi extends BaseContract {
 
     feedToad(
       feedValue: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    grantXP(
+      giveXP: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

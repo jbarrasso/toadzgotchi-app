@@ -5,6 +5,7 @@ type Props = {
     color: string;
     backgroundColor: string;
     margin: string;
+    width: string;
     padding: string;
     border: string;
     borderRadius: string;
@@ -12,13 +13,14 @@ type Props = {
     progressMaxValue: number;
 };
 
-const ProgressBar = ({ text, display, flex, color, backgroundColor,  margin, padding, border, borderRadius, progressValue, progressMaxValue }: Props) => {
+const ProgressBar = ({ text, display, flex, color, backgroundColor,  margin, width, padding, border, borderRadius, progressValue, progressMaxValue }: Props) => {
     return (
         <progress style={{color: color,
                      display: display,
                      flex: flex,
                      backgroundColor: backgroundColor,
                      margin: margin,
+                     width: width,
                      padding: padding,
                      border: border,
                      borderRadius: borderRadius }}

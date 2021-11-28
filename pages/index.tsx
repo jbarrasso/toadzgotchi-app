@@ -7,7 +7,7 @@ import ProgressBar from "../components/ProgressBar";
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 
-const toadzgotchiAddress = '0xF8e31cb472bc70500f08Cd84917E5A1912Ec8397'
+const toadzgotchiAddress = '0xaB7B4c595d3cE8C85e16DA86630f2fc223B05057'
 export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let address: string;
@@ -111,8 +111,7 @@ function Home() {
   const [isLoading, setIsLoading] = useState(true)
   const [isWalletConnected, setIsWalletConnected] = useState(false)
   const [isWeb3Injected, setIsWeb3Injected] = useState(false)
-
-
+  
   useEffect(() => {
     setIsLoading(true)
     console.log('Running useEffect checkweb3') //logs second
@@ -121,6 +120,8 @@ function Home() {
   }, [])
 
   const [isVibing, setIsVibing] = useState(false)
+  const [toadLevel, setToadLevel] = useState(1)
+  const [toadXP, setToadXP] = useState(0)
   const [isFed, setIsFed] = useState(() => { return 100 })
   const [isHappy, setIsHappy] = useState(() => { return 100 })
   const [isRested, setIsRested] = useState(() => { return 100 })
@@ -155,6 +156,8 @@ function Home() {
         setIsFed(await calcDecay(3))
         setIsHappy(await calcDecay(5))
         setIsRested(await calcDecay(7))
+        setToadXP(data[8].toNumber())
+        setToadLevel(data[9].toNumber())
         setIsLoading(false)
         console.log(`isVibing: ${data[0]}
         startVibingBlock: ${data[1].toNumber()}
@@ -294,8 +297,8 @@ function Home() {
 
           }
           img {
-            width: 100%;
-            height: 100%;
+            width: 125%;
+            height: 175%;
           }
           .uiText {
             position: absolute;
@@ -383,6 +386,7 @@ function Home() {
                     color='#332020'
                     backgroundColor='#b0a28d'
                     margin='10px'
+                    width=''
                     padding='0px'
                     border=' 2px solid #673c37'
                     borderRadius='0px'
@@ -410,6 +414,7 @@ function Home() {
                     color='#332020'
                     backgroundColor='#b0a28d'
                     margin='10px'
+                    width=''
                     padding='0px'
                     border=' 2px solid #673c37'
                     borderRadius='0px'
@@ -431,34 +436,52 @@ function Home() {
                     onClick={sleepToad}
                   />
                 <ProgressBar
-                    text='REST'
-                    display=''
-                    flex=''
-                    color='#332020'
-                    backgroundColor='#b0a28d'
-                    margin='10px'
-                    padding='0px'
-                    border=' 2px solid #673c37'
-                    borderRadius='0px'
-                    progressValue={isRested}
-                    progressMaxValue={100}
-                  />
+                  text='REST'
+                  display=''
+                  flex=''
+                  color='#332020'
+                  backgroundColor='#b0a28d'
+                  margin='10px'
+                  width=''
+                  padding='0px'
+                  border=' 2px solid #673c37'
+                  borderRadius='0px'
+                  progressValue={isRested}
+                  progressMaxValue={100}
+                />
                 </div>
               </section>)}
-              <button onClick={readToadStats}>Read Toad Stats</button>
+              {/* <button onClick={readToadStats}>Read Toad Stats</button> */}
               {!isVibing && (
               <Button
-                    text="START VIBIN'"
-                    display=''
-                    flex=''
-                    color='#332020'
-                    backgroundColor='#b0a28d'
-                    margin='10px'
-                    padding='0px'
-                    border=' 2px solid #673c37'
-                    borderRadius='0px'
-                    onClick={startVibing}
-                  />)}
+                text="START VIBIN'"
+                display=''
+                flex=''
+                color='#332020'
+                backgroundColor='#b0a28d'
+                margin='10px'
+                padding='0px'
+                border=' 2px solid #673c37'
+                borderRadius='0px'
+                onClick={startVibing}
+              />)}
+              <div className='toadLevelXP'>
+                <p> Lv. {toadLevel} </p>
+                <ProgressBar
+                  text='XP'
+                  display=''
+                  flex=''
+                  color='#332020'
+                  backgroundColor='#b0a28d'
+                  margin='10px'
+                  width='100%'
+                  padding='0px'
+                  border=' 2px solid #673c37'
+                  borderRadius='0px'
+                  progressValue={toadXP}
+                  progressMaxValue={100}
+                />
+              </div>
             </div>
           </div>
         </main>
