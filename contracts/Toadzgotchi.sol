@@ -2,17 +2,18 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract Toadzgotchi {
 
     struct ToadStats {
         bool isVibing;
         uint256 startVibingTime;
-        uint256 isFedValue;
+        int256 isFedValue;
         uint256 lastFeedBlock;
-        uint256 isHappyValue;
+        int256 isHappyValue;
         uint256 lastPlayBlock;
-        uint256 isRestedValue;
+        int256 isRestedValue;
         uint256 lastSleepBlock;
         uint256 toadXP;
         uint256 toadLevel;
@@ -43,7 +44,8 @@ contract Toadzgotchi {
     }
     function grantXP(uint256 giveXP) public {
         uint256 leftoverXP = 0;
-        toadStats[msg.sender].toadXP = toadStats[msg.sender].toadXP + giveXP;
+        uint256 xpPenalty = giveXP / toadStats[msg.sender].toadLevel;
+        toadStats[msg.sender].toadXP = toadStats[msg.sender].toadXP + xpPenalty;
 
         if (toadStats[msg.sender].toadXP >= 100) {
             if (toadStats[msg.sender].toadXP > 100) {
@@ -53,13 +55,13 @@ contract Toadzgotchi {
             toadStats[msg.sender].toadXP = 0 + leftoverXP;
         }
     }
-    function readToadHunger() public view returns (uint256) {
+    function readToadHunger() public view returns (int256) {
         return toadStats[msg.sender].isFedValue;
     }
-    function readToadPlay() public view returns (uint256) {
+    function readToadPlay() public view returns (int256) {
         return toadStats[msg.sender].isHappyValue;
     }
-    function readToadSleep() public view returns (uint256) {
+    function readToadSleep() public view returns (int256) {
         return toadStats[msg.sender].isRestedValue;
     }
     function readToadStats() public view returns (ToadStats memory) {
@@ -68,12 +70,13 @@ contract Toadzgotchi {
     function returnMsgSender() public view returns (address) {
         return msg.sender;
     }
-    function calcDecayFeed() public view returns (uint256) {
+    function calcDecayFeed() public view returns (int256) {
         //1 Eth block every 15s
         //hoursElapsed = (block.number - lastFeedTime * 15)/360
         //decay rate = 2 pts per 1 hr (50hrs to drain from 100 to 0)
         //decayFed = (2 * hoursElapsed)"?
 
+        int256 decayBy;
         uint256 timeElapsed = block.number - toadStats[msg.sender].lastFeedBlock;
 
         // uint256 timeElapsed; 
@@ -88,35 +91,41 @@ contract Toadzgotchi {
         // }
 
         if (timeElapsed <= 1) {
-            return 0;
+            decayBy = 0;
         } else if (timeElapsed >= 2 && timeElapsed <= 4) {
-            return 10;
+            decayBy = 10;
         } else if (timeElapsed >= 5 && timeElapsed <= 7) {
-            return 20;
+            decayBy = 20;
         } else if (timeElapsed >= 8 && timeElapsed <= 10) {
-            return 30;
+            decayBy = 30;
         } else if (timeElapsed >= 11 && timeElapsed <= 13) {
-            return 40;
+            decayBy = 40;
         } else if (timeElapsed >= 14 && timeElapsed <= 16) {
-            return 50;
+            decayBy = 50;
         } else if (timeElapsed >= 17 && timeElapsed <= 19) {
-            return 60;
+            decayBy = 60;
         } else if (timeElapsed >= 20 && timeElapsed <= 22) {
-            return 70;
+            decayBy = 70;
         } else if (timeElapsed >= 23 && timeElapsed <= 25) {
-            return 80;
+            decayBy = 80;
         } else if (timeElapsed >= 26 && timeElapsed <= 28) {
-            return 90;
+            decayBy = 90;
         } else {
-            return 110;
+            decayBy = 110;
         }
+        int256 decayedFeed = toadStats[msg.sender].isFedValue - decayBy;
+         if (decayedFeed < 0) {
+            decayedFeed = 0;
+        }
+        return decayedFeed;
     }
-    function calcDecayPlay() public view returns (uint256) {
+    function calcDecayPlay() public view returns (int256) {
         //1 Eth block every 15s
         //hoursElapsed = (block.number - lastFeedTime * 15)/360
         //decay rate = 2 pts per 1 hr (50hrs to drain from 100 to 0)
         //decayFed = (2 * hoursElapsed)"?
 
+        int256 decayBy;
         uint256 timeElapsed = block.number - toadStats[msg.sender].lastPlayBlock;
 
         // uint256 timeElapsed; 
@@ -131,35 +140,41 @@ contract Toadzgotchi {
         // }
 
         if (timeElapsed <= 1) {
-            return 0;
+            decayBy = 0;
         } else if (timeElapsed >= 2 && timeElapsed <= 4) {
-            return 10;
+            decayBy = 10;
         } else if (timeElapsed >= 5 && timeElapsed <= 7) {
-            return 20;
+            decayBy = 20;
         } else if (timeElapsed >= 8 && timeElapsed <= 10) {
-            return 30;
+            decayBy = 30;
         } else if (timeElapsed >= 11 && timeElapsed <= 13) {
-            return 40;
+            decayBy = 40;
         } else if (timeElapsed >= 14 && timeElapsed <= 16) {
-            return 50;
+            decayBy = 50;
         } else if (timeElapsed >= 17 && timeElapsed <= 19) {
-            return 60;
+            decayBy = 60;
         } else if (timeElapsed >= 20 && timeElapsed <= 22) {
-            return 70;
+            decayBy = 70;
         } else if (timeElapsed >= 23 && timeElapsed <= 25) {
-            return 80;
+            decayBy = 80;
         } else if (timeElapsed >= 26 && timeElapsed <= 28) {
-            return 90;
+            decayBy = 90;
         } else {
-            return 110;
+            decayBy = 110;
         }
+        int256 decayedPlay = toadStats[msg.sender].isHappyValue - decayBy;
+         if (decayedPlay < 0) {
+            decayedPlay = 0;
+        }
+        return decayedPlay;
     }
-    function calcDecaySleep() public view returns (uint256) {
+    function calcDecaySleep() public view returns (int256) {
         //1 Eth block every 15s
         //hoursElapsed = (block.number - lastFeedTime * 15)/360
         //decay rate = 2 pts per 1 hr (50hrs to drain from 100 to 0)
         //decayFed = (2 * hoursElapsed)"?
 
+        int256 decayBy;
         uint256 timeElapsed = block.number - toadStats[msg.sender].lastSleepBlock;
 
         // uint256 timeElapsed; 
@@ -174,67 +189,60 @@ contract Toadzgotchi {
         // }
 
         if (timeElapsed <= 1) {
-            return 0;
+            decayBy = 0;
         } else if (timeElapsed >= 2 && timeElapsed <= 4) {
-            return 10;
+            decayBy = 10;
         } else if (timeElapsed >= 5 && timeElapsed <= 7) {
-            return 20;
+            decayBy = 20;
         } else if (timeElapsed >= 8 && timeElapsed <= 10) {
-            return 30;
+            decayBy = 30;
         } else if (timeElapsed >= 11 && timeElapsed <= 13) {
-            return 40;
+            decayBy = 40;
         } else if (timeElapsed >= 14 && timeElapsed <= 16) {
-            return 50;
+            decayBy = 50;
         } else if (timeElapsed >= 17 && timeElapsed <= 19) {
-            return 60;
+            decayBy = 60;
         } else if (timeElapsed >= 20 && timeElapsed <= 22) {
-            return 70;
+            decayBy = 70;
         } else if (timeElapsed >= 23 && timeElapsed <= 25) {
-            return 80;
+            decayBy = 80;
         } else if (timeElapsed >= 26 && timeElapsed <= 28) {
-            return 90;
+            decayBy = 90;
         } else {
-            return 110;
+            decayBy = 110;
         }
+        int256 decayedSleep = toadStats[msg.sender].isRestedValue - decayBy;
+        if (decayedSleep < 0) {
+            decayedSleep = 0;
+        }
+        return decayedSleep;
     }
     function isFeedable() public view returns (bool) {
         require(toadStats[msg.sender].isDead == false, "Toad is dead");
-        if (toadStats[msg.sender].isFedValue == 100) {
-            require(calcDecayFeed() > 0, "Toad is full, cannot feed");
-        }
+        require(calcDecayFeed() < 100, "Toad is full");
         return true;
     }
     function isPlayable() public view returns (bool) {
         require(toadStats[msg.sender].isRestedValue >= 30, "Toad cannot play while sleepy");
         require(toadStats[msg.sender].isDead == false, "Toad is dead");
-        if (toadStats[msg.sender].isHappyValue == 100) {
-            require(calcDecayPlay() > 0, "Toad fully played, cannot play");
-        }
+        require(calcDecayPlay() < 100, "Toad is fully played");
         return true;
     }
     function isSleepable() public view returns (bool) {
+        //handle when state is 10 but contract says 20 (use calcDecayFeed)
         require(toadStats[msg.sender].isFedValue >= 20, "Toad cannot sleep while starving");
         require(toadStats[msg.sender].isDead == false, "Toad is dead");
-        if (toadStats[msg.sender].isRestedValue == 100) {
-            require(calcDecaySleep() > 0, "Toad is full, cannot feed");
-        }
+        require(calcDecaySleep() < 100, "Toad is fully rested");
         return true;
     }
-    function feedToad(uint256 feedValue) public {
+    function feedToad(int256 feedValue) public {
         require(isFeedable(), "Toad is not feedable");
 
-        uint256 decayBy = calcDecayFeed();
-        uint256 decayedFed = toadStats[msg.sender].isFedValue - decayBy;
-    
-        console.log("Time since last feed: '%s' blocks. decaying by '%s'", (block.number - toadStats[msg.sender].lastFeedBlock), decayBy);
-        console.log("Adding '%s' to isFedValue", feedValue);
+        //console.log("Time since last feed: '%s' blocks. decaying by '%s'", (block.number - toadStats[msg.sender].lastFeedBlock), decayBy);
+        //console.log("Adding '%s' to isFedValue", feedValue);
 
-        if (decayedFed < 0) {
-            decayedFed = 0;
-        }
-
-        toadStats[msg.sender].isFedValue = decayedFed;
-        toadStats[msg.sender].isFedValue = toadStats[msg.sender].isFedValue + feedValue;
+        toadStats[msg.sender].isFedValue = calcDecayFeed();
+        toadStats[msg.sender].isFedValue = (toadStats[msg.sender].isFedValue + feedValue);
 
         if (toadStats[msg.sender].isFedValue > 100) {
             toadStats[msg.sender].isFedValue = 100;
@@ -242,23 +250,16 @@ contract Toadzgotchi {
 
         toadStats[msg.sender].lastFeedBlock = block.number;
 
-        grantXP(15);
+        grantXP(30);
     }
-    function playToad(uint256 playValue) public {
+    function playToad(int256 playValue) public {
         //maybe split into its own function? isFeedable() returns bool
         require(isPlayable(), "Toad is not playable");
 
-        uint256 decayBy = calcDecayPlay();
-        uint256 decayedPlay = toadStats[msg.sender].isHappyValue - decayBy;
-    
-        console.log("Time since last feed: '%s' blocks. decaying by '%s'", (block.number - toadStats[msg.sender].lastPlayBlock), decayBy);
-        console.log("Adding '%s' to isFedValue", playValue);
+        //console.log("Time since last feed: '%s' blocks. decaying by '%s'", (block.number - toadStats[msg.sender].lastPlayBlock), decayBy);
+        //console.log("Adding '%s' to isFedValue", playValue);
 
-        if (decayedPlay < 0) {
-            decayedPlay = 0;
-        }
-
-        toadStats[msg.sender].isHappyValue = decayedPlay;
+        toadStats[msg.sender].isHappyValue = calcDecayPlay();
         toadStats[msg.sender].isHappyValue = toadStats[msg.sender].isHappyValue + playValue;
 
         if (toadStats[msg.sender].isHappyValue > 100) {
@@ -267,23 +268,16 @@ contract Toadzgotchi {
 
         toadStats[msg.sender].lastPlayBlock = block.number;
 
-        grantXP(40);
+        grantXP(70);
     }
-    function sleepToad(uint256 sleepValue) public {
+    function sleepToad(int256 sleepValue) public {
         //maybe split into its own function? isFeedable() returns bool
         require(isSleepable(), "Toad is not sleepable");
-
-        uint256 decayBy = calcDecaySleep();
-        uint256 decayedSleep = toadStats[msg.sender].isRestedValue - decayBy;
     
-        console.log("Time since last feed: '%s' blocks. decaying by '%s'", (block.number - toadStats[msg.sender].lastSleepBlock), decayBy);
-        console.log("Adding '%s' to isFedValue", sleepValue);
+        //console.log("Time since last feed: '%s' blocks. decaying by '%s'", (block.number - toadStats[msg.sender].lastSleepBlock), decayBy);
+        //console.log("Adding '%s' to isFedValue", sleepValue);
 
-        if (decayedSleep < 0) {
-            decayedSleep = 0;
-        }
-
-        toadStats[msg.sender].isRestedValue = decayedSleep;
+        toadStats[msg.sender].isRestedValue = calcDecaySleep();
         toadStats[msg.sender].isRestedValue = toadStats[msg.sender].isRestedValue + sleepValue;
 
         if (toadStats[msg.sender].isRestedValue > 100) {
@@ -292,6 +286,6 @@ contract Toadzgotchi {
 
         toadStats[msg.sender].lastSleepBlock = block.number;
 
-        grantXP(25);
+        grantXP(50);
     }
 }

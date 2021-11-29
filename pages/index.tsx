@@ -3,11 +3,12 @@ import Head from "next/head";
 import Image from "next/image";
 import Button from "../components/Button";
 import Account from "../components/Account";
+import { PopupButton } from '@typeform/embed-react'
 import ProgressBar from "../components/ProgressBar";
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 
-const toadzgotchiAddress = '0xaB7B4c595d3cE8C85e16DA86630f2fc223B05057'
+const toadzgotchiAddress = '0x2b5A4e5493d4a54E717057B127cf0C000C876f9B'
 export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let address: string;
@@ -276,10 +277,10 @@ function Home() {
 
           main {
             font-family: Pixeled;
-
           }
 
           nav {
+            font-family: Pixeled;
             height:5%;
             display: flex;
             justify-content: flex-end;
@@ -354,6 +355,9 @@ function Home() {
               borderRadius='10px'
               fontFamily='Pixeled'
             />
+            <PopupButton id='pxed2IPk' className='feedbackButton'>
+              Feedback
+            </PopupButton>
           </nav>
         </header>
 
@@ -465,6 +469,7 @@ function Home() {
                 borderRadius='0px'
                 onClick={startVibing}
               />)}
+              {isVibing && (
               <div className='toadLevelXP'>
                 <p> Lv. {toadLevel} </p>
                 <ProgressBar
@@ -481,7 +486,7 @@ function Home() {
                   progressValue={toadXP}
                   progressMaxValue={100}
                 />
-              </div>
+              </div>)}
             </div>
           </div>
         </main>
