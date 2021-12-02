@@ -332,7 +332,7 @@ function Home() {
         <div className='bgWrap'>
           <Image
             alt='Swamp'
-            src='/img/ToadzBG-Sample2.png'
+            src='/img/ToadzgotchiBG.gif'
             layout='fill'
             objectFit='fill'
             quality={100}
@@ -355,8 +355,15 @@ function Home() {
               borderRadius='10px'
               fontFamily='Pixeled'
             />
-            <PopupButton id='pxed2IPk' className='feedbackButton'>
-              Feedback
+            <PopupButton id='pxed2IPk' 
+              style={{ fontFamily: 'Pixeled', 
+              color: '#332020',
+              backgroundColor: '#b0a28d',
+              border: ' 2px solid #673c37'    }}
+              className='feedbackButton'
+              size={75}
+              hideHeaders={true}>
+              FEEDBACK
             </PopupButton>
           </nav>
         </header>
