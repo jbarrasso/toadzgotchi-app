@@ -1,6 +1,6 @@
 import useENSName from "../hooks/useENSName";
 import { formatEtherscanLink, shortenHex } from "../util";
-import { address, requestAccount } from "../pages/index"
+import { account, requestAccount } from "../pages/index"
 
 type Props = {
   isWalletConnected: boolean;
@@ -12,32 +12,30 @@ type Props = {
 };
 
 const Account = ({isWalletConnected, isWeb3Injected, color, padding, borderRadius, fontFamily }: Props) => {
-  const ENSName = useENSName(address);
+  const ENSName = useENSName(account);
 
   if (!isWeb3Injected) {
-    return (
-      <a {...{
+    return null;
+    (<a {...{
         href: 'https://metamask.io/download',
         target: "_blank",
         rel: "noopener noreferrer",
         }}>
         INSTALL METAMASK
-      </a>
-    );  
+    </a>);  
   } else if (!isWalletConnected) {
-    return (
-      <button onClick={() => { requestAccount() }}>
+    return null;
+    ( <button onClick={() => { requestAccount() }}>
         CONNECT METAMASK
-      </button>
-    );
+      </button>);
   } else {
     return (
       <a {...{
-        href: formatEtherscanLink("Account", [1337, address]),
+        href: formatEtherscanLink("Account", [1337, account]),
         target: "_blank",
         rel: "noopener noreferrer",
         }}>
-        {ENSName || `${shortenHex(address, 4)}`}
+        {ENSName || `${shortenHex(account, 4)}`}
       </a>
     );
   }

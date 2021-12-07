@@ -1,17 +1,20 @@
 import Toadzgotchi from '../artifacts/contracts/Toadzgotchi.sol/Toadzgotchi.json'
-import Head from "next/head";
-import Image from "next/image";
-import Button from "../components/Button";
-import Account from "../components/Account";
+import ToadzgotchiPets from '../artifacts/contracts/ToadzgotchiPets.sol/ToadzgotchiPets.json'
+import Head from "next/head"
+import Image from "next/image"
+import Button from "../components/Button"
+import Account from "../components/Account"
+import Modal from "../components/Modal"
 import { PopupButton } from '@typeform/embed-react'
-import ProgressBar from "../components/ProgressBar";
+import ProgressBar from '../components/ProgressBar'
 import { useState, useEffect } from 'react'
-import { ethers } from 'ethers'
+import { Contract, ethers } from 'ethers'
 
-const toadzgotchiAddress = '0x2b5A4e5493d4a54E717057B127cf0C000C876f9B'
+const toadzgotchiAddress = '0xC1e0A9DB9eA830c52603798481045688c8AE99C2'
+const toadzgotchiPetsAddress = '0xcC4c41415fc68B2fBf70102742A83cDe435e0Ca7'
 export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
-export let address: string;
+export let account: string;
 
 //Anonymous function expression to return a global object of Ethereum injection.
 //provider, signer, address returns undefined unless called inside functions
@@ -31,8 +34,8 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
       provider=tryProvider
       const trySigner = tryProvider.getSigner()
       signer = trySigner
-      const tryAddress = await trySigner.getAddress()
-      address = tryAddress
+      const tryAccount = await trySigner.getAddress()
+      account = tryAccount
       setIsWalletConnected(true) //re-renders page
       console.log('Wallect is connected') //logs seventh
     } catch (err) {
@@ -48,13 +51,15 @@ export const handleAccountsChanged = async(setIsWalletConnected) => {
       //if n>2, when disconnecting from n to n-1 accounts, the last connected acc
       //before the nth will be = to accounts[0]
       if (accounts.length > 0){
-        address = accounts[0]
-        //setIsWalletConnected(false) quick n dirty way to re-render Account when toggling between wallets
+        account = accounts[0]
+        setIsWalletConnected(false) //quick n dirty way to re-render Account when toggling between wallets
         setIsWalletConnected(true)
+        console.log('wallet accounts changed')
       } else {
+        //setIsVibing(false)
         setIsWalletConnected(false)
+        console.log('wallet disconnected')
       }
-      window.location.reload() //allows wallet to update as toggling between wallets doesn't affect state
     });
   }
 }
@@ -112,14 +117,17 @@ function Home() {
   const [isLoading, setIsLoading] = useState(true)
   const [isWalletConnected, setIsWalletConnected] = useState(false)
   const [isWeb3Injected, setIsWeb3Injected] = useState(false)
+  const [showModal, setShowModal] = useState(false);
   
   useEffect(() => {
     setIsLoading(true)
     console.log('Running useEffect checkweb3') //logs second
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading)
     handleAccountsChanged(setIsWalletConnected)
+    //checkOwnsToadzgotchis(setOwnsToadzgotchis)
   }, [])
 
+  const [ownsToadzgotchis, setOwnsToadzgotchis] = useState(false)
   const [isVibing, setIsVibing] = useState(false)
   const [toadLevel, setToadLevel] = useState(1)
   const [toadXP, setToadXP] = useState(0)
@@ -130,9 +138,13 @@ function Home() {
   const [playValue, setPlay] = useState(() => { return 10 })
   const [sleepValue, setSleep] = useState(() => { return 10 })
 
+  //runs no matter what on page hard reload
   useEffect(() => {
+    console.log('running useEffect 2nd') //logs fourth
+    checkOwnsToadzgotchis(setOwnsToadzgotchis) //doesnt set to true until after fully loaded
+    console.log(`owns toads? ${ownsToadzgotchis}`) //logs fifth
     readToadStats()
-  }, [isFed, isHappy, isRested, address])
+  }, [isFed, isHappy, isRested, account])
 
   function updateIsFed() {
     setIsFed(prevIsFed => prevIsFed + feedValue)
@@ -146,38 +158,51 @@ function Home() {
     setIsRested(prevIsRested => prevIsRested + sleepValue)
     //isRested updates only when top parent function is done running
   } 
-
+  async function checkOwnsToadzgotchis(setOwnsToadzgotchis) {
+    if (ethereum()) {
+      const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+      if (await contract.ownsToadzgotchis()){
+        setOwnsToadzgotchis(true)
+      } 
+    }
+  }
+  
   async function readToadStats() {
     if (ethereum()) {
-      console.log('running useEffect readtoadstats') //logs fourth
-      try {
-        const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-        const data = await contract.readToadStats()
-        setIsVibing(data[0])
-        setIsFed(await calcDecay(3))
-        setIsHappy(await calcDecay(5))
-        setIsRested(await calcDecay(7))
-        setToadXP(data[8].toNumber())
-        setToadLevel(data[9].toNumber())
-        setIsLoading(false)
-        console.log(`isVibing: ${data[0]}
-        startVibingBlock: ${data[1].toNumber()}
-        isFed: ${data[2].toNumber()}
-        lastFeedBlock: ${data[3].toNumber()}
-        isHappy: ${data[4].toNumber()}
-        lastPlayBlock: ${data[5].toNumber()}
-        isRested: ${data[6].toNumber()}
-        lastSleepBlock: ${data[7].toNumber()}
-        toadXP: ${data[8].toNumber()}
-        toadLevel: ${data[9].toNumber()}
-        isDead: ${data[10]}`)
-        console.log(`just completed block number: ${await provider.getBlockNumber()}`)
-        return (data)
-      } catch (err) {
-        console.log('Cannot read toad stats', err)
+      console.log('running readtoadstats') //logs sixth
+      console.log(`owns toads RTD ${ownsToadzgotchis}`)
+      if (ownsToadzgotchis) {
+        try {
+          const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+          const data = await contract.fetchAToad(0)
+          console.log(data[1].toNumber())
+          // setIsVibing(data[0])
+          // setIsFed(await calcDecay(3))
+          // setIsHappy(await calcDecay(5))
+          // setIsRested(await calcDecay(7))
+          // setToadXP(data[8].toNumber())
+          // setToadLevel(data[9].toNumber())
+          // setIsLoading(false)
+          // console.log(`isVibing: ${data[0]}
+          // startVibingBlock: ${data[1].toNumber()}
+          // isFed: ${data[2].toNumber()}
+          // lastFeedBlock: ${data[3].toNumber()}
+          // isHappy: ${data[4].toNumber()}
+          // lastPlayBlock: ${data[5].toNumber()}
+          // isRested: ${data[6].toNumber()}
+          // lastSleepBlock: ${data[7].toNumber()}
+          // toadXP: ${data[8].toNumber()}
+          // toadLevel: ${data[9].toNumber()}
+          // isDead: ${data[10]}`)
+          // console.log(`just completed block number: ${await provider.getBlockNumber()}`)
+          // return (data)
+        } catch (err) {
+          console.log('Cannot read toad stats', err)
+        }
       }
     }
   }
+
   // async function readToadStats() {
   //   if (ethereum()) {
   //     const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
@@ -209,6 +234,7 @@ function Home() {
   //     }
   //   }    
   // }
+
   async function startVibing() {
     if (isVibing) {
       return
@@ -258,77 +284,52 @@ function Home() {
       updateIsRested()
     }
   }
+  //dont put these on web page, call on etherscan only
+  async function tryMint() {
+    if (isWalletConnected) {
+      const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
+
+      const transaction = await contract.tryMint([1,2,3], { value: ethers.utils.parseEther("0.15") })
+      //await transaction.wait()
+    } 
+  }
+  async function tryFlipMint() {
+    if (isWalletConnected) {
+      const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
+      const transaction = await contract.flipMintState()
+      await transaction.wait()
+    } 
+  }
+  async function tryFlipPrivateSale() {
+    if (isWalletConnected) {
+      const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
+      const transaction = await contract.flipPrivateSale()
+      await transaction.wait()
+    } 
+  }
+  async function toadzgotchisOwned() {
+    if (isWalletConnected) {
+      const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
+      const owned = await contract.toadzgotchisOwned(account)
+      //const transactions = await contract.balanceOf('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
+      //const acc = await contract.ownerOf(4368)
+      console.log(owned)
+    } 
+  }
+  async function tryTransfer() {
+    if (isWalletConnected) {
+      const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
+      const transaction = await contract["safeTransferFrom(address,address,uint256)"]('0x70997970C51812dc3A010C7d01b50e0d17dc79C8','0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 4368)
+      await transaction.wait()
+    } 
+  }
 
   return (
     <div>
-      <style jsx>{`
-          header {
-            font-family: Pixeled;
-            text-align: center;
-          }
-
-          .bgWrap {
-            position: fixed;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            z-index: -1;
-          }
-
-          main {
-            font-family: Pixeled;
-          }
-
-          nav {
-            font-family: Pixeled;
-            height:5%;
-            display: flex;
-            justify-content: flex-end;
-            padding: 10px;
-          }
-          
-          .uiContainer{
-            display: flex;
-            align-content:center;
-            justify-content:center;
-            align-items:center;
-            height:30vh;
-            width:30vw;
-            margin-left:10%;
-
-          }
-          img {
-            width: 125%;
-            height: 175%;
-          }
-          .uiText {
-            position: absolute;
-            text-align: center;
-            font-size: 2vh;
-          }
-          
-          .feedSection {
-            display:inline-block;
-          }
-          .playSection {
-            display:inline-block;
-          }
-          .sleepSection {
-            display:inline-block;
-          }
-
-          section {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: center;
-            font-size: 1.5vh;
-          }
-      `}</style>
       {/* logs first, then fifth & sixth*/}
-      {isLoading ? (<div>Loading{console.log(isLoading)}</div>) :
+      {!isLoading ? (<div>Loading{console.log(`isLoading? ${isLoading}`)}</div>) :
       (<div>
-        {console.log(isLoading)}
+        {console.log(`isLoading? ${isLoading}`)}
         <div className='bgWrap'>
           <Image
             alt='Swamp'
@@ -346,7 +347,25 @@ function Home() {
 
         <header>
           <nav>
-            {/* add fider feedback button */}
+            <Modal
+              show={showModal}
+              ownsToadzgotchis={ownsToadzgotchis}
+              onClose={() => {setShowModal(false)}}>
+                Hello!
+            </Modal>
+            {isWalletConnected &&
+            (<Button
+              text='MY TOADZ'
+              display=''
+              flex=''
+              color='#332020'
+              backgroundColor='#b0a28d'
+              margin='10px'
+              padding='10px'
+              border=' 2px solid #673c37'
+              borderRadius='0px'
+              onClick={() => setShowModal(true)}
+            />)}
             <Account
               isWalletConnected={isWalletConnected}
               isWeb3Injected={isWeb3Injected}
@@ -355,16 +374,21 @@ function Home() {
               borderRadius='10px'
               fontFamily='Pixeled'
             />
-            <PopupButton id='pxed2IPk' 
-              style={{ fontFamily: 'Pixeled', 
+            (<PopupButton id='pxed2IPk' 
+              style={{fontFamily: 'Pixeled', 
               color: '#332020',
               backgroundColor: '#b0a28d',
-              border: ' 2px solid #673c37'    }}
+              border: ' 2px solid #673c37'}}
               className='feedbackButton'
               size={75}
               hideHeaders={true}>
               FEEDBACK
             </PopupButton>
+            <button onClick={tryMint}>try mint</button>
+            <button onClick={tryFlipMint}>try flip mint</button>
+            <button onClick={tryFlipPrivateSale}>try flip private sale</button>
+            <button onClick={toadzgotchisOwned}>toadzgotchisOwned</button>
+            <button onClick={tryTransfer}>try transfer</button>
           </nav>
         </header>
 
@@ -375,7 +399,8 @@ function Home() {
               <h1>
                 TOADZGOTCHI
               </h1>
-              {isVibing &&
+              <div id="modal-root"></div>
+              {(isVibing && isWalletConnected) &&
               (<section className='playerActions'>
                 <div className='feedDiv'>
                   <Button
@@ -462,10 +487,10 @@ function Home() {
                 />
                 </div>
               </section>)}
-              {/* <button onClick={readToadStats}>Read Toad Stats</button> */}
-              {!isVibing && (
+              <button onClick={readToadStats}>Read Toad Stats</button>
+              {(!isVibing || !isWalletConnected) && (
               <Button
-                text="START VIBIN'"
+                text={ !isWeb3Injected ? ("INSTALL METAMASK") : (!isWalletConnected ? ("CONNECT METAMASK") : ("START VIBIN'")) }
                 display=''
                 flex=''
                 color='#332020'
@@ -474,9 +499,9 @@ function Home() {
                 padding='0px'
                 border=' 2px solid #673c37'
                 borderRadius='0px'
-                onClick={startVibing}
+                onClick={!isWeb3Injected ? (() => {window.open('https://metamask.io/download','_blank')}) : (!isWalletConnected ? requestAccount : startVibing)}
               />)}
-              {isVibing && (
+              {(isVibing && isWalletConnected) && (
               <div className='toadLevelXP'>
                 <p> Lv. {toadLevel} </p>
                 <ProgressBar
@@ -499,6 +524,70 @@ function Home() {
         </main>
         {console.log('done running html')}
       </div>)}
+      <style jsx>{`
+          header {
+            font-family: Pixeled;
+            text-align: center;
+          }
+
+          .bgWrap {
+            position: fixed;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            z-index: -1;
+          }
+
+          main {
+            font-family: Pixeled;
+          }
+
+          nav {
+            font-family: Pixeled;
+            height:5%;
+            display: flex;
+            justify-content: flex-end;
+            padding: 10px;
+          }
+          
+          .uiContainer{
+            display: flex;
+            align-content:center;
+            justify-content:center;
+            align-items:center;
+            height:30vh;
+            width:30vw;
+            margin-left:10%;
+
+          }
+          img {
+            width: 125%;
+            height: 175%;
+          }
+          .uiText {
+            position: absolute;
+            text-align: center;
+            font-size: 2vh;
+          }
+          
+          .feedSection {
+            display:inline-block;
+          }
+          .playSection {
+            display:inline-block;
+          }
+          .sleepSection {
+            display:inline-block;
+          }
+
+          section {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            font-size: 1.5vh;
+          }
+      `}</style>
     </div>
   );
 }

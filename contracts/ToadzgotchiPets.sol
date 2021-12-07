@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.0;
 
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/presets/ERC721PresetMinterPauserAutoId.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
@@ -1636,11 +1637,11 @@ interface Toadz {
     function ownerOf(uint256 tokenId) external view returns (address owner);
 }
 
-abstract contract ToadzgotchiPets is ERC721PresetMinterPauserAutoId, Ownable {
+contract ToadzgotchiPets is ERC721PresetMinterPauserAutoId, Ownable {
     using Strings for string;
 
     bool public _isMintingAllowed = false;
-    bool public _onlyToadz = true;
+    bool public _toadzOnly = true;
     uint256 public _mintPrice = 50000000000000000;
     uint256 public _maxSupply = 6969;
     address _proxyRegistryAddress = 0xa5409ec958C83C3f309868babACA7c86DCB077c1;
@@ -1653,111 +1654,62 @@ abstract contract ToadzgotchiPets is ERC721PresetMinterPauserAutoId, Ownable {
     event Minted(address indexed account, uint256 toadId);
     event Received(address indexed account, uint256 value);
 
-    constructor() ERC721("ToadzgotchiPets", "TOADZGOTCHI") {}
+    constructor() ERC721PresetMinterPauserAutoId("ToadzgotchiPets", "TOADZGOTCHI", "") {}
 
-    function mint(uint256 toadId) public payable /*nonReentrant*/ {
+    // function mint(uint256 toadId) public payable /*nonReentrant*/ {
+    //     require(_isMintingAllowed, "Minting is not allowed");
+    //     require(totalSupply() < _maxSupply, "All Toadzgotchi claimed");
+    //     require(toadId > 0, "Please enter valid toadId");
+    //     require(toadId <= _maxSupply, "Please enter valid toadId");
+    //     require(msg.value >= _mintPrice, "Insufficient ETH amount");
+
+    //     if (_toadzOnly) {
+    //         require(toadzContract.ownerOf(toadId) == msg.sender, "Not Your Toad");
+    //     }
+    //     require(!_exists(toadId), "Choad already minted");
+
+    //     _safeMint(_msgSender(), toadId);
+    //     emit Minted(_msgSender(), toadId);
+    // }
+
+    function tryMint(uint256[] memory toadIds) public payable {
         require(_isMintingAllowed, "Minting is not allowed");
         require(totalSupply() < _maxSupply, "All Toadzgotchi claimed");
-        require(toadId > 0, "Please enter valid toadId");
-        require(toadId <= _maxSupply, "Please enter valid toadId");
-        require(msg.value >= _mintPrice, "Insufficient ETH amount");
-
-        if (_onlyToadz) {
-            require(toadzContract.ownerOf(toadId) == msg.sender, "Not Your Toad");
-        }
-        require(!_exists(toadId), "Choad already minted");
-
-        _safeMint(_msgSender(), toadId);
-        emit Minted(_msgSender(), toadId);
-    }
-
-    function mintMultiple(uint256[] memory toadIds) public payable /*nonReentrant*/ {
-        require(_isMintingAllowed, "Minting is not allowed");
-        require(totalSupply() < _maxSupply, "All Toadzgotchi claimed");
-        require((msg.value >= _mintPrice * toadIds.length), "Insufficient ETH amount");
+        require((msg.value == _mintPrice * toadIds.length), "Insufficient ETH amount");
 
         for (uint256 i = 0; i < toadIds.length; i++) {
+            if (_toadzOnly) {
+                require(toadzContract.ownerOf(toadIds[i]) == msg.sender, "Not your toad");
+            }
             require(toadIds[i] > 0, "Please enter valid toadId");
             require(toadIds[i] <= _maxSupply, "Please enter valid toadId");
-            if (_onlyToadz) {
-                require(
-                    toadzContract.ownerOf(toadIds[i]) == msg.sender,
-                    "Not Your Toad"
-                );
-            }
             require(!_exists(toadIds[i]), "Toadzgotchi already claimed");
             _safeMint(_msgSender(), toadIds[i]);
             emit Minted(_msgSender(), toadIds[i]);
         }
     }
 
-    //
-        // function mintSpecial(uint256 toadId) public payable /*nonReentrant*/ {
-        //     require(_isMintingAllowed, "Minting Not Allowed");
-        //     require(ineligibleToadz[toadId], "Not A Special Toad");
-        //     require(_mintPrice <= msg.value, "Minimum ETH Not Met");
-        //     if (_onlyToadz) {
-        //         require(
-        //             toadzContract.ownerOf(toadId) == msg.sender,
-        //             "Not Your Toad"
-        //         );
-        //     }
-        //     require(!_exists(toadId), "Choad already minted");
-
-        //     _safeMint(_msgSender(), toadId);
-        //     emit Minted(_msgSender(), toadId);
-        // }
-        // function _addSpecialToad(uint256 toadId) internal returns (bool success) {
-        //     if (!ineligibleToadz[toadId]) {
-        //         ineligibleToadz[toadId] = true;
-        //         return success = true;
-        //     }
-        // }
-
-        // function addSpecialToadz(uint256[] memory toadIds) public onlyOwner returns (bool success) {
-        //     for (uint256 i = 0; i < toadIds.length; i++) {
-        //         if (_addSpecialToad(toadIds[i])) {
-        //             success = true;
-        //         }
-        //     }
-        // }
-
-        // function _removeSpecialToad(uint256 toadId) internal returns (bool success) {
-        //     if (ineligibleToadz[toadId]) {
-        //         ineligibleToadz[toadId] = false;
-        //         success = true;
-        //     }
-        // }
-
-        // function removeSpecialToadz(uint256[] memory toadIds) public onlyOwner returns (bool success) {
-        //     for (uint256 i = 0; i < toadIds.length; i++) {
-        //         if (_removeSpecialToad(toadIds[i])) {
-        //             success = true;
-        //         }
-        //     }
-        // }
-    //
-
     receive() external payable {
         emit Received(_msgSender(), msg.value);
     }
 
     function reserve(uint256 toadzgotchi) public onlyOwner {
-        require(!_exists(toadzgotchi), "Choad already minted");
+        require(!_exists(toadzgotchi), "Toadzgotchi already minted");
         _safeMint(_msgSender(), toadzgotchi);
         emit Minted(_msgSender(), toadzgotchi);
     }
-    
-    function ownersToadzgotchi(address _owner) external view returns (uint256[] memory) {
-        uint256 toadzgotchi = balanceOf(_owner);
-        if (toadzgotchi == 0) {
+
+    function toadzgotchisOwned(address _owner) external view returns (uint256[] memory) {
+        uint256 numberOwned = balanceOf(_owner);
+        if (numberOwned == 0) {
             return new uint256[](0);
         } else {
-            uint256[] memory result = new uint256[](toadzgotchi);
-            uint256 index;
-            for (index = 0; index < toadzgotchi; index++) {
-                result[index] = tokenOfOwnerByIndex(_owner, index);
+            uint256[] memory result = new uint256[](numberOwned);
+            uint256 i;
+            for (i = 0; i < numberOwned; i++) {
+                result[i] = tokenOfOwnerByIndex(_owner, i);
             }
+            //console.log("toadz owned '%s'", result);
             return result;
         }
     }
@@ -1775,7 +1727,7 @@ abstract contract ToadzgotchiPets is ERC721PresetMinterPauserAutoId, Ownable {
     }
 
     function flipPrivateSale() public onlyOwner {
-        _onlyToadz = !_onlyToadz;
+        _toadzOnly = !_toadzOnly;
     }
 
     function pause() public virtual override onlyOwner {
@@ -1794,16 +1746,16 @@ abstract contract ToadzgotchiPets is ERC721PresetMinterPauserAutoId, Ownable {
         super._burn(tokenId);
     }
 
-    function tokenURI(uint256 _toadzgotchiId) public view override (ERC721) returns (string memory) {
-        require(_exists(_toadzgotchiId), "Choad Doesn't Exist");
+    function tokenURI(uint256 _toadzgotchiId) public view override(ERC721) returns (string memory) {
+        require(_exists(_toadzgotchiId), "Toadzgotchi Doesn't Exist");
         return string(abi.encodePacked(_baseTokenUri, "/", uint2str(_toadzgotchiId)));
     }
 
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal override whenNotPaused {
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal override(ERC721PresetMinterPauserAutoId) whenNotPaused {
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
-    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721PresetMinterPauserAutoId) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
