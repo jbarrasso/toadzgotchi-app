@@ -22,7 +22,7 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 interface ToadzgotchiInterface extends ethers.utils.Interface {
   functions: {
     "_toadzgotchiPetsContractAddress()": FunctionFragment;
-    "fetchAToad(uint256)": FunctionFragment;
+    "fetchToadStats()": FunctionFragment;
     "grantXP(uint256)": FunctionFragment;
     "ownsToadzgotchis()": FunctionFragment;
     "readToadHunger()": FunctionFragment;
@@ -38,8 +38,8 @@ interface ToadzgotchiInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "fetchAToad",
-    values: [BigNumberish]
+    functionFragment: "fetchToadStats",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "grantXP",
@@ -75,7 +75,10 @@ interface ToadzgotchiInterface extends ethers.utils.Interface {
     functionFragment: "_toadzgotchiPetsContractAddress",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "fetchAToad", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "fetchToadStats",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "grantXP", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "ownsToadzgotchis",
@@ -151,12 +154,11 @@ export class Toadzgotchi extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    fetchAToad(
-      i: BigNumberish,
+    fetchToadStats(
       overrides?: CallOverrides
     ): Promise<
       [
-        [
+        ([
           boolean,
           BigNumber,
           BigNumber,
@@ -180,7 +182,7 @@ export class Toadzgotchi extends BaseContract {
           toadXP: BigNumber;
           toadLevel: BigNumber;
           isDead: boolean;
-        }
+        })[]
       ]
     >;
 
@@ -235,11 +237,10 @@ export class Toadzgotchi extends BaseContract {
 
   _toadzgotchiPetsContractAddress(overrides?: CallOverrides): Promise<string>;
 
-  fetchAToad(
-    i: BigNumberish,
+  fetchToadStats(
     overrides?: CallOverrides
   ): Promise<
-    [
+    ([
       boolean,
       BigNumber,
       BigNumber,
@@ -263,7 +264,7 @@ export class Toadzgotchi extends BaseContract {
       toadXP: BigNumber;
       toadLevel: BigNumber;
       isDead: boolean;
-    }
+    })[]
   >;
 
   grantXP(
@@ -317,11 +318,10 @@ export class Toadzgotchi extends BaseContract {
   callStatic: {
     _toadzgotchiPetsContractAddress(overrides?: CallOverrides): Promise<string>;
 
-    fetchAToad(
-      i: BigNumberish,
+    fetchToadStats(
       overrides?: CallOverrides
     ): Promise<
-      [
+      ([
         boolean,
         BigNumber,
         BigNumber,
@@ -345,7 +345,7 @@ export class Toadzgotchi extends BaseContract {
         toadXP: BigNumber;
         toadLevel: BigNumber;
         isDead: boolean;
-      }
+      })[]
     >;
 
     grantXP(giveXP: BigNumberish, overrides?: CallOverrides): Promise<void>;
@@ -401,7 +401,7 @@ export class Toadzgotchi extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    fetchAToad(i: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+    fetchToadStats(overrides?: CallOverrides): Promise<BigNumber>;
 
     grantXP(
       giveXP: BigNumberish,
@@ -431,10 +431,7 @@ export class Toadzgotchi extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    fetchAToad(
-      i: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    fetchToadStats(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     grantXP(
       giveXP: BigNumberish,

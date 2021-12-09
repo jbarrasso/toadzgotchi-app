@@ -10,8 +10,9 @@ import ProgressBar from '../components/ProgressBar'
 import { useState, useEffect } from 'react'
 import { Contract, ethers } from 'ethers'
 
-const toadzgotchiAddress = '0xC1e0A9DB9eA830c52603798481045688c8AE99C2'
+const toadzgotchiAddress = '0x683d9CDD3239E0e01E8dC6315fA50AD92aB71D2d'
 const toadzgotchiPetsAddress = '0xcC4c41415fc68B2fBf70102742A83cDe435e0Ca7'
+export let numberOfToadsOwned: number
 export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let account: string;
@@ -21,7 +22,7 @@ export let account: string;
 export const ethereum = () => {
   return (window as any).ethereum
 }
-export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoading) => {
+export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setOwnsToadgotchis, setIsLoading) => {
   if (ethereum() == undefined || null) {
     setIsLoading(false)    
     console.log('Web3 is not injected')
@@ -38,26 +39,31 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
       account = tryAccount
       setIsWalletConnected(true) //re-renders page
       console.log('Wallect is connected') //logs seventh
+      //immediately after, runs useeffect on account change, checks toadz, and updates page
     } catch (err) {
       setIsLoading(false)
       console.log("Wallet is not connected. Cannot instantiate provider or get signer", err)
     }
   }
 }
-export const handleAccountsChanged = async(setIsWalletConnected) => {
+export const handleAccountsChanged = async(setIsWalletConnected, setOwnsToadzgotchis) => {
   if (ethereum()) {
     ethereum().on("accountsChanged", (accounts) => {
       //length of accounts is always 1, no matter how many wallets connected to site.
       //if n>2, when disconnecting from n to n-1 accounts, the last connected acc
       //before the nth will be = to accounts[0]
+      //checkOwnsToadzgotchis(setOwnsToadgotchis)
       if (accounts.length > 0){
         account = accounts[0]
         setIsWalletConnected(false) //quick n dirty way to re-render Account when toggling between wallets
         setIsWalletConnected(true)
+        //checkOwnsToadzgotchis(setOwnsToadzgotchis)
         console.log('wallet accounts changed')
       } else {
         //setIsVibing(false)
+        account = ''
         setIsWalletConnected(false)
+        setOwnsToadzgotchis(false)
         console.log('wallet disconnected')
       }
     });
@@ -105,6 +111,19 @@ export const calcDecay = async(i: number) => {
     return (decayedValue)
   }
 }
+export async function checkOwnsToadzgotchis(setOwnsToadzgotchis) {
+  if (ethereum()) {
+    const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+      //some how putting if isWalletConnected inaccurately shows toad for 0x7
+      if (await contract.ownsToadzgotchis()){
+        setOwnsToadzgotchis(true)
+        //console.log(`ownsToadzgotchis? inside check ${ownsToadzgotchis}`)
+      } else {
+        setOwnsToadzgotchis(false)
+        //console.log(`ownsToadzgotchis? inside check ${ownsToadzgotchis}`)
+      }
+  }
+}
 
 // This works but returns <promise> regardless if called outside or inside Home
 // const ethereum = async() => {
@@ -122,9 +141,9 @@ function Home() {
   useEffect(() => {
     setIsLoading(true)
     console.log('Running useEffect checkweb3') //logs second
-    checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading)
-    handleAccountsChanged(setIsWalletConnected)
-    //checkOwnsToadzgotchis(setOwnsToadzgotchis)
+    checkWeb3(setIsWeb3Injected, setIsWalletConnected, setOwnsToadzgotchis, setIsLoading)
+    handleAccountsChanged(setIsWalletConnected, setOwnsToadzgotchis)
+    checkOwnsToadzgotchis(setOwnsToadzgotchis)
   }, [])
 
   const [ownsToadzgotchis, setOwnsToadzgotchis] = useState(false)
@@ -140,10 +159,14 @@ function Home() {
 
   //runs no matter what on page hard reload
   useEffect(() => {
-    console.log('running useEffect 2nd') //logs fourth
+    console.log('checking ownstoadz useeffect') //logs fourth
     checkOwnsToadzgotchis(setOwnsToadzgotchis) //doesnt set to true until after fully loaded
-    console.log(`owns toads? ${ownsToadzgotchis}`) //logs fifth
-    readToadStats()
+    
+    //reflects one reload behind. page loads with 0xf and says doesnt own toadz but shows in menu
+    //then when disconnect, says it owns toad and still shows toad
+    //this prints before above functions are done computing
+    console.log(`owns toads? inside useeffect ${ownsToadzgotchis}`) //logs fifth
+    //readToadStats()
   }, [isFed, isHappy, isRested, account])
 
   function updateIsFed() {
@@ -158,15 +181,9 @@ function Home() {
     setIsRested(prevIsRested => prevIsRested + sleepValue)
     //isRested updates only when top parent function is done running
   } 
-  async function checkOwnsToadzgotchis(setOwnsToadzgotchis) {
-    if (ethereum()) {
-      const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-      if (await contract.ownsToadzgotchis()){
-        setOwnsToadzgotchis(true)
-      } 
-    }
-  }
-  
+
+  console.log(`ownsToadzgotchis? ${ownsToadzgotchis}`)
+
   async function readToadStats() {
     if (ethereum()) {
       console.log('running readtoadstats') //logs sixth
@@ -174,8 +191,8 @@ function Home() {
       if (ownsToadzgotchis) {
         try {
           const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-          const data = await contract.fetchAToad(0)
-          console.log(data[1].toNumber())
+          const data = await contract.fetchToadStats()
+          console.log(data)
           // setIsVibing(data[0])
           // setIsFed(await calcDecay(3))
           // setIsHappy(await calcDecay(5))
@@ -327,7 +344,7 @@ function Home() {
   return (
     <div>
       {/* logs first, then fifth & sixth*/}
-      {!isLoading ? (<div>Loading{console.log(`isLoading? ${isLoading}`)}</div>) :
+      {false ? (<div>Loading{console.log(`isLoading? ${isLoading}`)}</div>) :
       (<div>
         {console.log(`isLoading? ${isLoading}`)}
         <div className='bgWrap'>
@@ -384,11 +401,11 @@ function Home() {
               hideHeaders={true}>
               FEEDBACK
             </PopupButton>
-            <button onClick={tryMint}>try mint</button>
+            {/* <button onClick={tryMint}>try mint</button>
             <button onClick={tryFlipMint}>try flip mint</button>
             <button onClick={tryFlipPrivateSale}>try flip private sale</button>
             <button onClick={toadzgotchisOwned}>toadzgotchisOwned</button>
-            <button onClick={tryTransfer}>try transfer</button>
+            <button onClick={tryTransfer}>try transfer</button> */}
           </nav>
         </header>
 

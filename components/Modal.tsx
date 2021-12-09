@@ -25,14 +25,19 @@ const Modal = ({ children, ownsToadzgotchis, show, onClose }: Props) => {
         <div style={{
             position: 'absolute',
             width: '500px',
-            height: '500px',
-            border: ' 2px solid #673c37',
+            height: '300px',
+            border: '2px solid #673c37',
             backgroundColor: '#b0a28d',
             top: '0px',
             left: '0px'
             }}>
-            {ownsToadzgotchis && (<a href="#" style={{border: '2px solid #673c37'}} onClick={handleCloseClick}>x</a>)}
-            <div className='toadContainer' style={{display: 'flex'}}>
+            <a href="#" style={{border: '2px solid #673c37'}} onClick={handleCloseClick}>x</a>
+            <div className='toadContainer' style={{display: 'flex',height:'100%'}}>
+            {ownsToadzgotchis && 
+                (
+                <div style={{display:'flex', width:'30%',height:'30%', border:'2px solid #673c37' }}>
+                <img src='/img/bruce.png'/>
+                </div>)}
             </div>
             {children}
         </div>

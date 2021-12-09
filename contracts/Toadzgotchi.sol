@@ -82,9 +82,14 @@ contract Toadzgotchi {
             return false;
         }
     }
-    function fetchAToad(uint256 i) public view returns (ToadStats memory) {
+    function fetchToadStats() public view returns (ToadStats[] memory) {
         require(ownsToadzgotchis() == true, "Sender doesn't own Toadzgotchis");
-        return toadStats[toadzgotchiPetsContract.toadzgotchisOwned(msg.sender)[i]];
+        uint256[] memory toadzOwned = toadzgotchiPetsContract.toadzgotchisOwned(msg.sender);
+        ToadStats[] memory results = new ToadStats[](toadzOwned.length);
+        for (uint256 i = 0; i < toadzOwned.length; i++ ) {
+            results[i] = toadStats[toadzOwned[i]];
+        }
+        return results;
     }
     function returnMsgSender() public view returns (address) {
         return msg.sender;
