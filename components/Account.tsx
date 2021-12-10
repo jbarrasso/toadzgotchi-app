@@ -30,7 +30,7 @@ const Account = ({isWalletConnected, isWeb3Injected, color, padding, borderRadiu
       </button>);
   } else {
     return (
-      <a {...{
+      <a style={{backgroundColor: '#b0a28d', border:'2px solid #673c37',margin:'0px', padding:'0px'}}{...{
         href: formatEtherscanLink("Account", [1337, account]),
         target: "_blank",
         rel: "noopener noreferrer",

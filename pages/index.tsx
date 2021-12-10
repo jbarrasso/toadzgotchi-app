@@ -9,13 +9,17 @@ import ProgressBar from '../components/ProgressBar'
 import { PopupButton } from '@typeform/embed-react'
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
+import image from 'next/image'
 
+const cryptoadzMetadataID = 'QmWEFSMku6yGLQ9TQr66HjSd9kay8ZDYKbBEfjNi4pLtrr/'
+export const ipfsURL = 'https://ipfs.io/ipfs/'
 const toadzgotchiAddress = '0x1c9fD50dF7a4f066884b58A05D91e4b55005876A'
 const toadzgotchiPetsAddress = '0xcC4c41415fc68B2fBf70102742A83cDe435e0Ca7'
 export let numberOfToadsOwned: number
 export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let account: string;
+//export let toadzImages = [];
 
 //Anonymous function expression to return a global object of Ethereum injection.
 //provider, signer, address returns undefined unless called inside functions
@@ -23,6 +27,7 @@ export const ethereum = () => {
   return (window as any).ethereum
 }
 export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setOwnsToadgotchis, setIsLoading) => {
+  console.log('Running useEffect checkweb3') //logs second
   if (ethereum() == undefined || null) {
     setIsLoading(false)    
     console.log('Web3 is not injected')
@@ -47,6 +52,7 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setOwnsT
   }
 }
 export const handleAccountsChanged = async(setIsWalletConnected, checkOwnsToadzgotchis, setOwnsToadzgotchis, setShowModal) => {
+  console.log('running handleAccountsChanged') //logs sixth
   if (ethereum() != undefined || null) {
     ethereum().on("accountsChanged", (accounts) => {
       //length of accounts is always 1, no matter how many wallets connected to site.
@@ -111,36 +117,44 @@ export const calcDecay = async(i: number) => {
     return (decayedValue)
   }
 }
-export async function checkOwnsToadzgotchis(setOwnsToadzgotchis) {
+export async function checkOwnsToadzgotchis(setOwnsToadzgotchis, ownsToadzgotchis, setStats) {
+  console.log('Running useEffect checkOwnsToadzgotchis') //logs second
   if (ethereum() != undefined || null) {
     try{
       const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
       //some how putting if isWalletConnected inaccurately shows toad for 0x7
       if (await contract.ownsToadzgotchis()){
         setOwnsToadzgotchis(true)
-        //console.log(`ownsToadzgotchis? inside check ${ownsToadzgotchis}`)
+        const data = await contract.toadzgotchiIdsOwned()
+        const metadataURL = []
+        const toadzImagesURL = []
+        for (let i=0; i<data.length; i++) {
+          metadataURL[i] = ipfsURL + cryptoadzMetadataID + data[i].toString()
+          fetch(metadataURL[i])
+          .then(res => res.json()) // the .json() method parses the JSON response into a JS object literal
+          .then((imageID) => {toadzImagesURL[i] = ipfsURL + imageID.image.substring(7)})
+        }
+        setStats(toadzImagesURL)
+        //console.log(toadzImages)
+        //console.log(`inside checkOwnsToadzgotchis: ownsToadzgotchis? ${ownsToadzgotchis}`)
       } else {
         setOwnsToadzgotchis(false)
-        //console.log(`ownsToadzgotchis? inside check ${ownsToadzgotchis}`)
+        //console.log(`inside checkOwnsToadzgotchis: ownsToadzgotchis? ${ownsToadzgotchis}`)
       }
       } catch(err) {
         console.log(err)
       }
   }
 }
-export async function readToadStats(ownsToadzgotchis) {
+export async function getToadzStats(ownsToadzgotchis) {
+  console.log('running getToadzMetadata') //logs sixth
   if (ethereum()) {
-    console.log('running readtoadstats') //logs sixth
-    console.log(`owns toads RTD ${ownsToadzgotchis}`)
     if (ownsToadzgotchis) {
+      console.log(`inside getToadzMetadata: owns toadszgotchis? ${ownsToadzgotchis}`)
       try {
         const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-        const data = await contract.toadzgotchiIdsOwned()
-        const results = []
-        for (let i=0; i<data.length; i++) {
-          results[i] = data[i].toNumber()
-        }
-        console.log(results)
+
+        //setStats(toadzImages)
         // setIsVibing(data[0])
         // setIsFed(await calcDecay(3))
         // setIsHappy(await calcDecay(5))
@@ -160,12 +174,26 @@ export async function readToadStats(ownsToadzgotchis) {
         // toadLevel: ${data[9].toNumber()}
         // isDead: ${data[10]}`)
         // console.log(`just completed block number: ${await provider.getBlockNumber()}`)
-        return (results)
+        //return(toadzImages)
       } catch (err) {
         console.log('Cannot read toad stats', err)
       }
     } else {
       return []
+    }
+  }
+}
+export async function getToadzImages(toadzImages) {
+  if (toadzImages.length == 0) {
+    return []
+  } else {
+    for (let i=0; i<toadzImages.length; i++) {
+      fetch(toadzImages[i])
+      .then(res => res.json()) // the .json() method parses the JSON response into a JS object literal
+      .then((imageID) => {
+        toadzImages[i] = ipfsURL + imageID.image.substring(7)
+        //console.log(cryptoadzImages)
+      })
     }
   }
 }
@@ -190,19 +218,17 @@ function Home() {
   
   useEffect(() => {
     setIsLoading(true)
-    console.log('Running useEffect checkweb3') //logs second
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setOwnsToadzgotchis, setIsLoading)
+    .then(() => {checkOwnsToadzgotchis(setOwnsToadzgotchis, ownsToadzgotchis, setStats)})
     handleAccountsChanged(setIsWalletConnected, checkOwnsToadzgotchis, setOwnsToadzgotchis, setShowModal)
-    checkOwnsToadzgotchis(setOwnsToadzgotchis)
   }, [])
 
   //runs no matter what on page hard reload
   useEffect(() => {
-    console.log('checking ownstoadz useeffect') //logs fourth
-    checkOwnsToadzgotchis(setOwnsToadzgotchis) //doesnt set to true until after fully loaded
-    console.log(`owns toads? inside useeffect ${ownsToadzgotchis}`) //prints before checkOwns is done
+    console.log('one of 4 variables changed, running useeffect') //logs fourth
+    checkOwnsToadzgotchis(setOwnsToadzgotchis, ownsToadzgotchis, setStats) //doesnt set to true until after fully loaded
+    //getToadzMetadata(ownsToadzgotchis)
   }, [isFed, isHappy, isRested, account])
-
   function updateIsFed() {
     setIsFed(prevIsFed => prevIsFed + feedValue)
     //isFed updates only when top parent function is done running
@@ -267,8 +293,7 @@ function Home() {
   async function tryMint() {
     if (isWalletConnected) {
       const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
-
-      const transaction = await contract.tryMint([1,2,3], { value: ethers.utils.parseEther("0.15") })
+      const transaction = await contract.tryMint([4,5,6,7,8,9,10], { value: ethers.utils.parseEther("0.35") })
       //await transaction.wait()
     } 
   }
@@ -298,7 +323,7 @@ function Home() {
   async function tryTransfer() {
     if (isWalletConnected) {
       const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
-      const transaction = await contract["safeTransferFrom(address,address,uint256)"]('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266','0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 3)
+      const transaction = await contract["safeTransferFrom(address,address,uint256)"]('0x70997970C51812dc3A010C7d01b50e0d17dc79C8','0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 3)
       await transaction.wait()
     } 
   }
@@ -338,15 +363,12 @@ function Home() {
               color='#332020'
               backgroundColor='#b0a28d'
               margin='10px'
-              padding='10px'
-              border=' 2px solid #673c37'
+              padding='0px'
+              border='2px solid #673c37'
               borderRadius='0px'
               onClick={ () => {
                 setShowModal(true)
-                readToadStats(ownsToadzgotchis).then((results) => {
-                  setStats(results)
-                })
-              } }
+              }}
             />)}
             <Account
               isWalletConnected={isWalletConnected}

@@ -1,23 +1,36 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import Button from "./Button"
+import {ipfsURL} from "../pages/index"
 
 type Props = {
-    children: string;
-    ownsToadzgotchis: boolean;
-    show: boolean;
-    stats:any;
-    onClose: () => void
-  };
+  children: string;
+  ownsToadzgotchis: boolean;
+  show: boolean;
+  stats: any;
+  onClose: () => void
+};
 
 const Modal = ({ children, ownsToadzgotchis, stats, show, onClose }: Props) => {
-  const [isBrowser, setIsBrowser] = useState(false);
+  const [isBrowser, setIsBrowser] = useState(false)
+  
+  //const cryptoadzImages = ['asdf','as']
+  
+  // for (let i=0; i<stats.length; i++) {
+  //   fetch(stats[i])
+  //   .then(res => res.json()) // the .json() method parses the JSON response into a JS object literal
+  //   .then((imageID) => {
+  //     cryptoadzImages[i] = ipfsURL + imageID.image.substring(7)
+  //     //console.log(cryptoadzImages)
+
+  //   })
+  // }
+  //console.log(cryptoadzImages)
 
   const listItems = stats.map((d) => 
     <div key={d} style={{display:'flex', width:'30%',height:'30%', border:'2px solid #673c37' }}>
-      {d}
-      <img src='/img/bruce.png'/>
-      <Button
+      <img src={d}/>
+      {/* <Button
         text='SELECT'
         display=''
         flex=''
@@ -28,7 +41,7 @@ const Modal = ({ children, ownsToadzgotchis, stats, show, onClose }: Props) => {
         border=' 2px solid #673c37'
         borderRadius='0px'
         onClick={()=>{}}
-      />
+      /> */}
     </div>);
   console.log(listItems)
 
