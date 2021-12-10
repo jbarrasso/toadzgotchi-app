@@ -91,6 +91,10 @@ contract Toadzgotchi {
         }
         return results;
     }
+    function toadzgotchiIdsOwned() public view returns (uint256[] memory) {
+        require(ownsToadzgotchis() == true, "Sender doesn't own Toadzgotchis");
+        return toadzgotchiPetsContract.toadzgotchisOwned(msg.sender);
+    }
     function returnMsgSender() public view returns (address) {
         return msg.sender;
     }

@@ -31,6 +31,7 @@ interface ToadzgotchiInterface extends ethers.utils.Interface {
     "returnMsgSender()": FunctionFragment;
     "toadStats(uint256)": FunctionFragment;
     "toadz(uint256)": FunctionFragment;
+    "toadzgotchiIdsOwned()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -70,6 +71,10 @@ interface ToadzgotchiInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "toadz", values: [BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: "toadzgotchiIdsOwned",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "_toadzgotchiPetsContractAddress",
@@ -102,6 +107,10 @@ interface ToadzgotchiInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "toadStats", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "toadz", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "toadzgotchiIdsOwned",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -233,6 +242,8 @@ export class Toadzgotchi extends BaseContract {
     >;
 
     toadz(arg0: BigNumberish, overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    toadzgotchiIdsOwned(overrides?: CallOverrides): Promise<[BigNumber[]]>;
   };
 
   _toadzgotchiPetsContractAddress(overrides?: CallOverrides): Promise<string>;
@@ -315,6 +326,8 @@ export class Toadzgotchi extends BaseContract {
 
   toadz(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
+  toadzgotchiIdsOwned(overrides?: CallOverrides): Promise<BigNumber[]>;
+
   callStatic: {
     _toadzgotchiPetsContractAddress(overrides?: CallOverrides): Promise<string>;
 
@@ -392,6 +405,8 @@ export class Toadzgotchi extends BaseContract {
     >;
 
     toadz(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+
+    toadzgotchiIdsOwned(overrides?: CallOverrides): Promise<BigNumber[]>;
   };
 
   filters: {};
@@ -424,6 +439,8 @@ export class Toadzgotchi extends BaseContract {
     ): Promise<BigNumber>;
 
     toadz(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+
+    toadzgotchiIdsOwned(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -455,6 +472,10 @@ export class Toadzgotchi extends BaseContract {
 
     toadz(
       arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    toadzgotchiIdsOwned(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
