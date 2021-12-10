@@ -5,10 +5,10 @@ import Image from "next/image"
 import Button from "../components/Button"
 import Account from "../components/Account"
 import Modal from "../components/Modal"
-import { PopupButton } from '@typeform/embed-react'
 import ProgressBar from '../components/ProgressBar'
+import { PopupButton } from '@typeform/embed-react'
 import { useState, useEffect } from 'react'
-import { Contract, ethers } from 'ethers'
+import { ethers } from 'ethers'
 
 const toadzgotchiAddress = '0x1c9fD50dF7a4f066884b58A05D91e4b55005876A'
 const toadzgotchiPetsAddress = '0xcC4c41415fc68B2fBf70102742A83cDe435e0Ca7'
@@ -16,7 +16,6 @@ export let numberOfToadsOwned: number
 export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let account: string;
-export let x = []
 
 //Anonymous function expression to return a global object of Ethereum injection.
 //provider, signer, address returns undefined unless called inside functions
@@ -171,12 +170,6 @@ export async function readToadStats(ownsToadzgotchis) {
   }
 }
 
-// This works but returns <promise> regardless if called outside or inside Home
-// const ethereum = async() => {
-//   const provider = new ethers.providers.Web3Provider(await (window as any).ethereum)
-//   return provider
-// }
-
 function Home() {
   const [renderCount, setrenderCount] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
@@ -184,20 +177,6 @@ function Home() {
   const [isWeb3Injected, setIsWeb3Injected] = useState(false)
   const [showModal, setShowModal] = useState(false);
   const [stats, setStats] = useState([])
-  
-  useEffect(() => {
-    setIsLoading(true)
-    console.log('Running useEffect checkweb3') //logs second
-    checkWeb3(setIsWeb3Injected, setIsWalletConnected, setOwnsToadzgotchis, setIsLoading)
-    handleAccountsChanged(setIsWalletConnected, checkOwnsToadzgotchis, setOwnsToadzgotchis, setShowModal)
-    checkOwnsToadzgotchis(setOwnsToadzgotchis)
-    // readToadStats(ownsToadzgotchis).then((result) => {
-    //   setStats(result)
-    // }).catch((err) => {
-    //   console.log(err);
-    // });
-  }, [])
-
   const [ownsToadzgotchis, setOwnsToadzgotchis] = useState(false)
   const [isVibing, setIsVibing] = useState(false)
   const [toadLevel, setToadLevel] = useState(1)
@@ -208,16 +187,20 @@ function Home() {
   const [feedValue, setFeed] = useState(() => { return 10 })
   const [playValue, setPlay] = useState(() => { return 10 })
   const [sleepValue, setSleep] = useState(() => { return 10 })
+  
+  useEffect(() => {
+    setIsLoading(true)
+    console.log('Running useEffect checkweb3') //logs second
+    checkWeb3(setIsWeb3Injected, setIsWalletConnected, setOwnsToadzgotchis, setIsLoading)
+    handleAccountsChanged(setIsWalletConnected, checkOwnsToadzgotchis, setOwnsToadzgotchis, setShowModal)
+    checkOwnsToadzgotchis(setOwnsToadzgotchis)
+  }, [])
 
   //runs no matter what on page hard reload
   useEffect(() => {
     console.log('checking ownstoadz useeffect') //logs fourth
     checkOwnsToadzgotchis(setOwnsToadzgotchis) //doesnt set to true until after fully loaded
-    //reflects one reload behind. page loads with 0xf and says doesnt own toadz but shows in menu
-    //then when disconnect, says it owns toad and still shows toad
-    //this prints before above functions are done computing
-    console.log(`owns toads? inside useeffect ${ownsToadzgotchis}`) //logs fifth
-    //readToadStats()
+    console.log(`owns toads? inside useeffect ${ownsToadzgotchis}`) //prints before checkOwns is done
   }, [isFed, isHappy, isRested, account])
 
   function updateIsFed() {
@@ -232,41 +215,6 @@ function Home() {
     setIsRested(prevIsRested => prevIsRested + sleepValue)
     //isRested updates only when top parent function is done running
   } 
-
-  console.log(`ownsToadzgotchis? ${ownsToadzgotchis}`)
-
-  // async function readToadStats() {
-  //   if (ethereum()) {
-  //     const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-  //     try {
-  //       const data = await contract.readToadStats()
-  //       console.log(`isVibing: ${data[0]}
-  //       startVibingBlock: ${data[1].toNumber()}
-  //       isFed: ${data[2].toNumber()}
-  //       isHappy: ${data[3].toNumber()}
-  //       isRested: ${data[4].toNumber()}
-  //       toadXP: ${data[5].toNumber()}
-  //       toadLevel: ${data[6].toNumber()}`)
-  //       console.log(`current block number: ${await provider.getBlockNumber()}`)
-  //       return (data)
-  //     } catch (err) {
-  //       console.log("Error: ", err)
-  //     }
-  //   }
-  // }
-  // async function readMsgSender() {
-  //   //console.log(window.ethereum)                            
-  //   if (ethereum()) {
-  //     const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-  //     try {
-  //       const data = await contract.returnMsgSender()
-  //       console.log('data: ', data)
-  //     } catch (err) {
-  //       console.log("Error: ", err)
-  //     }
-  //   }    
-  // }
-
   async function startVibing() {
     if (isVibing) {
       return
@@ -316,7 +264,6 @@ function Home() {
       updateIsRested()
     }
   }
-  //dont put these on web page, call on etherscan only
   async function tryMint() {
     if (isWalletConnected) {
       const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
@@ -351,7 +298,7 @@ function Home() {
   async function tryTransfer() {
     if (isWalletConnected) {
       const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
-      const transaction = await contract["safeTransferFrom(address,address,uint256)"]('0x70997970C51812dc3A010C7d01b50e0d17dc79C8','0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 4368)
+      const transaction = await contract["safeTransferFrom(address,address,uint256)"]('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266','0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 3)
       await transaction.wait()
     } 
   }
@@ -370,18 +317,15 @@ function Home() {
             quality={100}
           />
         </div>
-
         <Head>
           <title>Toadzgotchi</title>
           <link rel="icon" href="/favicon.ico" />
         </Head>
-
         <header>
           <nav>
             <Modal
               show={showModal}
               ownsToadzgotchis={ownsToadzgotchis}
-              toadzgotchisOwned={ () => {let data = readToadStats(ownsToadzgotchis)} }
               stats={stats}
               onClose={ () => { setShowModal(false) } }>
                 Hello!
@@ -525,7 +469,7 @@ function Home() {
                 />
                 </div>
               </section>)}
-              <button onClick={ () => {readToadStats(ownsToadzgotchis)} }>Read Toad Stats</button>
+              {/* <button onClick={ () => {readToadStats(ownsToadzgotchis)} }>Read Toad Stats</button> */}
               {(!isVibing || !isWalletConnected) && (
               <Button
                 text={ !isWeb3Injected ? ("INSTALL METAMASK") : (!isWalletConnected ? ("CONNECT METAMASK") : ("START VIBIN'")) }
