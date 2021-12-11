@@ -6,15 +6,15 @@ type Props = {
   children: string;
   ownsToadzgotchis: boolean;
   show: boolean;
-  stats: any;
+  imageURL: any;
   onClose: () => void
 };
 
-const Modal = ({ children, ownsToadzgotchis, stats, show, onClose }: Props) => {
+const Modal = ({ children, ownsToadzgotchis, imageURL, show, onClose }: Props) => {
   const [isBrowser, setIsBrowser] = useState(false)
-  const listItems = stats.map((d) => 
-    <div key={d} style={{display:'flex', width:'30%',height:'30%', border:'2px solid #673c37' }}>
-      <img src={d}/>
+  const listItems = imageURL.map((image) => 
+    <div key={image} style={{display:'flex', width:'30%',height:'30%', border:'2px solid #673c37' }}>
+      <img src={image}/>
       {/* <Button
         text='SELECT'
         display=''

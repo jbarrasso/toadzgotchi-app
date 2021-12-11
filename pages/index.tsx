@@ -114,16 +114,16 @@ export const calcDecay = async(i: number) => {
 export async function checkOwnsToadzgotchis(setOwnsToadzgotchis, setStats) {
   console.log('Running useEffect checkOwnsToadzgotchis')
   if (ethereum() != undefined || null) {
-    try{
+    try {
       const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-      if (await contract.ownsToadzgotchis()){
+      if (await contract.ownsToadzgotchis()) {
         setOwnsToadzgotchis(true)
         const data = await contract.toadzgotchiIdsOwned()
-        const metadataURL = []
+        const cryptoadzMetadataURL = []
         const toadzImagesURL = []
         for (let i=0; i<data.length; i++) {
-          metadataURL[i] = ipfsURL + cryptoadzMetadataID + data[i].toString()
-          fetch(metadataURL[i])
+          cryptoadzMetadataURL[i] = ipfsURL + cryptoadzMetadataID + data[i].toString()
+          fetch(cryptoadzMetadataURL[i])
           .then(res => res.json()) // the .json() method parses the JSON response into a JS object literal
           .then((imageID) => {toadzImagesURL[i] = ipfsURL + imageID.image.substring(7)})
         }
@@ -131,9 +131,9 @@ export async function checkOwnsToadzgotchis(setOwnsToadzgotchis, setStats) {
       } else {
         setOwnsToadzgotchis(false)
       }
-      } catch(err) {
-        console.log(err)
-      }
+    } catch(err) {
+      console.log(err)
+    }
   }
 }
 export async function getToadzStats(ownsToadzgotchis) {
@@ -179,7 +179,7 @@ function Home() {
   const [isWalletConnected, setIsWalletConnected] = useState(false)
   const [isWeb3Injected, setIsWeb3Injected] = useState(false)
   const [showModal, setShowModal] = useState(false);
-  const [stats, setStats] = useState([])
+  const [imageURL, setImageURL] = useState([])
   const [ownsToadzgotchis, setOwnsToadzgotchis] = useState(false)
   const [isVibing, setIsVibing] = useState(false)
   const [toadLevel, setToadLevel] = useState(1)
@@ -194,14 +194,14 @@ function Home() {
   useEffect(() => {
     setIsLoading(true)
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading)
-    .then(() => {checkOwnsToadzgotchis(setOwnsToadzgotchis, setStats)})
+    .then(() => {checkOwnsToadzgotchis(setOwnsToadzgotchis, setImageURL)})
     handleAccountsChanged(setIsWalletConnected, checkOwnsToadzgotchis, setOwnsToadzgotchis, setShowModal)
   }, [])
 
   //runs no matter what on page hard reload
   useEffect(() => {
     console.log('one of 4 variables changed, running useeffect')
-    checkOwnsToadzgotchis(setOwnsToadzgotchis, setStats)
+    checkOwnsToadzgotchis(setOwnsToadzgotchis, setImageURL)
   }, [isFed, isHappy, isRested, account])
 
   function updateIsFed() {
@@ -326,7 +326,7 @@ function Home() {
             <Modal
               show={showModal}
               ownsToadzgotchis={ownsToadzgotchis}
-              stats={stats}
+              imageURL={imageURL}
               onClose={ () => { setShowModal(false) } }>
                 Hello!
             </Modal>
