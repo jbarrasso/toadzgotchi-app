@@ -9,32 +9,29 @@ import ProgressBar from '../components/ProgressBar'
 import { PopupButton } from '@typeform/embed-react'
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
-import image from 'next/image'
 
+const ipfsURL = 'https://ipfs.io/ipfs/'
 const cryptoadzMetadataID = 'QmWEFSMku6yGLQ9TQr66HjSd9kay8ZDYKbBEfjNi4pLtrr/'
-export const ipfsURL = 'https://ipfs.io/ipfs/'
 const toadzgotchiAddress = '0x1c9fD50dF7a4f066884b58A05D91e4b55005876A'
 const toadzgotchiPetsAddress = '0xcC4c41415fc68B2fBf70102742A83cDe435e0Ca7'
-export let numberOfToadsOwned: number
 export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let account: string;
-//export let toadzImages = [];
 
 //Anonymous function expression to return a global object of Ethereum injection.
 //provider, signer, address returns undefined unless called inside functions
 export const ethereum = () => {
   return (window as any).ethereum
 }
-export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setOwnsToadgotchis, setIsLoading) => {
-  console.log('Running useEffect checkweb3') //logs second
+export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoading) => {
+  console.log('Running useEffect checkweb3')
   if (ethereum() == undefined || null) {
     setIsLoading(false)    
     console.log('Web3 is not injected')
     return
   } else {
-    setIsWeb3Injected(true) //re-renders page
-    console.log('Web3 is injected') //logs third
+    setIsWeb3Injected(true)
+    console.log('Web3 is injected')
     try {
       const tryProvider = new ethers.providers.Web3Provider(ethereum())
       provider=tryProvider
@@ -42,9 +39,8 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setOwnsT
       signer = trySigner
       const tryAccount = await trySigner.getAddress()
       account = tryAccount
-      setIsWalletConnected(true) //re-renders page
-      console.log('Wallect is connected') //logs seventh
-      //immediately after, runs useeffect on account change, checks toadz, and updates page
+      setIsWalletConnected(true)
+      console.log('Wallect is connected')
     } catch (err) {
       setIsLoading(false)
       console.log("Wallet is not connected. Cannot instantiate provider or get signer", err)
@@ -52,7 +48,7 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setOwnsT
   }
 }
 export const handleAccountsChanged = async(setIsWalletConnected, checkOwnsToadzgotchis, setOwnsToadzgotchis, setShowModal) => {
-  console.log('running handleAccountsChanged') //logs sixth
+  console.log('running handleAccountsChanged')
   if (ethereum() != undefined || null) {
     ethereum().on("accountsChanged", (accounts) => {
       //length of accounts is always 1, no matter how many wallets connected to site.
@@ -66,10 +62,8 @@ export const handleAccountsChanged = async(setIsWalletConnected, checkOwnsToadzg
         setIsWalletConnected(true)
         console.log('wallet accounts changed')
       } else {
-        //setIsVibing(false)
         account = ''
         setIsWalletConnected(false)
-        //setOwnsToadzgotchis(false)
         console.log('wallet disconnected')
       }
     });
@@ -117,12 +111,11 @@ export const calcDecay = async(i: number) => {
     return (decayedValue)
   }
 }
-export async function checkOwnsToadzgotchis(setOwnsToadzgotchis, ownsToadzgotchis, setStats) {
-  console.log('Running useEffect checkOwnsToadzgotchis') //logs second
+export async function checkOwnsToadzgotchis(setOwnsToadzgotchis, setStats) {
+  console.log('Running useEffect checkOwnsToadzgotchis')
   if (ethereum() != undefined || null) {
     try{
       const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-      //some how putting if isWalletConnected inaccurately shows toad for 0x7
       if (await contract.ownsToadzgotchis()){
         setOwnsToadzgotchis(true)
         const data = await contract.toadzgotchiIdsOwned()
@@ -135,11 +128,8 @@ export async function checkOwnsToadzgotchis(setOwnsToadzgotchis, ownsToadzgotchi
           .then((imageID) => {toadzImagesURL[i] = ipfsURL + imageID.image.substring(7)})
         }
         setStats(toadzImagesURL)
-        //console.log(toadzImages)
-        //console.log(`inside checkOwnsToadzgotchis: ownsToadzgotchis? ${ownsToadzgotchis}`)
       } else {
         setOwnsToadzgotchis(false)
-        //console.log(`inside checkOwnsToadzgotchis: ownsToadzgotchis? ${ownsToadzgotchis}`)
       }
       } catch(err) {
         console.log(err)
@@ -147,13 +137,12 @@ export async function checkOwnsToadzgotchis(setOwnsToadzgotchis, ownsToadzgotchi
   }
 }
 export async function getToadzStats(ownsToadzgotchis) {
-  console.log('running getToadzMetadata') //logs sixth
+  console.log('running getToadzMetadata')
   if (ethereum()) {
     if (ownsToadzgotchis) {
       console.log(`inside getToadzMetadata: owns toadszgotchis? ${ownsToadzgotchis}`)
       try {
         const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-
         //setStats(toadzImages)
         // setIsVibing(data[0])
         // setIsFed(await calcDecay(3))
@@ -183,20 +172,6 @@ export async function getToadzStats(ownsToadzgotchis) {
     }
   }
 }
-export async function getToadzImages(toadzImages) {
-  if (toadzImages.length == 0) {
-    return []
-  } else {
-    for (let i=0; i<toadzImages.length; i++) {
-      fetch(toadzImages[i])
-      .then(res => res.json()) // the .json() method parses the JSON response into a JS object literal
-      .then((imageID) => {
-        toadzImages[i] = ipfsURL + imageID.image.substring(7)
-        //console.log(cryptoadzImages)
-      })
-    }
-  }
-}
 
 function Home() {
   const [renderCount, setrenderCount] = useState(1)
@@ -218,17 +193,17 @@ function Home() {
   
   useEffect(() => {
     setIsLoading(true)
-    checkWeb3(setIsWeb3Injected, setIsWalletConnected, setOwnsToadzgotchis, setIsLoading)
-    .then(() => {checkOwnsToadzgotchis(setOwnsToadzgotchis, ownsToadzgotchis, setStats)})
+    checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading)
+    .then(() => {checkOwnsToadzgotchis(setOwnsToadzgotchis, setStats)})
     handleAccountsChanged(setIsWalletConnected, checkOwnsToadzgotchis, setOwnsToadzgotchis, setShowModal)
   }, [])
 
   //runs no matter what on page hard reload
   useEffect(() => {
-    console.log('one of 4 variables changed, running useeffect') //logs fourth
-    checkOwnsToadzgotchis(setOwnsToadzgotchis, ownsToadzgotchis, setStats) //doesnt set to true until after fully loaded
-    //getToadzMetadata(ownsToadzgotchis)
+    console.log('one of 4 variables changed, running useeffect')
+    checkOwnsToadzgotchis(setOwnsToadzgotchis, setStats)
   }, [isFed, isHappy, isRested, account])
+
   function updateIsFed() {
     setIsFed(prevIsFed => prevIsFed + feedValue)
     //isFed updates only when top parent function is done running
@@ -327,9 +302,9 @@ function Home() {
       await transaction.wait()
     } 
   }
+
   return (
     <div>
-      {/* logs first, then fifth & sixth*/}
       {false ? (<div>Loading{console.log(`isLoading? ${isLoading}`)}</div>) :
       (<div>
         {console.log(`isLoading? ${isLoading}`)}
@@ -355,7 +330,9 @@ function Home() {
               onClose={ () => { setShowModal(false) } }>
                 Hello!
             </Modal>
+
             {isWalletConnected &&
+
             (<Button
               text='MY TOADZ'
               display=''
@@ -366,10 +343,9 @@ function Home() {
               padding='0px'
               border='2px solid #673c37'
               borderRadius='0px'
-              onClick={ () => {
-                setShowModal(true)
-              }}
+              onClick={() => {setShowModal(true)}}
             />)}
+
             <Account
               isWalletConnected={isWalletConnected}
               isWeb3Injected={isWeb3Injected}
@@ -378,7 +354,7 @@ function Home() {
               borderRadius='10px'
               fontFamily='Pixeled'
             />
-            (<PopupButton id='pxed2IPk' 
+            <PopupButton id='pxed2IPk' 
               style={{fontFamily: 'Pixeled', 
               color: '#332020',
               backgroundColor: '#b0a28d',
@@ -388,11 +364,13 @@ function Home() {
               hideHeaders={true}>
               FEEDBACK
             </PopupButton>
+
             {/* <button onClick={tryMint}>try mint</button>
             <button onClick={tryFlipMint}>try flip mint</button>
             <button onClick={tryFlipPrivateSale}>try flip private sale</button>
             <button onClick={toadzgotchisOwned}>toadzgotchisOwned</button>
             <button onClick={tryTransfer}>try transfer</button> */}
+
           </nav>
         </header>
 
@@ -404,7 +382,9 @@ function Home() {
                 TOADZGOTCHI
               </h1>
               <div id="modal-root"></div>
+
               {(isVibing && isWalletConnected) &&
+
               (<section className='playerActions'>
                 <div className='feedDiv'>
                   <Button
@@ -491,9 +471,12 @@ function Home() {
                 />
                 </div>
               </section>)}
+
               {/* <button onClick={ () => {readToadStats(ownsToadzgotchis)} }>Read Toad Stats</button> */}
-              {(!isVibing || !isWalletConnected) && (
-              <Button
+
+              {(!isVibing || !isWalletConnected) &&
+
+              (<Button
                 text={ !isWeb3Injected ? ("INSTALL METAMASK") : (!isWalletConnected ? ("CONNECT METAMASK") : ("START VIBIN'")) }
                 display=''
                 flex=''
@@ -503,10 +486,14 @@ function Home() {
                 padding='0px'
                 border=' 2px solid #673c37'
                 borderRadius='0px'
-                onClick={!isWeb3Injected ? (() => {window.open('https://metamask.io/download','_blank')}) : (!isWalletConnected ? requestAccount : startVibing)}
+                onClick={!isWeb3Injected ? 
+                  (() => {window.open('https://metamask.io/download','_blank')}) : 
+                  (!isWalletConnected ? requestAccount : startVibing)}
               />)}
-              {(isVibing && isWalletConnected) && (
-              <div className='toadLevelXP'>
+
+              {(isVibing && isWalletConnected) &&
+
+              (<div className='toadLevelXP'>
                 <p> Lv. {toadLevel} </p>
                 <ProgressBar
                   text='XP'

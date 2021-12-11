@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import Button from "./Button"
-import {ipfsURL} from "../pages/index"
 
 type Props = {
   children: string;
@@ -13,20 +12,6 @@ type Props = {
 
 const Modal = ({ children, ownsToadzgotchis, stats, show, onClose }: Props) => {
   const [isBrowser, setIsBrowser] = useState(false)
-  
-  //const cryptoadzImages = ['asdf','as']
-  
-  // for (let i=0; i<stats.length; i++) {
-  //   fetch(stats[i])
-  //   .then(res => res.json()) // the .json() method parses the JSON response into a JS object literal
-  //   .then((imageID) => {
-  //     cryptoadzImages[i] = ipfsURL + imageID.image.substring(7)
-  //     //console.log(cryptoadzImages)
-
-  //   })
-  // }
-  //console.log(cryptoadzImages)
-
   const listItems = stats.map((d) => 
     <div key={d} style={{display:'flex', width:'30%',height:'30%', border:'2px solid #673c37' }}>
       <img src={d}/>
@@ -43,34 +28,33 @@ const Modal = ({ children, ownsToadzgotchis, stats, show, onClose }: Props) => {
         onClick={()=>{}}
       /> */}
     </div>);
-  console.log(listItems)
 
   useEffect(() => {
     setIsBrowser(true)
   }, []);
   
   const handleCloseClick = (e) => {
-      e.preventDefault();
-      onClose();
-    };
+    e.preventDefault();
+    onClose();
+  };
 
   const modalContent = show ? (
-      <div style={{
-        position: 'absolute',
-        width: '500px',
-        height: '300px',
-        border: '2px solid #673c37',
-        backgroundColor: '#b0a28d',
-        top: '0px',
-        left: '0px'
-        }}>
-        <a href="#" style={{border: '2px solid #673c37'}} onClick={handleCloseClick}>x</a>
-        <div className='toadContainer' style={{display: 'flex', height:'100%'}}>
-          {ownsToadzgotchis? {listItems}.listItems : <div></div>}
-        </div>
-        {children}
+    <div style={{
+      position: 'absolute',
+      width: '500px',
+      height: '300px',
+      border: '2px solid #673c37',
+      backgroundColor: '#b0a28d',
+      top: '0px',
+      left: '0px'
+      }}>
+      <a href="#" style={{border: '2px solid #673c37'}} onClick={handleCloseClick}>x</a>
+      <div className='toadContainer' style={{display: 'flex', height:'100%'}}>
+        {ownsToadzgotchis? {listItems}.listItems : <div></div>}
       </div>
-    ) : null;
+      {children}
+    </div>
+  ) : null;
 
   if (isBrowser) {
     return ReactDOM.createPortal(
