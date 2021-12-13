@@ -4,11 +4,6 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-interface ToadzgotchiPetsContract {
-    function toadzgotchisOwned(address _owner) external view returns (uint256[] memory);
-    function balanceOf(address owner) external view returns (uint256);
-}
-
 contract Toadzgotchi {
     //using Strings for string;
 
@@ -25,9 +20,6 @@ contract Toadzgotchi {
         uint256 toadLevel;
         bool isDead;
     }
-
-    uint256[] public toadz;
-    address public _toadzgotchiPetsContractAddress = 0xcC4c41415fc68B2fBf70102742A83cDe435e0Ca7;
 
     ToadzgotchiPetsContract internal toadzgotchiPetsContract = ToadzgotchiPetsContract(_toadzgotchiPetsContractAddress);
 

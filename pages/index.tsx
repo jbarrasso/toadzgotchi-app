@@ -10,6 +10,7 @@ import { PopupButton } from '@typeform/embed-react'
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 
+const test = []
 const ipfsURL = 'https://ipfs.io/ipfs/'
 const cryptoadzMetadataID = 'QmWEFSMku6yGLQ9TQr66HjSd9kay8ZDYKbBEfjNi4pLtrr/'
 const toadzgotchiAddress = '0x1c9fD50dF7a4f066884b58A05D91e4b55005876A'
