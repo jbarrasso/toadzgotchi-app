@@ -1,20 +1,14 @@
 import Toadzgotchi from '../artifacts/contracts/Toadzgotchi.sol/Toadzgotchi.json'
-import ToadzgotchiPets from '../artifacts/contracts/ToadzgotchiPets.sol/ToadzgotchiPets.json'
 import Head from "next/head"
 import Image from "next/image"
 import Button from "../components/Button"
 import Account from "../components/Account"
-import Modal from "../components/Modal"
 import ProgressBar from '../components/ProgressBar'
 import { PopupButton } from '@typeform/embed-react'
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 
-const test = []
-const ipfsURL = 'https://ipfs.io/ipfs/'
-const cryptoadzMetadataID = 'QmWEFSMku6yGLQ9TQr66HjSd9kay8ZDYKbBEfjNi4pLtrr/'
-const toadzgotchiAddress = '0x1c9fD50dF7a4f066884b58A05D91e4b55005876A'
-const toadzgotchiPetsAddress = '0xcC4c41415fc68B2fBf70102742A83cDe435e0Ca7'
+const toadzgotchiAddress = '0xb185E9f6531BA9877741022C92CE858cDCc5760E'
 export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let account: string;
@@ -36,27 +30,42 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
     try {
       const tryProvider = new ethers.providers.Web3Provider(ethereum())
       provider=tryProvider
+      const network = await provider.getNetwork()
       const trySigner = tryProvider.getSigner()
       signer = trySigner
       const tryAccount = await trySigner.getAddress()
       account = tryAccount
       setIsWalletConnected(true)
       console.log('Wallect is connected')
+      if (network.chainId != 1337) {
+        alert('Please connect to correct network: Hardhat Node, 1337')
+      }
     } catch (err) {
       setIsLoading(false)
       console.log("Wallet is not connected. Cannot instantiate provider or get signer", err)
     }
   }
 }
-export const handleAccountsChanged = async(setIsWalletConnected, checkOwnsToadzgotchis, setOwnsToadzgotchis, setShowModal) => {
+export const handleChainChanged = async(readToadStats) => {
+  console.log('running handleChainChanged')
+  if (ethereum() != undefined || null) {
+    ethereum().on('chainChanged', (chainId) => {
+      console.log(chainId)
+      if (chainId != 0x539) {
+        alert('switch back to hardhat node')
+      } else {
+        readToadStats
+      }
+    })
+  }
+}
+export const handleAccountsChanged = async(setIsWalletConnected) => {
   console.log('running handleAccountsChanged')
   if (ethereum() != undefined || null) {
     ethereum().on("accountsChanged", (accounts) => {
       //length of accounts is always 1, no matter how many wallets connected to site.
       //if n>2, when disconnecting from n to n-1 accounts, the last connected acc
       //before the nth will be = to accounts[0]
-      checkOwnsToadzgotchis(setOwnsToadzgotchis)
-      setShowModal(false)
       if (accounts.length > 0){
         account = accounts[0]
         setIsWalletConnected(false) //quick n dirty way to re-render Account when toggling between wallets
@@ -112,67 +121,6 @@ export const calcDecay = async(i: number) => {
     return (decayedValue)
   }
 }
-export async function checkOwnsToadzgotchis(setOwnsToadzgotchis, setStats) {
-  console.log('Running useEffect checkOwnsToadzgotchis')
-  if (ethereum() != undefined || null) {
-    try{
-      const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-      if (await contract.ownsToadzgotchis()){
-        setOwnsToadzgotchis(true)
-        const data = await contract.toadzgotchiIdsOwned()
-        const metadataURL = []
-        const toadzImagesURL = []
-        for (let i=0; i<data.length; i++) {
-          metadataURL[i] = ipfsURL + cryptoadzMetadataID + data[i].toString()
-          fetch(metadataURL[i])
-          .then(res => res.json()) // the .json() method parses the JSON response into a JS object literal
-          .then((imageID) => {toadzImagesURL[i] = ipfsURL + imageID.image.substring(7)})
-        }
-        setStats(toadzImagesURL)
-      } else {
-        setOwnsToadzgotchis(false)
-      }
-      } catch(err) {
-        console.log(err)
-      }
-  }
-}
-export async function getToadzStats(ownsToadzgotchis) {
-  console.log('running getToadzMetadata')
-  if (ethereum()) {
-    if (ownsToadzgotchis) {
-      console.log(`inside getToadzMetadata: owns toadszgotchis? ${ownsToadzgotchis}`)
-      try {
-        const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-        //setStats(toadzImages)
-        // setIsVibing(data[0])
-        // setIsFed(await calcDecay(3))
-        // setIsHappy(await calcDecay(5))
-        // setIsRested(await calcDecay(7))
-        // setToadXP(data[8].toNumber())
-        // setToadLevel(data[9].toNumber())
-        // setIsLoading(false)
-        // console.log(`isVibing: ${data[0]}
-        // startVibingBlock: ${data[1].toNumber()}
-        // isFed: ${data[2].toNumber()}
-        // lastFeedBlock: ${data[3].toNumber()}
-        // isHappy: ${data[4].toNumber()}
-        // lastPlayBlock: ${data[5].toNumber()}
-        // isRested: ${data[6].toNumber()}
-        // lastSleepBlock: ${data[7].toNumber()}
-        // toadXP: ${data[8].toNumber()}
-        // toadLevel: ${data[9].toNumber()}
-        // isDead: ${data[10]}`)
-        // console.log(`just completed block number: ${await provider.getBlockNumber()}`)
-        //return(toadzImages)
-      } catch (err) {
-        console.log('Cannot read toad stats', err)
-      }
-    } else {
-      return []
-    }
-  }
-}
 
 function Home() {
   const [renderCount, setrenderCount] = useState(1)
@@ -180,8 +128,6 @@ function Home() {
   const [isWalletConnected, setIsWalletConnected] = useState(false)
   const [isWeb3Injected, setIsWeb3Injected] = useState(false)
   const [showModal, setShowModal] = useState(false);
-  const [stats, setStats] = useState([])
-  const [ownsToadzgotchis, setOwnsToadzgotchis] = useState(false)
   const [isVibing, setIsVibing] = useState(false)
   const [toadLevel, setToadLevel] = useState(1)
   const [toadXP, setToadXP] = useState(0)
@@ -195,14 +141,14 @@ function Home() {
   useEffect(() => {
     setIsLoading(true)
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading)
-    .then(() => {checkOwnsToadzgotchis(setOwnsToadzgotchis, setStats)})
-    handleAccountsChanged(setIsWalletConnected, checkOwnsToadzgotchis, setOwnsToadzgotchis, setShowModal)
+    .then(() => {readToadStats()})
+    handleAccountsChanged(setIsWalletConnected)
+    handleChainChanged(readToadStats())
   }, [])
 
   //runs no matter what on page hard reload
   useEffect(() => {
-    console.log('one of 4 variables changed, running useeffect')
-    checkOwnsToadzgotchis(setOwnsToadzgotchis, setStats)
+    readToadStats()
   }, [isFed, isHappy, isRested, account])
 
   function updateIsFed() {
@@ -227,9 +173,40 @@ function Home() {
         const transaction = await contract.startVibing()
         await transaction.wait()
         setIsVibing(true)
-        //await readToadStats()
+        await readToadStats()
       } catch(err) {
         console.log(err)
+      }
+    }
+  }
+  async function readToadStats() {
+    if (ethereum()) {
+      console.log('running useEffect readtoadstats') //logs fourth
+      try {
+        const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+        const data = await contract.readToadStats()
+        setIsVibing(data[0])
+        setIsFed(await calcDecay(3))
+        setIsHappy(await calcDecay(5))
+        setIsRested(await calcDecay(7))
+        setToadXP(data[8].toNumber())
+        setToadLevel(data[9].toNumber())
+        setIsLoading(false)
+        console.log(`isVibing: ${data[0]}
+        startVibingBlock: ${data[1].toNumber()}
+        isFed: ${data[2].toNumber()}
+        lastFeedBlock: ${data[3].toNumber()}
+        isHappy: ${data[4].toNumber()}
+        lastPlayBlock: ${data[5].toNumber()}
+        isRested: ${data[6].toNumber()}
+        lastSleepBlock: ${data[7].toNumber()}
+        toadXP: ${data[8].toNumber()}
+        toadLevel: ${data[9].toNumber()}
+        isDead: ${data[10]}`)
+        console.log(`just completed block number: ${await provider.getBlockNumber()}`)
+        return (data)
+      } catch (err) {
+        console.log('Cannot read toad stats', err)
       }
     }
   }
@@ -266,44 +243,6 @@ function Home() {
       updateIsRested()
     }
   }
-  async function tryMint() {
-    if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
-      const transaction = await contract.tryMint([4,5,6,7,8,9,10], { value: ethers.utils.parseEther("0.35") })
-      //await transaction.wait()
-    } 
-  }
-  async function tryFlipMint() {
-    if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
-      const transaction = await contract.flipMintState()
-      await transaction.wait()
-    } 
-  }
-  async function tryFlipPrivateSale() {
-    if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
-      const transaction = await contract.flipPrivateSale()
-      await transaction.wait()
-    } 
-  }
-  async function toadzgotchisOwned() {
-    if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
-      const owned = await contract.toadzgotchisOwned(account)
-      //const transactions = await contract.balanceOf('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
-      //const acc = await contract.ownerOf(4368)
-      console.log(owned)
-    } 
-  }
-  async function tryTransfer() {
-    if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
-      const transaction = await contract["safeTransferFrom(address,address,uint256)"]('0x70997970C51812dc3A010C7d01b50e0d17dc79C8','0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 3)
-      await transaction.wait()
-    } 
-  }
-
   return (
     <div>
       {false ? (<div>Loading{console.log(`isLoading? ${isLoading}`)}</div>) :
@@ -324,29 +263,6 @@ function Home() {
         </Head>
         <header>
           <nav>
-            <Modal
-              show={showModal}
-              ownsToadzgotchis={ownsToadzgotchis}
-              stats={stats}
-              onClose={ () => { setShowModal(false) } }>
-                Hello!
-            </Modal>
-
-            {isWalletConnected &&
-
-            (<Button
-              text='MY TOADZ'
-              display=''
-              flex=''
-              color='#332020'
-              backgroundColor='#b0a28d'
-              margin='10px'
-              padding='0px'
-              border='2px solid #673c37'
-              borderRadius='0px'
-              onClick={() => {setShowModal(true)}}
-            />)}
-
             <Account
               isWalletConnected={isWalletConnected}
               isWeb3Injected={isWeb3Injected}
@@ -549,17 +465,18 @@ function Home() {
             align-items:center;
             height:30vh;
             width:30vw;
-            margin-left:10%;
+            margin-top:3%;
+            margin-left:7%;
 
           }
           img {
-            width: 125%;
-            height: 175%;
+            width: 150%;
+            height: 225%;
           }
           .uiText {
             position: absolute;
             text-align: center;
-            font-size: 2vh;
+            font-size: 1.5vh;
           }
           
           .feedSection {
@@ -577,7 +494,7 @@ function Home() {
             flex-direction: row;
             flex-wrap: wrap;
             justify-content: center;
-            font-size: 1.5vh;
+            font-size: 1.25vh;
           }
       `}</style>
     </div>
