@@ -8,7 +8,7 @@ import { PopupButton } from '@typeform/embed-react'
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 
-const toadzgotchiAddress = '0xb185E9f6531BA9877741022C92CE858cDCc5760E'
+const toadzgotchiAddress = '0x2C37944cB64257a682c1BA021fe089A7ACaA78E6'
 export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let account: string;
@@ -18,7 +18,7 @@ export let account: string;
 export const ethereum = () => {
   return (window as any).ethereum
 }
-export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoading) => {
+export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork) => {
   console.log('Running useEffect checkweb3')
   if (ethereum() == undefined || null) {
     setIsLoading(false)    
@@ -30,32 +30,41 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
     try {
       const tryProvider = new ethers.providers.Web3Provider(ethereum())
       provider=tryProvider
-      const network = await provider.getNetwork()
+      const tryNetwork = (await tryProvider.getNetwork()).chainId
+      setNetwork(tryNetwork)
+      console.log(tryNetwork)
       const trySigner = tryProvider.getSigner()
       signer = trySigner
       const tryAccount = await trySigner.getAddress()
       account = tryAccount
       setIsWalletConnected(true)
       console.log('Wallect is connected')
-      if (network.chainId != 1337) {
-        alert('Please connect to correct network: Hardhat Node, 1337')
-      }
+      // if (network.chainId != 1337) {
+      //   alert('Please connect to correct network: Hardhat Node, 1337')
+      // }
     } catch (err) {
       setIsLoading(false)
       console.log("Wallet is not connected. Cannot instantiate provider or get signer", err)
     }
   }
 }
-export const handleChainChanged = async(readToadStats) => {
+export const handleChainChanged = async(setNetwork) => {
   console.log('running handleChainChanged')
   if (ethereum() != undefined || null) {
     ethereum().on('chainChanged', (chainId) => {
       console.log(chainId)
-      if (chainId != 0x539) {
-        alert('switch back to hardhat node')
-      } else {
-        readToadStats
+      if (chainId == 0x1) {
+        setNetwork(1)
+      } else if (chainId == 0x4) {
+        setNetwork(4)
+      } else if (chainId == 0x539) {
+        setNetwork(1337)
+      } else if (chainId == 0x3) {
+        setNetwork(3)
+      } else if (chainId == 0x42) {
+        setNetwork(42)
       }
+      window.location.reload()
     })
   }
 }
@@ -82,42 +91,24 @@ export const handleAccountsChanged = async(setIsWalletConnected) => {
 export const requestAccount = async() => {
   await ethereum().request({ method: 'eth_requestAccounts' });
 }
+export const getminutes = async() => {
+  const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+  const data = await contract.getminutes()
+  console.log(`currentblock ${await provider.getBlockNumber()} minuteselapsed${data.toNumber()}`)
+  return data
+}
 export const calcDecay = async(i: number) => {
   if (ethereum() !== undefined || null) {
     const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
     const data = await contract.readToadStats()
     const currentBlock = await provider.getBlockNumber()
-    const timeElapsed = currentBlock - data[i]
-    let decayBy: number
-    let decayedValue: number
-    if (timeElapsed <= 1) {
-      decayBy = 0;
-    } else if (timeElapsed >= 2 && timeElapsed <= 4) {
-      decayBy = 10;
-    } else if (timeElapsed >= 5 && timeElapsed <= 7) {
-      decayBy = 20;
-    } else if (timeElapsed >= 8 && timeElapsed <= 10) {
-      decayBy = 30;
-    } else if (timeElapsed >= 11 && timeElapsed <= 13) {
-      decayBy = 40;
-    } else if (timeElapsed >= 14 && timeElapsed <= 16) {
-      decayBy = 50;
-    } else if (timeElapsed >= 17 && timeElapsed <= 19) {
-      decayBy = 60;
-    } else if (timeElapsed >= 20 && timeElapsed <= 22) {
-      decayBy = 70;
-    } else if (timeElapsed >= 23 && timeElapsed <= 25) {
-      decayBy = 80;
-    } else if (timeElapsed >= 26 && timeElapsed <= 28) {
-      decayBy = 90;
-    } else {
-      //call some function?
-      decayBy = 110;
-    }
-    decayedValue = data[i-1].toNumber() - decayBy
+    const minutesElapsed = ((currentBlock - data[i])*15)/60
+    let decayBy = (2 * minutesElapsed)
+    let decayedValue = data[i-1].toNumber() - decayBy
     if (decayedValue < 0) {
       decayedValue = 0
     }
+    console.log(`currentblock: ${currentBlock} minuteselapsed: ${minutesElapsed} decayedvalue: ${decayedValue}`)
     return (decayedValue)
   }
 }
@@ -129,118 +120,133 @@ function Home() {
   const [isWeb3Injected, setIsWeb3Injected] = useState(false)
   const [showModal, setShowModal] = useState(false);
   const [isVibing, setIsVibing] = useState(false)
+  const [network, setNetwork] = useState()
   const [toadLevel, setToadLevel] = useState(1)
   const [toadXP, setToadXP] = useState(0)
   const [isFed, setIsFed] = useState(() => { return 100 })
   const [isHappy, setIsHappy] = useState(() => { return 100 })
   const [isRested, setIsRested] = useState(() => { return 100 })
-  const [feedValue, setFeed] = useState(() => { return 10 })
-  const [playValue, setPlay] = useState(() => { return 10 })
-  const [sleepValue, setSleep] = useState(() => { return 10 })
   
   useEffect(() => {
     setIsLoading(true)
-    checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading)
+    checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
     .then(() => {readToadStats()})
     handleAccountsChanged(setIsWalletConnected)
-    handleChainChanged(readToadStats())
+    handleChainChanged(setNetwork)
   }, [])
 
   //runs no matter what on page hard reload
   useEffect(() => {
-    readToadStats()
+    if (network == 4) {
+      readToadStats()
+    }
   }, [isFed, isHappy, isRested, account])
 
-  function updateIsFed() {
-    setIsFed(prevIsFed => prevIsFed + feedValue)
-    //isFed updates only when top parent function is done running
-  }
-  function updateIsHappy() {
-    setIsHappy(prevIsHappy => prevIsHappy + playValue)
-    //isHappy updates only when top parent function is done running
-  }
-  function updateIsRested() {
-    setIsRested(prevIsRested => prevIsRested + sleepValue)
-    //isRested updates only when top parent function is done running
-  } 
+  function updateIsFed() {setIsFed(100)}
+  function updateIsHappy() {setIsHappy(100)}
+  function updateIsRested() {setIsRested(100)} 
+
   async function startVibing() {
-    if (isVibing) {
-      return
-    } else {
-      const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-      console.log('commence vibing')
-      try {
-        const transaction = await contract.startVibing()
-        await transaction.wait()
-        setIsVibing(true)
-        await readToadStats()
-      } catch(err) {
-        console.log(err)
+    if (network == 4) {
+      if (isVibing) {
+        return
+      } else {
+        const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+        console.log('commence vibing')
+        try {
+          const transaction = await contract.startVibing()
+          await transaction.wait()
+          setIsVibing(true)
+          await readToadStats()
+        } catch(err) {
+          console.log(err)
+        }
       }
+    } else {
+      console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
     }
   }
   async function readToadStats() {
-    if (ethereum()) {
-      console.log('running useEffect readtoadstats') //logs fourth
-      try {
-        const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-        const data = await contract.readToadStats()
-        setIsVibing(data[0])
-        setIsFed(await calcDecay(3))
-        setIsHappy(await calcDecay(5))
-        setIsRested(await calcDecay(7))
-        setToadXP(data[8].toNumber())
-        setToadLevel(data[9].toNumber())
-        setIsLoading(false)
-        console.log(`isVibing: ${data[0]}
-        startVibingBlock: ${data[1].toNumber()}
-        isFed: ${data[2].toNumber()}
-        lastFeedBlock: ${data[3].toNumber()}
-        isHappy: ${data[4].toNumber()}
-        lastPlayBlock: ${data[5].toNumber()}
-        isRested: ${data[6].toNumber()}
-        lastSleepBlock: ${data[7].toNumber()}
-        toadXP: ${data[8].toNumber()}
-        toadLevel: ${data[9].toNumber()}
-        isDead: ${data[10]}`)
-        console.log(`just completed block number: ${await provider.getBlockNumber()}`)
-        return (data)
-      } catch (err) {
-        console.log('Cannot read toad stats', err)
+    console.log('running useEffect readtoadstats') //logs fourth
+    if (network == 4) {
+      if (ethereum()) {
+        try {
+          const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+          const data = await contract.readToadStats()
+          setIsVibing(data[0])
+          setIsFed(await calcDecay(3))
+          setIsHappy(await calcDecay(5))
+          setIsRested(await calcDecay(7))
+          setToadXP(data[8].toNumber())
+          setToadLevel(data[9].toNumber())
+          setIsLoading(false)
+          console.log(`isVibing: ${data[0]}
+          startVibingBlock: ${data[1].toNumber()}
+          lastFeedBlock: ${data[3].toNumber()}
+          lastPlayBlock: ${data[5].toNumber()}
+          lastSleepBlock: ${data[7].toNumber()}
+          toadXP: ${data[8].toNumber()}
+          toadLevel: ${data[9].toNumber()}
+          isDead: ${data[10]}`)
+          console.log(`just completed block number: ${await provider.getBlockNumber()}`)
+          return (data)
+        } catch (err) {
+          console.log('Cannot read toad stats', err)
+        }
       }
+    } else {
+      console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
     }
   }
   async function feedToad() {
-    if (!feedValue) return
-    if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-      console.log(`commence feeding. current state isFed value is ${isFed}, being fed ${feedValue}`)
-      const transaction = await contract.feedToad(feedValue)
-      await transaction.wait()
-      //await readToadStats()
-      updateIsFed()
+    if (network == 4) {
+      if (isWalletConnected) {
+        try {
+          const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+          console.log(`commence feeding. current state isFed value is ${isFed}`)
+          const transaction = await contract.feedToad()
+          await transaction.wait()
+          updateIsFed()
+        } catch(err) {
+            console.log(err)
+        }
+      }
+    } else {
+      console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
     }
   }
   async function playToad() {
-    if (!playValue) return
-    if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-      console.log(`commence play. current state isHappy is ${isHappy}, being played ${playValue}`)
-      const transaction = await contract.playToad(playValue)
-      await transaction.wait()
-      //await readToadStats()
-      updateIsHappy()
+    if (network == 4) {
+      if (isWalletConnected) {
+        try {
+          const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+          console.log(`commence play. current state isHappy is ${isHappy}`)
+          const transaction = await contract.playToad()
+          await transaction.wait()
+          updateIsHappy()
+        } catch(err) {
+            console.log(err)
+        }
+      }
+    } else {
+      console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
     }
   }
   async function sleepToad() {
-    if (!sleepValue) return
-    if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-      console.log(`commence sleep. current state isRested is ${isRested}, being slept ${sleepValue}`)
-      const transaction = await contract.sleepToad(sleepValue)
-      await transaction.wait()
-      //await readToadStats()
-      updateIsRested()
+    if (network == 4) {
+      if (isWalletConnected) {
+        try {
+          const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+          console.log(`commence sleep. current state isRested is ${isRested}`)
+          const transaction = await contract.sleepToad()
+          await transaction.wait()
+          updateIsRested()
+        } catch(err) {
+            console.log(err)
+        }
+      }
+    } else {
+      console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
     }
   }
   return (
@@ -301,7 +307,8 @@ function Home() {
               <div id="modal-root"></div>
 
               {(isVibing && isWalletConnected) &&
-
+              //request rinkeby eth button?
+              //FAQ button
               (<section className='playerActions'>
                 <div className='feedDiv'>
                   <Button
@@ -389,12 +396,13 @@ function Home() {
                 </div>
               </section>)}
 
-              {/* <button onClick={ () => {readToadStats(ownsToadzgotchis)} }>Read Toad Stats</button> */}
+              {/* <button onClick={ () => {getminutes()} }>get minutes</button> */}
 
               {(!isVibing || !isWalletConnected) &&
 
               (<Button
-                text={ !isWeb3Injected ? ("INSTALL METAMASK") : (!isWalletConnected ? ("CONNECT METAMASK") : ("START VIBIN'")) }
+                text={ !isWeb3Injected ? ("INSTALL METAMASK") : 
+                (!isWalletConnected ? ("CONNECT METAMASK") : ((network == 4) ? ("START VIBIN'") : ('CHANGE NETWORK TO RINKEBY'))) }
                 display=''
                 flex=''
                 color='#332020'
