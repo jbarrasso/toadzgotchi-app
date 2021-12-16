@@ -8,7 +8,7 @@ import { PopupButton } from '@typeform/embed-react'
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 
-const toadzgotchiAddress = '0x2C37944cB64257a682c1BA021fe089A7ACaA78E6'
+const toadzgotchiAddress = '0xB84ED9FB6A9161B89869A994703B3B55c4b8630f'
 export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let account: string;
@@ -102,13 +102,15 @@ export const calcDecay = async(i: number) => {
     const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
     const data = await contract.readToadStats()
     const currentBlock = await provider.getBlockNumber()
-    const minutesElapsed = ((currentBlock - data[i])*15)/60
-    let decayBy = (2 * minutesElapsed)
-    let decayedValue = data[i-1].toNumber() - decayBy
-    if (decayedValue < 0) {
+    const hoursElapsed = ((currentBlock - data[i].toNumber())*15)/60
+    let decayBy = (2 * hoursElapsed)
+    let decayedValue
+    if (decayBy > data[i-1].toNumber()) {
       decayedValue = 0
+    } else {
+      decayedValue = data[i-1].toNumber() - decayBy
     }
-    console.log(`currentblock: ${currentBlock} minuteselapsed: ${minutesElapsed} decayedvalue: ${decayedValue}`)
+    console.log(`currentblock: ${currentBlock} minuteselapsed: ${hoursElapsed} decayedvalue: ${decayedValue}`)
     return (decayedValue)
   }
 }
@@ -123,6 +125,7 @@ function Home() {
   const [network, setNetwork] = useState()
   const [toadLevel, setToadLevel] = useState(1)
   const [toadXP, setToadXP] = useState(0)
+  const [isDead, setIsDead] = useState(false)
   const [isFed, setIsFed] = useState(() => { return 100 })
   const [isHappy, setIsHappy] = useState(() => { return 100 })
   const [isRested, setIsRested] = useState(() => { return 100 })
@@ -142,10 +145,6 @@ function Home() {
     }
   }, [isFed, isHappy, isRested, account])
 
-  function updateIsFed() {setIsFed(100)}
-  function updateIsHappy() {setIsHappy(100)}
-  function updateIsRested() {setIsRested(100)} 
-
   async function startVibing() {
     if (network == 4) {
       if (isVibing) {
@@ -157,7 +156,9 @@ function Home() {
           const transaction = await contract.startVibing()
           await transaction.wait()
           setIsVibing(true)
-          await readToadStats()
+          setIsDead(false)
+          //await readToadStats()
+          window.location.reload()
         } catch(err) {
           console.log(err)
         }
@@ -173,10 +174,17 @@ function Home() {
         try {
           const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
           const data = await contract.readToadStats()
+          const updatedFedValue = await calcDecay(3)
+          const updatedHappyValue = await calcDecay(5)
+          const updatedSleepValue = await calcDecay(7)
+          if ( (updatedFedValue == 0) && (updatedHappyValue==0) && (updatedSleepValue==0) ) {
+            setIsDead(true)
+          }
+          console.log(`${updatedFedValue}`)
           setIsVibing(data[0])
-          setIsFed(await calcDecay(3))
-          setIsHappy(await calcDecay(5))
-          setIsRested(await calcDecay(7))
+          setIsFed(updatedFedValue)
+          setIsHappy(updatedHappyValue)
+          setIsRested(updatedSleepValue)
           setToadXP(data[8].toNumber())
           setToadLevel(data[9].toNumber())
           setIsLoading(false)
@@ -206,7 +214,7 @@ function Home() {
           console.log(`commence feeding. current state isFed value is ${isFed}`)
           const transaction = await contract.feedToad()
           await transaction.wait()
-          updateIsFed()
+          setIsFed(100)
         } catch(err) {
             console.log(err)
         }
@@ -223,7 +231,7 @@ function Home() {
           console.log(`commence play. current state isHappy is ${isHappy}`)
           const transaction = await contract.playToad()
           await transaction.wait()
-          updateIsHappy()
+          setIsHappy(100)
         } catch(err) {
             console.log(err)
         }
@@ -240,7 +248,7 @@ function Home() {
           console.log(`commence sleep. current state isRested is ${isRested}`)
           const transaction = await contract.sleepToad()
           await transaction.wait()
-          updateIsRested()
+          setIsRested(100)
         } catch(err) {
             console.log(err)
         }
@@ -309,7 +317,7 @@ function Home() {
               {(isVibing && isWalletConnected) &&
               //request rinkeby eth button?
               //FAQ button
-              (<section className='playerActions'>
+              (!isDead ? (<section className='playerActions'>
                 <div className='feedDiv'>
                   <Button
                     text='FEED'
@@ -394,7 +402,7 @@ function Home() {
                   progressMaxValue={100}
                 />
                 </div>
-              </section>)}
+              </section>) : <h1> TOAD IS DEAD!</h1> )}
 
               {/* <button onClick={ () => {getminutes()} }>get minutes</button> */}
 
