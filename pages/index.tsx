@@ -8,7 +8,7 @@ import { PopupButton } from '@typeform/embed-react'
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 
-const toadzgotchiAddress = '0xB84ED9FB6A9161B89869A994703B3B55c4b8630f'
+const toadzgotchiAddress = '0xdAd0c376B7d7fa7829F2B5Fc9873CCe14f2dF4FD'
 export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let account: string;
@@ -91,10 +91,10 @@ export const handleAccountsChanged = async(setIsWalletConnected) => {
 export const requestAccount = async() => {
   await ethereum().request({ method: 'eth_requestAccounts' });
 }
-export const getminutes = async() => {
+export const gethours = async() => {
   const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-  const data = await contract.getminutes()
-  console.log(`currentblock ${await provider.getBlockNumber()} minuteselapsed${data.toNumber()}`)
+  const data = await contract.gethours()
+  console.log(`currentblock ${await provider.getBlockNumber()} hourselapsed${data.toNumber()}`)
   return data
 }
 export const calcDecay = async(i: number) => {
@@ -102,15 +102,18 @@ export const calcDecay = async(i: number) => {
     const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
     const data = await contract.readToadStats()
     const currentBlock = await provider.getBlockNumber()
-    const hoursElapsed = ((currentBlock - data[i].toNumber())*15)/60
-    let decayBy = (2 * hoursElapsed)
+    const hoursElapsed = (((currentBlock - data[i])*15)/60)/60
+
+    const x = await contract.calcDecay(data[i].toNumber(), data[i-1].toNumber())
+    console.log(x.toNumber())
+    let decayBy = (4 * hoursElapsed)
     let decayedValue
     if (decayBy > data[i-1].toNumber()) {
       decayedValue = 0
     } else {
       decayedValue = data[i-1].toNumber() - decayBy
     }
-    console.log(`currentblock: ${currentBlock} minuteselapsed: ${hoursElapsed} decayedvalue: ${decayedValue}`)
+    console.log(`currentblock: ${currentBlock} hrselapsed: ${hoursElapsed} decayedvalue: ${decayedValue}`)
     return (decayedValue)
   }
 }
@@ -126,9 +129,9 @@ function Home() {
   const [toadLevel, setToadLevel] = useState(1)
   const [toadXP, setToadXP] = useState(0)
   const [isDead, setIsDead] = useState(false)
-  const [isFed, setIsFed] = useState(() => { return 100 })
-  const [isHappy, setIsHappy] = useState(() => { return 100 })
-  const [isRested, setIsRested] = useState(() => { return 100 })
+  const [isFed, setIsFed] = useState(() => { return 96 })
+  const [isHappy, setIsHappy] = useState(() => { return 96 })
+  const [isRested, setIsRested] = useState(() => { return 96 })
   
   useEffect(() => {
     setIsLoading(true)
@@ -214,7 +217,7 @@ function Home() {
           console.log(`commence feeding. current state isFed value is ${isFed}`)
           const transaction = await contract.feedToad()
           await transaction.wait()
-          setIsFed(100)
+          setIsFed(96)
         } catch(err) {
             console.log(err)
         }
@@ -231,7 +234,7 @@ function Home() {
           console.log(`commence play. current state isHappy is ${isHappy}`)
           const transaction = await contract.playToad()
           await transaction.wait()
-          setIsHappy(100)
+          setIsHappy(96)
         } catch(err) {
             console.log(err)
         }
@@ -248,7 +251,7 @@ function Home() {
           console.log(`commence sleep. current state isRested is ${isRested}`)
           const transaction = await contract.sleepToad()
           await transaction.wait()
-          setIsRested(100)
+          setIsRested(96)
         } catch(err) {
             console.log(err)
         }
@@ -343,7 +346,7 @@ function Home() {
                     border=' 2px solid #673c37'
                     borderRadius='0px'
                     progressValue={isFed}
-                    progressMaxValue={100}
+                    progressMaxValue={96}
                   />
                 </div>
                 <div className='playDiv'>
@@ -371,7 +374,7 @@ function Home() {
                     border=' 2px solid #673c37'
                     borderRadius='0px'
                     progressValue={isHappy}
-                    progressMaxValue={100}
+                    progressMaxValue={96}
                   />
                 </div>
                 <div className='sleepDiv'>
@@ -399,12 +402,12 @@ function Home() {
                   border=' 2px solid #673c37'
                   borderRadius='0px'
                   progressValue={isRested}
-                  progressMaxValue={100}
+                  progressMaxValue={96}
                 />
                 </div>
               </section>) : <h1> TOAD IS DEAD!</h1> )}
 
-              {/* <button onClick={ () => {getminutes()} }>get minutes</button> */}
+              {/* <button onClick={ () => {gethours()} }>get hours</button> */}
 
               {(!isVibing || !isWalletConnected) &&
 

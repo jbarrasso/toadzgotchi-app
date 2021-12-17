@@ -31,13 +31,13 @@ contract Toadzgotchi {
         toadStats[msg.sender].startVibingTime = block.number;
         toadStats[msg.sender].toadLevel = 1;
 
-        toadStats[msg.sender].isFedValue = 3;
+        toadStats[msg.sender].isFedValue = 96;
         toadStats[msg.sender].lastFeedBlock = block.number;   
 
-        toadStats[msg.sender].isHappyValue = 3;
+        toadStats[msg.sender].isHappyValue = 96;
         toadStats[msg.sender].lastPlayBlock = block.number;
 
-        toadStats[msg.sender].isRestedValue = 3;
+        toadStats[msg.sender].isRestedValue = 96;
         toadStats[msg.sender].lastSleepBlock = block.number;
 
         console.log("'%s' has started game at block number '%s'", msg.sender, toadStats[msg.sender].startVibingTime);
@@ -50,14 +50,14 @@ contract Toadzgotchi {
     // function readToadSleep() public view returns (uint256) {return toadStats[msg.sender].isRestedValue;}
     // function returnMsgSender() public view returns (address) {return msg.sender;}
 
-    function getminutes() public view returns (uint256) {
-        uint256 minutesElapsed = (((block.number - toadStats[msg.sender].lastFeedBlock) * 15)/60);
-        return minutesElapsed;
+    function gethours() public view returns (uint256) {
+        uint256 hoursElapsed = (((block.number - toadStats[msg.sender].lastFeedBlock) * 15)/60)/60;
+        return hoursElapsed;
     }
-    function calcDecay(uint256 lastActionValue) public view returns (uint256) {
+    function calcDecay(uint256 lastActionBlock, uint256 lastActionValue) public view returns (uint256) {
         //1 Eth block every 15s
-        uint256 hoursElapsed = (((block.number - lastActionValue) * 15)/60);
-        uint256 decayBy = (2 * hoursElapsed);
+        uint256 hoursElapsed = (((block.number - lastActionBlock) * 15)/60)/60;
+        uint256 decayBy = (4 * hoursElapsed);
         uint256 updatedValue;
         if (decayBy > lastActionValue) {
             updatedValue = 0;
@@ -67,37 +67,33 @@ contract Toadzgotchi {
         return updatedValue;
     }
     function feedToad() public {
-        require(calcDecay(toadStats[msg.sender].isFedValue) < 100, "Toad is full");
-        require(((calcDecay(toadStats[msg.sender].isFedValue) != 0) &&
-                (calcDecay(toadStats[msg.sender].isHappyValue) != 0) &&
-                (calcDecay(toadStats[msg.sender].isRestedValue) != 0)), "Toad is Dead");
+        require(calcDecay(toadStats[msg.sender].lastFeedBlock, toadStats[msg.sender].isFedValue) < 96, "Toad is full");
+        require(calcDecay(toadStats[msg.sender].lastFeedBlock, toadStats[msg.sender].isFedValue) != 0, "Toad is starving");
+        require(calcDecay(toadStats[msg.sender].lastPlayBlock, toadStats[msg.sender].isHappyValue) != 0, "Toad is not happy");
+        require(calcDecay(toadStats[msg.sender].lastSleepBlock, toadStats[msg.sender].isRestedValue) != 0, "Toad is not slept");
 
         toadStats[msg.sender].lastFeedBlock = block.number;
-        grantXP(30);
+        grantXP(60);
     }
     function playToad() public {
-        require(calcDecay(toadStats[msg.sender].isHappyValue) < 100, "Toad is fully played");
-        require(calcDecay(toadStats[msg.sender].isRestedValue) > 50, "Toad can't play while sleepy");
-        if ((calcDecay(toadStats[msg.sender].isFedValue) == 0) &&
-            (calcDecay(toadStats[msg.sender].isHappyValue) == 0) &&
-            (calcDecay(toadStats[msg.sender].isRestedValue) == 0)) {
-            return;
-        } else {
-            toadStats[msg.sender].lastPlayBlock = block.number;
-            grantXP(70);
-        }
+        require(calcDecay(toadStats[msg.sender].lastPlayBlock, toadStats[msg.sender].isHappyValue) < 96, "Toad is fully played");
+        require(calcDecay(toadStats[msg.sender].lastSleepBlock, toadStats[msg.sender].isRestedValue) > 48, "Toad can't play while sleepy");
+        require(calcDecay(toadStats[msg.sender].lastFeedBlock, toadStats[msg.sender].isFedValue) != 0, "Toad is starving");
+        require(calcDecay(toadStats[msg.sender].lastPlayBlock, toadStats[msg.sender].isHappyValue) != 0, "Toad is not happy");
+        require(calcDecay(toadStats[msg.sender].lastSleepBlock, toadStats[msg.sender].isRestedValue) != 0, "Toad is not slept");
+        
+        toadStats[msg.sender].lastPlayBlock = block.number;
+        grantXP(100);
     }
     function sleepToad() public {
-        require(calcDecay(toadStats[msg.sender].isRestedValue) < 100, "Toad is fully rested");
-        require(calcDecay(toadStats[msg.sender].isFedValue) > 30, "Toad can't sleep while starving");
-        if ((calcDecay(toadStats[msg.sender].isFedValue) == 0) &&
-            (calcDecay(toadStats[msg.sender].isHappyValue) == 0) &&
-            (calcDecay(toadStats[msg.sender].isRestedValue) == 0)) {
-            return;
-        } else {
-            toadStats[msg.sender].lastSleepBlock = block.number;
-            grantXP(50);
-        }
+        require(calcDecay(toadStats[msg.sender].lastSleepBlock, toadStats[msg.sender].isRestedValue) < 96, "Toad is fully rested");
+        require(calcDecay(toadStats[msg.sender].lastFeedBlock, toadStats[msg.sender].isFedValue) > 32, "Toad can't sleep while starving");
+        require(calcDecay(toadStats[msg.sender].lastFeedBlock, toadStats[msg.sender].isFedValue) != 0, "Toad is starving");
+        require(calcDecay(toadStats[msg.sender].lastPlayBlock, toadStats[msg.sender].isHappyValue) != 0, "Toad is not happy");
+        require(calcDecay(toadStats[msg.sender].lastSleepBlock, toadStats[msg.sender].isRestedValue) != 0, "Toad is not slept");
+            
+        toadStats[msg.sender].lastSleepBlock = block.number;
+        grantXP(80);
     }
     function grantXP(uint256 giveXP) public {
         uint256 leftoverXP = 0;

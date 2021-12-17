@@ -21,9 +21,9 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface ToadzgotchiInterface extends ethers.utils.Interface {
   functions: {
-    "calcDecay(uint256)": FunctionFragment;
+    "calcDecay(uint256,uint256)": FunctionFragment;
     "feedToad()": FunctionFragment;
-    "getminutes()": FunctionFragment;
+    "gethours()": FunctionFragment;
     "grantXP(uint256)": FunctionFragment;
     "playToad()": FunctionFragment;
     "readToadStats()": FunctionFragment;
@@ -34,13 +34,10 @@ interface ToadzgotchiInterface extends ethers.utils.Interface {
 
   encodeFunctionData(
     functionFragment: "calcDecay",
-    values: [BigNumberish]
+    values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "feedToad", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "getminutes",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "gethours", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "grantXP",
     values: [BigNumberish]
@@ -59,7 +56,7 @@ interface ToadzgotchiInterface extends ethers.utils.Interface {
 
   decodeFunctionResult(functionFragment: "calcDecay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "feedToad", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getminutes", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "gethours", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "grantXP", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "playToad", data: BytesLike): Result;
   decodeFunctionResult(
@@ -121,6 +118,7 @@ export class Toadzgotchi extends BaseContract {
 
   functions: {
     calcDecay(
+      lastActionBlock: BigNumberish,
       lastActionValue: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -129,7 +127,7 @@ export class Toadzgotchi extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    getminutes(overrides?: CallOverrides): Promise<[BigNumber]>;
+    gethours(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     grantXP(
       giveXP: BigNumberish,
@@ -209,6 +207,7 @@ export class Toadzgotchi extends BaseContract {
   };
 
   calcDecay(
+    lastActionBlock: BigNumberish,
     lastActionValue: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -217,7 +216,7 @@ export class Toadzgotchi extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  getminutes(overrides?: CallOverrides): Promise<BigNumber>;
+  gethours(overrides?: CallOverrides): Promise<BigNumber>;
 
   grantXP(
     giveXP: BigNumberish,
@@ -295,13 +294,14 @@ export class Toadzgotchi extends BaseContract {
 
   callStatic: {
     calcDecay(
+      lastActionBlock: BigNumberish,
       lastActionValue: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     feedToad(overrides?: CallOverrides): Promise<void>;
 
-    getminutes(overrides?: CallOverrides): Promise<BigNumber>;
+    gethours(overrides?: CallOverrides): Promise<BigNumber>;
 
     grantXP(giveXP: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
@@ -373,6 +373,7 @@ export class Toadzgotchi extends BaseContract {
 
   estimateGas: {
     calcDecay(
+      lastActionBlock: BigNumberish,
       lastActionValue: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -381,7 +382,7 @@ export class Toadzgotchi extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    getminutes(overrides?: CallOverrides): Promise<BigNumber>;
+    gethours(overrides?: CallOverrides): Promise<BigNumber>;
 
     grantXP(
       giveXP: BigNumberish,
@@ -407,6 +408,7 @@ export class Toadzgotchi extends BaseContract {
 
   populateTransaction: {
     calcDecay(
+      lastActionBlock: BigNumberish,
       lastActionValue: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -415,7 +417,7 @@ export class Toadzgotchi extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    getminutes(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    gethours(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     grantXP(
       giveXP: BigNumberish,
