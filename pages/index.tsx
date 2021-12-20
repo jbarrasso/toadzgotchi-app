@@ -12,6 +12,8 @@ const toadzgotchiAddress = '0xdAd0c376B7d7fa7829F2B5Fc9873CCe14f2dF4FD'
 export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let account: string;
+// export let globalMessage = ''
+
 
 //Anonymous function expression to return a global object of Ethereum injection.
 //provider, signer, address returns undefined unless called inside functions
@@ -121,6 +123,7 @@ export const calcDecay = async(i: number) => {
 function Home() {
   const [renderCount, setrenderCount] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
+  const [globalMessage, setGlobalMessage] = useState('')
   const [isWalletConnected, setIsWalletConnected] = useState(false)
   const [isWeb3Injected, setIsWeb3Injected] = useState(false)
   const [showModal, setShowModal] = useState(false);
@@ -140,7 +143,7 @@ function Home() {
     handleAccountsChanged(setIsWalletConnected)
     handleChainChanged(setNetwork)
   }, [])
-
+  console.log(globalMessage)
   //runs no matter what on page hard reload
   useEffect(() => {
     if (network == 4) {
@@ -148,6 +151,54 @@ function Home() {
     }
   }, [isFed, isHappy, isRested, account])
 
+  // let i = 0;
+  // let data = 'Lorem ipsum dummy text blabla.';
+  // let speed = 510;
+  // async function typeWriter() {
+  //   if (i < data.length) {
+  //     globalMessage += data.charAt(i);
+  //     i++;
+  //     setTimeout(typeWriter, speed);
+  //   }
+  //   return globalMessage
+  // }
+  async function geef() {
+    const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+    try {
+      const transaction = await contract.feedToad()
+    } catch(err) {
+      setGlobalMessage('')
+      document.getElementById('animated').classList.remove('globalMessage')
+      setTimeout(() => {
+        setGlobalMessage(err.error.message)
+        document.getElementById('animated').classList.add('globalMessage')
+      }, 100);
+    }
+  }
+  async function fea() {
+    const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+    try {
+      const transaction = await contract.playToad()
+    } catch(err) {
+    setGlobalMessage('')
+    document.getElementById('animated').classList.remove('globalMessage')
+    setTimeout(() => {
+      setGlobalMessage(err.error.message)
+      document.getElementById('animated').classList.add('globalMessage')
+    }, 100);
+    // console.log (err.error.message)
+    }
+  }
+  function ani() {
+    // document.getElementById('animated').classList.remove('globalMessage')
+    setGlobalMessage('')
+    document.getElementById('animated').classList.remove('globalMessage')
+
+    console.log(document.getElementById('animated').classList)
+
+    // document.getElementById('animated').classList.remove('globalMessage')
+
+  }  
   async function startVibing() {
     if (network == 4) {
       if (isVibing) {
@@ -164,6 +215,12 @@ function Home() {
           window.location.reload()
         } catch(err) {
           console.log(err)
+          setGlobalMessage('')
+          document.getElementById('animated').classList.remove('globalMessage')
+          setTimeout(() => {
+            setGlobalMessage("Oops! Toad can't vibe right now")
+            document.getElementById('animated').classList.add('globalMessage')
+          }, 100);
         }
       }
     } else {
@@ -180,6 +237,7 @@ function Home() {
           const updatedFedValue = await calcDecay(3)
           const updatedHappyValue = await calcDecay(5)
           const updatedSleepValue = await calcDecay(7)
+          console.log(updatedFedValue)
           if ( (updatedFedValue == 0) && (updatedHappyValue==0) && (updatedSleepValue==0) ) {
             setIsDead(true)
           }
@@ -218,8 +276,20 @@ function Home() {
           const transaction = await contract.feedToad()
           await transaction.wait()
           setIsFed(96)
+          setGlobalMessage('')
+          document.getElementById('animated').classList.remove('globalMessage')
         } catch(err) {
             console.log(err)
+            setGlobalMessage('')
+            document.getElementById('animated').classList.remove('globalMessage')
+            setTimeout(() => {
+              try {
+                setGlobalMessage(`Hmmm.. It seems that ${err.error.message.slice(20)}...`)
+                document.getElementById('animated').classList.add('globalMessage')
+              } catch {
+                return
+              }
+            }, 100);
         }
       }
     } else {
@@ -235,8 +305,20 @@ function Home() {
           const transaction = await contract.playToad()
           await transaction.wait()
           setIsHappy(96)
+          setGlobalMessage('')
+          document.getElementById('animated').classList.remove('globalMessage')
         } catch(err) {
             console.log(err)
+            setGlobalMessage('')
+            document.getElementById('animated').classList.remove('globalMessage')
+            setTimeout(() => {
+              try {
+                setGlobalMessage(`Hmmm.. It seems that ${err.error.message.slice(20)}...`)
+                document.getElementById('animated').classList.add('globalMessage')
+              } catch {
+                return
+              }
+            }, 100);
         }
       }
     } else {
@@ -252,8 +334,20 @@ function Home() {
           const transaction = await contract.sleepToad()
           await transaction.wait()
           setIsRested(96)
+          setGlobalMessage('')
+          document.getElementById('animated').classList.remove('globalMessage')
         } catch(err) {
             console.log(err)
+            setGlobalMessage('')
+            document.getElementById('animated').classList.remove('globalMessage')
+            setTimeout(() => {
+              try {
+                setGlobalMessage(`Hmmm.. It seems that ${err.error.message.slice(20)}...`)
+                document.getElementById('animated').classList.add('globalMessage')
+              } catch {
+                return
+              }
+            }, 100);
         }
       }
     } else {
@@ -292,7 +386,8 @@ function Home() {
               style={{fontFamily: 'Pixeled', 
               color: '#332020',
               backgroundColor: '#b0a28d',
-              border: ' 2px solid #673c37'}}
+              border: ' 2px solid #673c37',
+              cursor: 'pointer'}}
               className='feedbackButton'
               size={75}
               hideHeaders={true}>
@@ -332,6 +427,7 @@ function Home() {
                     padding='0px'
                     border=' 2px solid #673c37'
                     borderRadius='0px'
+                    cursor='pointer'
                     onClick={feedToad}
                   />
                   <ProgressBar
@@ -360,6 +456,7 @@ function Home() {
                     padding='0px'
                     border=' 2px solid #673c37'
                     borderRadius='0px'
+                    cursor='pointer'
                     onClick={playToad}
                   />
                   <ProgressBar
@@ -388,6 +485,7 @@ function Home() {
                     padding='0px'
                     border=' 2px solid #673c37'
                     borderRadius='0px'
+                    cursor='pointer'
                     onClick={sleepToad}
                   />
                 <ProgressBar
@@ -407,8 +505,6 @@ function Home() {
                 </div>
               </section>) : <h1> TOAD IS DEAD!</h1> )}
 
-              {/* <button onClick={ () => {gethours()} }>get hours</button> */}
-
               {(!isVibing || !isWalletConnected) &&
 
               (<Button
@@ -422,6 +518,7 @@ function Home() {
                 padding='0px'
                 border=' 2px solid #673c37'
                 borderRadius='0px'
+                cursor= 'pointer'
                 onClick={!isWeb3Injected ? 
                   (() => {window.open('https://metamask.io/download','_blank')}) : 
                   (!isWalletConnected ? requestAccount : startVibing)}
@@ -447,6 +544,15 @@ function Home() {
                 />
               </div>)}
             </div>
+          </div>
+          {/* <button onClick={ () => fea() }>fea message</button>
+          <button onClick={ () => geef() }>set message</button> */}
+
+          <div className='globalMessageContainer'>
+            <img className='globalMessagesImg' src='/img/global-messages.png'></img>
+            <p id='animated'>{globalMessage}
+            </p>
+            {console.log(globalMessage)}
           </div>
         </main>
         {console.log('done running html')}
@@ -476,7 +582,40 @@ function Home() {
             justify-content: flex-end;
             padding: 10px;
           }
-          
+          .fill{
+            position: relative;
+            margin-top:50px;
+            margin-left:70px;
+          }
+          .globalMessage {
+            overflow: hidden;
+            // border-right: .15em solid orange;
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: .15em;
+            display: inline-block;
+            animation:
+            typing 2s steps(40, end) forwards;
+            position: absolute;
+            width:100%;
+            margin-top:50px;
+            margin-left:120px;
+          }
+          @keyframes typing {
+            from { width: 0% }
+            to { width: 120% } 
+          }
+          .globalMessagesImg {
+            height:100%;
+
+            position: absolute;
+          }
+          .globalMessageContainer {
+            position: relative;
+            margin-top: 150px;
+            height:150px;
+            width:65%;
+          }
           .uiContainer{
             display: flex;
             align-content:center;
