@@ -12,6 +12,7 @@ const toadzgotchiAddress = '0xdAd0c376B7d7fa7829F2B5Fc9873CCe14f2dF4FD'
 export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let account: string;
+export let dynamicBG: string;
 // export let globalMessage = ''
 
 
@@ -87,6 +88,7 @@ export const handleAccountsChanged = async(setIsWalletConnected) => {
         setIsWalletConnected(false)
         console.log('wallet disconnected')
       }
+      window.location.reload()
     });
   }
 }
@@ -105,11 +107,10 @@ export const calcDecay = async(i: number) => {
     const data = await contract.readToadStats()
     const currentBlock = await provider.getBlockNumber()
     const hoursElapsed = (((currentBlock - data[i])*15)/60)/60
-
     const x = await contract.calcDecay(data[i].toNumber(), data[i-1].toNumber())
     console.log(x.toNumber())
     let decayBy = (4 * hoursElapsed)
-    let decayedValue
+    let decayedValue: number
     if (decayBy > data[i-1].toNumber()) {
       decayedValue = 0
     } else {
@@ -121,6 +122,7 @@ export const calcDecay = async(i: number) => {
 }
 
 function Home() {
+  getTime()
   const [renderCount, setrenderCount] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
   const [globalMessage, setGlobalMessage] = useState('')
@@ -143,7 +145,7 @@ function Home() {
     handleAccountsChanged(setIsWalletConnected)
     handleChainChanged(setNetwork)
   }, [])
-  console.log(globalMessage)
+
   //runs no matter what on page hard reload
   useEffect(() => {
     if (network == 4) {
@@ -151,17 +153,6 @@ function Home() {
     }
   }, [isFed, isHappy, isRested, account])
 
-  // let i = 0;
-  // let data = 'Lorem ipsum dummy text blabla.';
-  // let speed = 510;
-  // async function typeWriter() {
-  //   if (i < data.length) {
-  //     globalMessage += data.charAt(i);
-  //     i++;
-  //     setTimeout(typeWriter, speed);
-  //   }
-  //   return globalMessage
-  // }
   async function geef() {
     const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
     try {
@@ -274,10 +265,16 @@ function Home() {
           const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
           console.log(`commence feeding. current state isFed value is ${isFed}`)
           const transaction = await contract.feedToad()
-          await transaction.wait()
-          setIsFed(96)
           setGlobalMessage('')
           document.getElementById('animated').classList.remove('globalMessage')
+          document.getElementById('feedAnimation').classList.add('bgWrap')
+          document.getElementById('feedAnimation').classList.remove('hidden')
+          setTimeout(() => {
+            document.getElementById('feedAnimation').classList.add('hidden')
+            document.getElementById('feedAnimation').classList.remove('bgWrap')
+          }, 7000);
+          await transaction.wait()
+          setIsFed(96)
         } catch(err) {
             console.log(err)
             setGlobalMessage('')
@@ -303,10 +300,16 @@ function Home() {
           const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
           console.log(`commence play. current state isHappy is ${isHappy}`)
           const transaction = await contract.playToad()
-          await transaction.wait()
-          setIsHappy(96)
           setGlobalMessage('')
           document.getElementById('animated').classList.remove('globalMessage')
+          document.getElementById('playAnimation').classList.add('bgWrap')
+          document.getElementById('playAnimation').classList.remove('hidden')
+          setTimeout(() => {
+            document.getElementById('playAnimation').classList.add('hidden')
+            document.getElementById('playAnimation').classList.remove('bgWrap')
+          }, 7000);
+          await transaction.wait()
+          setIsHappy(96)
         } catch(err) {
             console.log(err)
             setGlobalMessage('')
@@ -332,10 +335,16 @@ function Home() {
           const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
           console.log(`commence sleep. current state isRested is ${isRested}`)
           const transaction = await contract.sleepToad()
-          await transaction.wait()
-          setIsRested(96)
           setGlobalMessage('')
           document.getElementById('animated').classList.remove('globalMessage')
+          document.getElementById('sleepAnimation').classList.add('bgWrap')
+          document.getElementById('sleepAnimation').classList.remove('hidden')
+          setTimeout(() => {
+            document.getElementById('sleepAnimation').classList.add('hidden')
+            document.getElementById('sleepAnimation').classList.remove('bgWrap')
+          }, 7000);
+          await transaction.wait()
+          setIsRested(96)
         } catch(err) {
             console.log(err)
             setGlobalMessage('')
@@ -354,6 +363,13 @@ function Home() {
       console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
     }
   }
+  function getTime() {
+    if ((new Date().getHours() > 18) && (new Date().getHours() < 6)) {
+      dynamicBG = '/img/nightbg.gif'
+    } else {
+      dynamicBG = '/img/ToadzgotchiBG.gif'
+    }
+  }
   return (
     <div>
       {false ? (<div>Loading{console.log(`isLoading? ${isLoading}`)}</div>) :
@@ -362,7 +378,34 @@ function Home() {
         <div className='bgWrap'>
           <Image
             alt='Swamp'
-            src='/img/ToadzgotchiBG.gif'
+            src={dynamicBG}
+            layout='fill'
+            objectFit='fill'
+            quality={100}
+          />
+        </div>
+        <div id='feedAnimation' className='hidden'>
+          <Image
+            alt='Swamp'
+            src='/img/feed.gif'
+            layout='fill'
+            objectFit='fill'
+            quality={100}
+          />
+        </div>
+        <div id='playAnimation' className='hidden'>
+          <Image
+            alt='Swamp'
+            src='/img/play.gif'
+            layout='fill'
+            objectFit='fill'
+            quality={100}
+          />
+        </div>
+        <div id='sleepAnimation' className='hidden'>
+          <Image
+            alt='Swamp'
+            src='/img/sleep.gif'
             layout='fill'
             objectFit='fill'
             quality={100}
@@ -545,8 +588,8 @@ function Home() {
               </div>)}
             </div>
           </div>
-          {/* <button onClick={ () => fea() }>fea message</button>
-          <button onClick={ () => geef() }>set message</button> */}
+      
+          {/* <button onClick={ () => getTime() }>fea message</button> */}
 
           <div className='globalMessageContainer'>
             <img className='globalMessagesImg' src='/img/global-messages.png'></img>
@@ -562,7 +605,6 @@ function Home() {
             font-family: Pixeled;
             text-align: center;
           }
-
           .bgWrap {
             position: fixed;
             height: 100vh;
@@ -570,11 +612,16 @@ function Home() {
             overflow: hidden;
             z-index: -1;
           }
-
+          .hidden {
+            position: fixed;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            z-index: -2;
+          }
           main {
             font-family: Pixeled;
           }
-
           nav {
             font-family: Pixeled;
             height:5%;
@@ -607,7 +654,6 @@ function Home() {
           }
           .globalMessagesImg {
             height:100%;
-
             position: absolute;
           }
           .globalMessageContainer {
