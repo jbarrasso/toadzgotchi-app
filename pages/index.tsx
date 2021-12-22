@@ -4,6 +4,7 @@ import Image from "next/image"
 import Button from "../components/Button"
 import Account from "../components/Account"
 import ProgressBar from '../components/ProgressBar'
+import Sound from 'react-sound'
 import { PopupButton } from '@typeform/embed-react'
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
@@ -13,6 +14,8 @@ export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let account: string;
 export let dynamicBG: string;
+export let songPlaylist = ['/img/ninja-toad.mp3','/img/no-worries.mp3','/img/city-over-clouds.mp3','/img/big-helmet.mp3','/img/a-fly.mp3']
+
 // export let globalMessage = ''
 
 
@@ -129,6 +132,8 @@ function Home() {
   const [isWalletConnected, setIsWalletConnected] = useState(false)
   const [isWeb3Injected, setIsWeb3Injected] = useState(false)
   const [showModal, setShowModal] = useState(false);
+  const [songStatus, setSongStatus] = useState(Sound.status.STOPPED)
+  const [currentSong, setCurrentSong] = useState(songPlaylist[0])
   const [isVibing, setIsVibing] = useState(false)
   const [network, setNetwork] = useState()
   const [toadLevel, setToadLevel] = useState(1)
@@ -364,12 +369,37 @@ function Home() {
     }
   }
   function getTime() {
-    if ((new Date().getHours() > 18) && (new Date().getHours() < 6)) {
+    if ((new Date().getHours() > 18) || (new Date().getHours() < 6)) {
       dynamicBG = '/img/nightbg.gif'
     } else {
       dynamicBG = '/img/ToadzgotchiBG.gif'
     }
   }
+  function togglePlaySong(setSongStatus) {
+    if (songStatus == 'PLAYING') {
+      setSongStatus(Sound.status.STOPPED)
+    } else {
+      setSongStatus(Sound.status.PLAYING)
+    }
+  }
+  async function skipSong(setSongStatus, setCurrentSong) {
+    if (songStatus == 'PLAYING') {
+      // togglePlaySong(setSongStatus)
+      console.log(currentSong)
+      for (let i=0; i<songPlaylist.length; i++) {
+        if (currentSong == songPlaylist[i]) {
+          if (i == (songPlaylist.length-1)) {
+            setCurrentSong(songPlaylist[0])
+            return
+          } else {
+            setCurrentSong(songPlaylist[i+1])
+            return
+          }
+        }
+      }
+    }
+  }
+  console.log(currentSong)
   return (
     <div>
       {false ? (<div>Loading{console.log(`isLoading? ${isLoading}`)}</div>) :
@@ -382,6 +412,11 @@ function Home() {
             layout='fill'
             objectFit='fill'
             quality={100}
+          />
+          <Sound
+            url={currentSong}
+            playStatus={songStatus}
+            loop={true}
           />
         </div>
         <div id='feedAnimation' className='hidden'>
@@ -396,7 +431,7 @@ function Home() {
         <div id='playAnimation' className='hidden'>
           <Image
             alt='Swamp'
-            src='/img/play.gif'
+            src='/img/feed.gif'
             layout='fill'
             objectFit='fill'
             quality={100}
@@ -417,6 +452,37 @@ function Home() {
         </Head>
         <header>
           <nav>
+            <Button
+              text='🎵'
+              display=''
+              flex='flex'
+              color='#332020'
+              backgroundColor='#b0a28d'
+              margin='0px'
+              padding='0px'
+              border=' 2px solid #673c37'
+              borderRadius='0px'
+              cursor= 'pointer'
+              onClick={() => togglePlaySong(setSongStatus)}
+            />
+            <Button
+              text='Skip'
+              display=''
+              flex='flex'
+              color='#332020'
+              backgroundColor='#b0a28d'
+              margin='0px'
+              padding='0px'
+              border=' 2px solid #673c37'
+              borderRadius='0px'
+              cursor= 'pointer'
+              onClick={ () => skipSong(setSongStatus, setCurrentSong).then(() => {
+                  if (songStatus == 'PLAYING') {
+                    setSongStatus(Sound.status.PLAYING)
+                  }
+                }
+              )}
+            />
             <Account
               isWalletConnected={isWalletConnected}
               isWeb3Injected={isWeb3Injected}
@@ -588,8 +654,9 @@ function Home() {
               </div>)}
             </div>
           </div>
-      
-          {/* <button onClick={ () => getTime() }>fea message</button> */}
+
+          {/* <button onClick={getTime()}>play song</button>
+          <button onClick={getTime()}>skip song</button> */}
 
           <div className='globalMessageContainer'>
             <img className='globalMessagesImg' src='/img/global-messages.png'></img>

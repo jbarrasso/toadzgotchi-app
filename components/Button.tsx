@@ -26,7 +26,10 @@ const Button = ({ text, display, flex, color, backgroundColor, margin, padding, 
                      padding: padding,
                      border: border,
                      borderRadius: borderRadius,
-                     cursor: cursor
+                     cursor: cursor,
+                     marginRight: '5px',
+                     paddingLeft: '5px',
+                     paddingRight: '5px'
         }}
         onClick={onClick}
         >
