@@ -6,7 +6,7 @@ import Account from "../components/Account"
 import ProgressBar from '../components/ProgressBar'
 import Sound from 'react-sound'
 import { PopupButton } from '@typeform/embed-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ethers } from 'ethers'
 
 const toadzgotchiAddress = '0xdAd0c376B7d7fa7829F2B5Fc9873CCe14f2dF4FD'
@@ -15,9 +15,6 @@ export let signer: ethers.providers.JsonRpcSigner;
 export let account: string;
 export let dynamicBG: string;
 export let songPlaylist = ['/img/ninja-toad.mp3','/img/no-worries.mp3','/img/city-over-clouds.mp3','/img/big-helmet.mp3','/img/a-fly.mp3']
-
-// export let globalMessage = ''
-
 
 //Anonymous function expression to return a global object of Ethereum injection.
 //provider, signer, address returns undefined unless called inside functions
@@ -126,7 +123,6 @@ export const calcDecay = async(i: number) => {
 
 function Home() {
   getTime()
-  const [renderCount, setrenderCount] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
   const [globalMessage, setGlobalMessage] = useState('')
   const [isWalletConnected, setIsWalletConnected] = useState(false)
@@ -382,9 +378,8 @@ function Home() {
       setSongStatus(Sound.status.PLAYING)
     }
   }
-  async function skipSong(setSongStatus, setCurrentSong) {
+  async function skipSong(setCurrentSong) {
     if (songStatus == 'PLAYING') {
-      // togglePlaySong(setSongStatus)
       console.log(currentSong)
       for (let i=0; i<songPlaylist.length; i++) {
         if (currentSong == songPlaylist[i]) {
@@ -399,7 +394,6 @@ function Home() {
       }
     }
   }
-  console.log(currentSong)
   return (
     <div>
       {false ? (<div>Loading{console.log(`isLoading? ${isLoading}`)}</div>) :
@@ -476,7 +470,7 @@ function Home() {
               border=' 2px solid #673c37'
               borderRadius='0px'
               cursor= 'pointer'
-              onClick={ () => skipSong(setSongStatus, setCurrentSong).then(() => {
+              onClick={ () => skipSong(setCurrentSong).then(() => {
                   if (songStatus == 'PLAYING') {
                     setSongStatus(Sound.status.PLAYING)
                   }
