@@ -14,7 +14,8 @@ export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let account: string;
 export let dynamicBG: string;
-export let songPlaylist = ['/img/ninja-toad.mp3','/img/no-worries.mp3','/img/city-over-clouds.mp3','/img/big-helmet.mp3','/img/a-fly.mp3']
+export let currentToad: string;
+export let songPlaylist = ['/img/a-fly.mp3','/img/no-worries.mp3','/img/city-over-clouds.mp3','/img/big-helmet.mp3','/img/ninja-toad.mp3']
 
 //Anonymous function expression to return a global object of Ethereum injection.
 //provider, signer, address returns undefined unless called inside functions
@@ -101,20 +102,20 @@ export const gethours = async() => {
   console.log(`currentblock ${await provider.getBlockNumber()} hourselapsed${data.toNumber()}`)
   return data
 }
-export const calcDecay = async(i: number) => {
+export const calcDecay = async(stats, i) => {
   if (ethereum() !== undefined || null) {
     const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-    const data = await contract.readToadStats()
+    //const data = await contract.readToadStats()
     const currentBlock = await provider.getBlockNumber()
-    const hoursElapsed = (((currentBlock - data[i])*15)/60)/60
-    const x = await contract.calcDecay(data[i].toNumber(), data[i-1].toNumber())
-    console.log(x.toNumber())
+    const hoursElapsed = (((currentBlock - stats[i])*15)/60)/60
+    // const x = await contract.calcDecay(data[i].toNumber(), data[i-1])
+    // console.log(x.toNumber())
     let decayBy = (4 * hoursElapsed)
     let decayedValue: number
-    if (decayBy > data[i-1].toNumber()) {
+    if (decayBy > stats[i-1].toNumber()) {
       decayedValue = 0
     } else {
-      decayedValue = data[i-1].toNumber() - decayBy
+      decayedValue = stats[i-1].toNumber() - decayBy
     }
     console.log(`currentblock: ${currentBlock} hrselapsed: ${hoursElapsed} decayedvalue: ${decayedValue}`)
     return (decayedValue)
@@ -122,7 +123,6 @@ export const calcDecay = async(i: number) => {
 }
 
 function Home() {
-  getTime()
   const [isLoading, setIsLoading] = useState(true)
   const [globalMessage, setGlobalMessage] = useState('')
   const [isWalletConnected, setIsWalletConnected] = useState(false)
@@ -132,65 +132,54 @@ function Home() {
   const [currentSong, setCurrentSong] = useState(songPlaylist[0])
   const [isVibing, setIsVibing] = useState(false)
   const [network, setNetwork] = useState()
-  const [toadLevel, setToadLevel] = useState(1)
+  const [toadLevel, setToadLevel] = useState(null)
+  const levelChange = useRef(0)
   const [toadXP, setToadXP] = useState(0)
   const [isDead, setIsDead] = useState(false)
   const [isFed, setIsFed] = useState(() => { return 96 })
   const [isHappy, setIsHappy] = useState(() => { return 96 })
   const [isRested, setIsRested] = useState(() => { return 96 })
+
+  getTime()
+  displayCurrentToad()
   
   useEffect(() => {
     setIsLoading(true)
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
-    .then(() => {readToadStats()})
+    //.then(() => {readToadStats()})
+    //set level here
     handleAccountsChanged(setIsWalletConnected)
     handleChainChanged(setNetwork)
   }, [])
+
+  useEffect(() => {
+    levelChange.current = levelChange.current + 1
+    if (levelChange.current > 2) {
+      document.getElementById('levelUpAnimation').classList.add('bgWrap')
+      document.getElementById('levelUpAnimation').classList.remove('hidden')
+      setTimeout(() => {
+        document.getElementById('levelUpAnimation').classList.remove('bgWrap')
+        document.getElementById('levelUpAnimation').classList.add('hidden')
+      }, 4000);
+    }
+  }, [toadLevel])
 
   //runs no matter what on page hard reload
   useEffect(() => {
     if (network == 4) {
       readToadStats()
+      .then(async(stats) => {
+        setIsVibing(stats[0])
+        setToadXP(stats[8].toNumber())
+        setToadLevel(stats[9].toNumber())
+        setIsLoading(false)
+        setIsFed(await calcDecay(stats, 3))
+        setIsHappy(await calcDecay(stats, 5))
+        setIsRested(await calcDecay(stats, 7))
+      })
     }
   }, [isFed, isHappy, isRested, account])
 
-  async function geef() {
-    const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-    try {
-      const transaction = await contract.feedToad()
-    } catch(err) {
-      setGlobalMessage('')
-      document.getElementById('animated').classList.remove('globalMessage')
-      setTimeout(() => {
-        setGlobalMessage(err.error.message)
-        document.getElementById('animated').classList.add('globalMessage')
-      }, 100);
-    }
-  }
-  async function fea() {
-    const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-    try {
-      const transaction = await contract.playToad()
-    } catch(err) {
-    setGlobalMessage('')
-    document.getElementById('animated').classList.remove('globalMessage')
-    setTimeout(() => {
-      setGlobalMessage(err.error.message)
-      document.getElementById('animated').classList.add('globalMessage')
-    }, 100);
-    // console.log (err.error.message)
-    }
-  }
-  function ani() {
-    // document.getElementById('animated').classList.remove('globalMessage')
-    setGlobalMessage('')
-    document.getElementById('animated').classList.remove('globalMessage')
-
-    console.log(document.getElementById('animated').classList)
-
-    // document.getElementById('animated').classList.remove('globalMessage')
-
-  }  
   async function startVibing() {
     if (network == 4) {
       if (isVibing) {
@@ -225,32 +214,17 @@ function Home() {
       if (ethereum()) {
         try {
           const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-          const data = await contract.readToadStats()
-          const updatedFedValue = await calcDecay(3)
-          const updatedHappyValue = await calcDecay(5)
-          const updatedSleepValue = await calcDecay(7)
-          console.log(updatedFedValue)
-          if ( (updatedFedValue == 0) && (updatedHappyValue==0) && (updatedSleepValue==0) ) {
-            setIsDead(true)
-          }
-          console.log(`${updatedFedValue}`)
-          setIsVibing(data[0])
-          setIsFed(updatedFedValue)
-          setIsHappy(updatedHappyValue)
-          setIsRested(updatedSleepValue)
-          setToadXP(data[8].toNumber())
-          setToadLevel(data[9].toNumber())
-          setIsLoading(false)
-          console.log(`isVibing: ${data[0]}
-          startVibingBlock: ${data[1].toNumber()}
-          lastFeedBlock: ${data[3].toNumber()}
-          lastPlayBlock: ${data[5].toNumber()}
-          lastSleepBlock: ${data[7].toNumber()}
-          toadXP: ${data[8].toNumber()}
-          toadLevel: ${data[9].toNumber()}
-          isDead: ${data[10]}`)
+          const stats = await contract.readToadStats()
+          // console.log(`isVibing: ${data[0]}
+          // startVibingBlock: ${data[1].toNumber()}
+          // lastFeedBlock: ${data[3].toNumber()}
+          // lastPlayBlock: ${data[5].toNumber()}
+          // lastSleepBlock: ${data[7].toNumber()}
+          // toadXP: ${data[8].toNumber()}
+          // toadLevel: ${data[9].toNumber()}
+          // isDead: ${data[10]}`)
           console.log(`just completed block number: ${await provider.getBlockNumber()}`)
-          return (data)
+          return (stats)
         } catch (err) {
           console.log('Cannot read toad stats', err)
         }
@@ -266,24 +240,30 @@ function Home() {
           const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
           console.log(`commence feeding. current state isFed value is ${isFed}`)
           const transaction = await contract.feedToad()
+          //if contract call succeeds, clear current message
           setGlobalMessage('')
-          document.getElementById('animated').classList.remove('globalMessage')
+          //and remove the class that adds the typewriter effect
+          document.getElementById('typewriterText').classList.remove('globalMessage')
+          //add the class that superimposes animation on scene
           document.getElementById('feedAnimation').classList.add('bgWrap')
+          //remove the class that hides the animation
           document.getElementById('feedAnimation').classList.remove('hidden')
-          setTimeout(() => {
+          //wait for the transaction to finish, then hide the animation
+          await transaction.wait().then(() => {
             document.getElementById('feedAnimation').classList.add('hidden')
             document.getElementById('feedAnimation').classList.remove('bgWrap')
-          }, 7000);
-          await transaction.wait()
+          })
           setIsFed(96)
         } catch(err) {
             console.log(err)
+            //if contract call fails, clear the current message (from possible previous error)
             setGlobalMessage('')
-            document.getElementById('animated').classList.remove('globalMessage')
+            document.getElementById('typewriterText').classList.remove('globalMessage')
             setTimeout(() => {
               try {
+                //and after .1s, add the new message and keep it on screen
                 setGlobalMessage(`Hmmm.. It seems that ${err.error.message.slice(20)}...`)
-                document.getElementById('animated').classList.add('globalMessage')
+                document.getElementById('typewriterText').classList.add('globalMessage')
               } catch {
                 return
               }
@@ -302,23 +282,22 @@ function Home() {
           console.log(`commence play. current state isHappy is ${isHappy}`)
           const transaction = await contract.playToad()
           setGlobalMessage('')
-          document.getElementById('animated').classList.remove('globalMessage')
+          document.getElementById('typewriterText').classList.remove('globalMessage')
           document.getElementById('playAnimation').classList.add('bgWrap')
           document.getElementById('playAnimation').classList.remove('hidden')
-          setTimeout(() => {
+          await transaction.wait().then(() => {
             document.getElementById('playAnimation').classList.add('hidden')
             document.getElementById('playAnimation').classList.remove('bgWrap')
-          }, 7000);
-          await transaction.wait()
+          })
           setIsHappy(96)
         } catch(err) {
             console.log(err)
             setGlobalMessage('')
-            document.getElementById('animated').classList.remove('globalMessage')
+            document.getElementById('typewriterText').classList.remove('globalMessage')
             setTimeout(() => {
               try {
                 setGlobalMessage(`Hmmm.. It seems that ${err.error.message.slice(20)}...`)
-                document.getElementById('animated').classList.add('globalMessage')
+                document.getElementById('typewriterText').classList.add('globalMessage')
               } catch {
                 return
               }
@@ -337,23 +316,22 @@ function Home() {
           console.log(`commence sleep. current state isRested is ${isRested}`)
           const transaction = await contract.sleepToad()
           setGlobalMessage('')
-          document.getElementById('animated').classList.remove('globalMessage')
+          document.getElementById('typewriterText').classList.remove('globalMessage')
           document.getElementById('sleepAnimation').classList.add('bgWrap')
           document.getElementById('sleepAnimation').classList.remove('hidden')
-          setTimeout(() => {
+          await transaction.wait().then(() => {
             document.getElementById('sleepAnimation').classList.add('hidden')
             document.getElementById('sleepAnimation').classList.remove('bgWrap')
-          }, 7000);
-          await transaction.wait()
+          })
           setIsRested(96)
         } catch(err) {
             console.log(err)
             setGlobalMessage('')
-            document.getElementById('animated').classList.remove('globalMessage')
+            document.getElementById('typewriterText').classList.remove('globalMessage')
             setTimeout(() => {
               try {
                 setGlobalMessage(`Hmmm.. It seems that ${err.error.message.slice(20)}...`)
-                document.getElementById('animated').classList.add('globalMessage')
+                document.getElementById('typewriterText').classList.add('globalMessage')
               } catch {
                 return
               }
@@ -366,9 +344,30 @@ function Home() {
   }
   function getTime() {
     if ((new Date().getHours() > 18) || (new Date().getHours() < 6)) {
-      dynamicBG = '/img/nightbg.gif'
+      dynamicBG = '/img/nightswamp.gif'
     } else {
-      dynamicBG = '/img/ToadzgotchiBG.gif'
+      dynamicBG = '/img/swamp.gif'
+    }
+  }
+  function displayCurrentToad() {
+    if (toadLevel < 3) {
+      currentToad = '/img/yellow.png'
+    } else if (toadLevel >= 3 && toadLevel <= 4) {
+      currentToad = '/img/doge.png'
+    } else if (toadLevel >= 5 && toadLevel <= 6) {
+      currentToad = '/img/nounish.png'
+    } else if (toadLevel >= 7 && toadLevel <= 8) {
+      currentToad = '/img/robo.png'
+    } else if (toadLevel >= 9 && toadLevel <= 11) {
+      currentToad = '/img/alien.png'
+    } else if (toadLevel >= 12 && toadLevel <= 15) {
+      currentToad = '/img/bones.png'
+    } else if (toadLevel >= 16 && toadLevel <= 19) {
+      currentToad = '/img/denza.png'
+    } else if (toadLevel >= 20 && toadLevel <= 24) {
+      currentToad = '/img/ghost.png'
+    } else if (toadLevel >= 25) {
+      currentToad = '/img/hoodie.png'
     }
   }
   function togglePlaySong(setSongStatus) {
@@ -396,9 +395,9 @@ function Home() {
   }
   return (
     <div>
-      {false ? (<div>Loading{console.log(`isLoading? ${isLoading}`)}</div>) :
+      {false ? (<div>Loading</div>) :
       (<div>
-        {console.log(`isLoading? ${isLoading}`)}
+        {/* {console.log(`isLoading? ${isLoading}`)} */}
         <div className='bgWrap'>
           <Image
             alt='Swamp'
@@ -411,6 +410,15 @@ function Home() {
             url={currentSong}
             playStatus={songStatus}
             loop={true}
+          />
+        </div>
+        <div id='yellow' className='bgWrap'>
+          <Image
+            alt='Swamp'
+            src={currentToad}
+            layout='fill'
+            objectFit='fill'
+            quality={100}
           />
         </div>
         <div id='feedAnimation' className='hidden'>
@@ -440,12 +448,28 @@ function Home() {
             quality={100}
           />
         </div>
+        <div id='levelUpAnimation' className='hidden'>
+          <Image
+            alt='Swamp'
+            src='/img/level-up.gif'
+            layout='fill'
+            objectFit='fill'
+            quality={100}
+          />
+        </div>
         <Head>
           <title>Toadzgotchi</title>
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <header>
           <nav>
+            {/* <Modal
+              show={showModal}
+              ownsToadzgotchis={ownsToadzgotchis}
+              imageURL={imageURL}
+              onClose={ () => { setShowModal(false) } }>
+                Hello!
+            </Modal> */}
             <Button
               text='🎵'
               display=''
@@ -654,11 +678,10 @@ function Home() {
 
           <div className='globalMessageContainer'>
             <img className='globalMessagesImg' src='/img/global-messages.png'></img>
-            <p id='animated'>{globalMessage}
-            </p>
-            {console.log(globalMessage)}
+            <p id='typewriterText'>{globalMessage}</p>
           </div>
         </main>
+        
         {console.log('done running html')}
       </div>)}
       <style jsx>{`
