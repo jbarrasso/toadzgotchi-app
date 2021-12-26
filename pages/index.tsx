@@ -16,6 +16,13 @@ export let account: string;
 export let dynamicBG: string;
 export let currentToad: string;
 export let songPlaylist = ['/img/a-fly.mp3','/img/no-worries.mp3','/img/city-over-clouds.mp3','/img/big-helmet.mp3','/img/ninja-toad.mp3']
+export let welcomeMessages = ['We kept the log warm for you.',
+                              'Welcome back to the swamp!',
+                              'Sit a while and relax...',
+                              'Toad is happy to see you again...',
+                              'A cool breeze rolls in...',
+                              'For miles nothing can be heard but ribbits...',
+                              '*Croak* ... *Ribbit*...']
 
 //Anonymous function expression to return a global object of Ethereum injection.
 //provider, signer, address returns undefined unless called inside functions
@@ -146,10 +153,13 @@ function Home() {
   useEffect(() => {
     setIsLoading(true)
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
-    //.then(() => {readToadStats()})
-    //set level here
     handleAccountsChanged(setIsWalletConnected)
     handleChainChanged(setNetwork)
+    setTimeout(() => {
+      let rand = Math.floor(Math.random() * welcomeMessages.length);
+      setGlobalMessage(welcomeMessages[rand])
+      document.getElementById('typewriterText').classList.add('globalMessage')
+    }, 1000);
   }, [])
 
   useEffect(() => {
@@ -343,7 +353,9 @@ function Home() {
     }
   }
   function getTime() {
-    if ((new Date().getHours() > 18) || (new Date().getHours() < 6)) {
+    console.log(new Date().getHours())
+
+    if ((new Date().getHours() >= 18) || (new Date().getHours() < 6)) {
       dynamicBG = '/img/nightswamp.gif'
     } else {
       dynamicBG = '/img/swamp.gif'
@@ -393,6 +405,7 @@ function Home() {
       }
     }
   }
+
   return (
     <div>
       {false ? (<div>Loading</div>) :
@@ -412,7 +425,7 @@ function Home() {
             loop={true}
           />
         </div>
-        <div id='yellow' className='bgWrap'>
+        <div id='toad' className='bgWrap'>
           <Image
             alt='Swamp'
             src={currentToad}
@@ -458,6 +471,7 @@ function Home() {
           />
         </div>
         <Head>
+          <meta http-equiv="refresh" content="3600"/>
           <title>Toadzgotchi</title>
           <link rel="icon" href="/favicon.ico" />
         </Head>
