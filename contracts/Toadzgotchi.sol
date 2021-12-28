@@ -15,15 +15,14 @@ contract Toadzgotchi {
     struct ToadStats {
         bool isVibing;
         uint256 startVibingTime;
-        int256 isFedValue;
+        uint256 isFedValue;
         uint256 lastFeedBlock;
-        int256 isHappyValue;
+        uint256 isHappyValue;
         uint256 lastPlayBlock;
-        int256 isRestedValue;
+        uint256 isRestedValue;
         uint256 lastSleepBlock;
         uint256 toadXP;
         uint256 toadLevel;
-        bool isDead;
     }
 
     uint256[] public toadz;
@@ -36,19 +35,19 @@ contract Toadzgotchi {
     constructor() {}
 
     // function startVibing() public {
-    //     require(toadStats[toadz[0]].isVibing == false, "Toad is already vibing");
+    //     require(toadStats[msg.sender].isVibing == false, "Toad is already vibing");
 
-    //     toadStats[toadz[0]].isVibing = true;
+    //     toadStats[msg.sender].isVibing = true;
     //     toadStats[msg.sender].startVibingTime = block.number;
     //     toadStats[msg.sender].toadLevel = 1;
 
-    //     toadStats[msg.sender].isFedValue = 50;
+    //     toadStats[msg.sender].isFedValue = 96;
     //     toadStats[msg.sender].lastFeedBlock = block.number;   
 
-    //     toadStats[msg.sender].isHappyValue = 50;
+    //     toadStats[msg.sender].isHappyValue = 96;
     //     toadStats[msg.sender].lastPlayBlock = block.number;
 
-    //     toadStats[msg.sender].isRestedValue = 50;
+    //     toadStats[msg.sender].isRestedValue = 96;
     //     toadStats[msg.sender].lastSleepBlock = block.number;
 
     //     console.log("'%s' has started game at block number '%s'", msg.sender, toadStats[msg.sender].startVibingTime);

@@ -8,10 +8,11 @@ type Props = {
     padding: string;
     border: string;
     borderRadius: string;
+    cursor: string;
     onClick: (event: React.MouseEvent<HTMLElement>) => void
 };
 
-const Button = ({ text, display, flex, color, backgroundColor, margin, padding, border, borderRadius, onClick }: Props) => {
+const Button = ({ text, display, flex, color, backgroundColor, margin, padding, border, borderRadius, cursor, onClick }: Props) => {
     // if (text=keyword) {
     //call hook to execute keyword logic (each keyword has diff logic)
     //return value for ProgressBar component
@@ -24,7 +25,8 @@ const Button = ({ text, display, flex, color, backgroundColor, margin, padding, 
                      margin: margin,
                      padding: padding,
                      border: border,
-                     borderRadius: borderRadius
+                     borderRadius: borderRadius,
+                     cursor: cursor
         }}
         onClick={onClick}
         >
