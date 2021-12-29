@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-interface ToadzgotchiPetsContract {
+interface ToadzgotchiNFTInterface {
     function toadzgotchisOwned(address _owner) external view returns (uint256[] memory);
     function balanceOf(address owner) external view returns (uint256);
 }
@@ -26,9 +26,9 @@ contract Toadzgotchi {
     }
 
     uint256[] public toadz;
-    address public _toadzgotchiPetsContractAddress = 0xcC4c41415fc68B2fBf70102742A83cDe435e0Ca7;
+    address public _toadzgotchiNFTContractAddress = 0x5f5Cc7BC9BFe1e6319BDE9E30d883ECE36D00cAd;
 
-    ToadzgotchiPetsContract internal toadzgotchiPetsContract = ToadzgotchiPetsContract(_toadzgotchiPetsContractAddress);
+    ToadzgotchiNFTInterface internal toadzgotchiNFTContract = ToadzgotchiNFTInterface(_toadzgotchiNFTContractAddress);
 
     mapping(uint256 => ToadStats) public toadStats;
 
@@ -52,30 +52,30 @@ contract Toadzgotchi {
 
     //     console.log("'%s' has started game at block number '%s'", msg.sender, toadStats[msg.sender].startVibingTime);
     // }
-    function grantXP(uint256 giveXP) public {
-        uint256 leftoverXP = 0;
-        uint256 xpPenalty = giveXP / toadStats[toadz[0]].toadLevel;
-        toadStats[toadz[0]].toadXP = toadStats[toadz[0]].toadXP + xpPenalty;
+    // function grantXP(uint256 giveXP) public {
+    //     uint256 leftoverXP = 0;
+    //     uint256 xpPenalty = giveXP / toadStats[toadz[0]].toadLevel;
+    //     toadStats[toadz[0]].toadXP = toadStats[toadz[0]].toadXP + xpPenalty;
 
-        if (toadStats[toadz[0]].toadXP >= 100) {
-            if (toadStats[toadz[0]].toadXP > 100) {
-                leftoverXP = toadStats[toadz[0]].toadXP - 100;
-            }
-            toadStats[toadz[0]].toadLevel = toadStats[toadz[0]].toadLevel + 1;
-            toadStats[toadz[0]].toadXP = 0 + leftoverXP;
-        }
-    }
-    function readToadHunger() public view returns (int256) {
-        return toadStats[toadz[0]].isFedValue;
-    }
-    function readToadPlay() public view returns (int256) {
-        return toadStats[toadz[0]].isHappyValue;
-    }
-    function readToadSleep() public view returns (int256) {
-        return toadStats[toadz[0]].isRestedValue;
-    }
+    //     if (toadStats[toadz[0]].toadXP >= 100) {
+    //         if (toadStats[toadz[0]].toadXP > 100) {
+    //             leftoverXP = toadStats[toadz[0]].toadXP - 100;
+    //         }
+    //         toadStats[toadz[0]].toadLevel = toadStats[toadz[0]].toadLevel + 1;
+    //         toadStats[toadz[0]].toadXP = 0 + leftoverXP;
+    //     }
+    // }
+    // function readToadHunger() public view returns (int256) {
+    //     return toadStats[toadz[0]].isFedValue;
+    // }
+    // function readToadPlay() public view returns (int256) {
+    //     return toadStats[toadz[0]].isHappyValue;
+    // }
+    // function readToadSleep() public view returns (int256) {
+    //     return toadStats[toadz[0]].isRestedValue;
+    // }
     function ownsToadzgotchis() public view returns (bool) {
-        if (toadzgotchiPetsContract.toadzgotchisOwned(msg.sender).length > 0) {
+        if (toadzgotchiNFTContract.toadzgotchisOwned(msg.sender).length > 0) {
             return true;
         } else {
             return false;
@@ -83,7 +83,7 @@ contract Toadzgotchi {
     }
     function fetchToadStats() public view returns (ToadStats[] memory) {
         require(ownsToadzgotchis() == true, "Sender doesn't own Toadzgotchis");
-        uint256[] memory toadzOwned = toadzgotchiPetsContract.toadzgotchisOwned(msg.sender);
+        uint256[] memory toadzOwned = toadzgotchiNFTContract.toadzgotchisOwned(msg.sender);
         ToadStats[] memory results = new ToadStats[](toadzOwned.length);
         for (uint256 i = 0; i < toadzOwned.length; i++ ) {
             results[i] = toadStats[toadzOwned[i]];
@@ -92,7 +92,7 @@ contract Toadzgotchi {
     }
     function toadzgotchiIdsOwned() public view returns (uint256[] memory) {
         require(ownsToadzgotchis() == true, "Sender doesn't own Toadzgotchis");
-        return toadzgotchiPetsContract.toadzgotchisOwned(msg.sender);
+        return toadzgotchiNFTContract.toadzgotchisOwned(msg.sender);
     }
     function returnMsgSender() public view returns (address) {
         return msg.sender;

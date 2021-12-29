@@ -20,10 +20,10 @@ export type { ERC721PresetMinterPauserAutoId } from "./ERC721PresetMinterPauserA
 export type { ERC165 } from "./ERC165";
 export type { IERC165 } from "./IERC165";
 export type { Toadzgotchi } from "./Toadzgotchi";
-export type { ToadzgotchiPetsContract } from "./ToadzgotchiPetsContract";
+export type { ToadzgotchiNFTInterface } from "./ToadzgotchiNFTInterface";
 export type { ProxyRegistry } from "./ProxyRegistry";
-export type { Toadz } from "./Toadz";
-export type { ToadzgotchiPets } from "./ToadzgotchiPets";
+export type { ToadzgotchiNFT } from "./ToadzgotchiNFT";
+export type { ToadzInterface } from "./ToadzInterface";
 
 export { AccessControl__factory } from "./factories/AccessControl__factory";
 export { AccessControlEnumerable__factory } from "./factories/AccessControlEnumerable__factory";
@@ -44,7 +44,7 @@ export { ERC721PresetMinterPauserAutoId__factory } from "./factories/ERC721Prese
 export { ERC165__factory } from "./factories/ERC165__factory";
 export { IERC165__factory } from "./factories/IERC165__factory";
 export { Toadzgotchi__factory } from "./factories/Toadzgotchi__factory";
-export { ToadzgotchiPetsContract__factory } from "./factories/ToadzgotchiPetsContract__factory";
+export { ToadzgotchiNFTInterface__factory } from "./factories/ToadzgotchiNFTInterface__factory";
 export { ProxyRegistry__factory } from "./factories/ProxyRegistry__factory";
-export { Toadz__factory } from "./factories/Toadz__factory";
-export { ToadzgotchiPets__factory } from "./factories/ToadzgotchiPets__factory";
+export { ToadzgotchiNFT__factory } from "./factories/ToadzgotchiNFT__factory";
+export { ToadzInterface__factory } from "./factories/ToadzInterface__factory";

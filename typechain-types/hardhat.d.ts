@@ -89,21 +89,21 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Toadzgotchi__factory>;
     getContractFactory(
-      name: "ToadzgotchiPetsContract",
+      name: "ToadzgotchiNFTInterface",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ToadzgotchiPetsContract__factory>;
+    ): Promise<Contracts.ToadzgotchiNFTInterface__factory>;
     getContractFactory(
       name: "ProxyRegistry",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ProxyRegistry__factory>;
     getContractFactory(
-      name: "Toadz",
+      name: "ToadzgotchiNFT",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Toadz__factory>;
+    ): Promise<Contracts.ToadzgotchiNFT__factory>;
     getContractFactory(
-      name: "ToadzgotchiPets",
+      name: "ToadzInterface",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ToadzgotchiPets__factory>;
+    ): Promise<Contracts.ToadzInterface__factory>;
 
     getContractAt(
       name: "AccessControl",
@@ -201,25 +201,25 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Toadzgotchi>;
     getContractAt(
-      name: "ToadzgotchiPetsContract",
+      name: "ToadzgotchiNFTInterface",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.ToadzgotchiPetsContract>;
+    ): Promise<Contracts.ToadzgotchiNFTInterface>;
     getContractAt(
       name: "ProxyRegistry",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ProxyRegistry>;
     getContractAt(
-      name: "Toadz",
+      name: "ToadzgotchiNFT",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.Toadz>;
+    ): Promise<Contracts.ToadzgotchiNFT>;
     getContractAt(
-      name: "ToadzgotchiPets",
+      name: "ToadzInterface",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.ToadzgotchiPets>;
+    ): Promise<Contracts.ToadzInterface>;
 
     // default types
     getContractFactory(

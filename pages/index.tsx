@@ -1,5 +1,5 @@
 import Toadzgotchi from '../artifacts/contracts/Toadzgotchi.sol/Toadzgotchi.json'
-import ToadzgotchiPets from '../artifacts/contracts/ToadzgotchiPets.sol/ToadzgotchiPets.json'
+import ToadzgotchiNFT from '../artifacts/contracts/ToadzgotchiNFT.sol/ToadzgotchiNFT.json'
 import Head from "next/head"
 import Image from "next/image"
 import Button from "../components/Button"
@@ -13,8 +13,8 @@ import { ethers } from 'ethers'
 
 const ipfsURL = 'https://ipfs.io/ipfs/'
 const cryptoadzMetadataID = 'QmWEFSMku6yGLQ9TQr66HjSd9kay8ZDYKbBEfjNi4pLtrr/'
-const toadzgotchiAddress = '0x1c9fD50dF7a4f066884b58A05D91e4b55005876A'
-const toadzgotchiPetsAddress = '0xcC4c41415fc68B2fBf70102742A83cDe435e0Ca7'
+const toadzgotchiAddress = '0x624754b1cDD431b6b92acf5bA5D9539DBE9b3707'
+const toadzgotchiNFTAddress = '0x5f5Cc7BC9BFe1e6319BDE9E30d883ECE36D00cAd'
 export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let account: string;
@@ -209,6 +209,7 @@ function Home() {
   const [isHappy, setIsHappy] = useState(() => { return 96 })
   const [isRested, setIsRested] = useState(() => { return 96 })
   const [isDead, setIsDead] = useState(false)
+  const [selectedToad, setSelectedToad] = useState('/img/hoodie.png')
 
   getTime()
 
@@ -247,10 +248,10 @@ function Home() {
         } catch(err) {
           console.log(err)
           setGlobalMessage('')
-          document.getElementById('animated').classList.remove('globalMessage')
+          document.getElementById('typewriterText').classList.remove('globalMessage')
           setTimeout(() => {
             setGlobalMessage("Oops! Toad can't vibe right now")
-            document.getElementById('animated').classList.add('globalMessage')
+            document.getElementById('typewriterText').classList.add('globalMessage')
           }, 100);
         }
       }
@@ -376,28 +377,28 @@ function Home() {
   }
   async function tryMint() {
     if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
-      const transaction = await contract.tryMint([4,5,6,7,8,9,10], { value: ethers.utils.parseEther("0.35") })
+      const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
+      const transaction = await contract.tryMint([1,2,3,4,5,6,7], { value: ethers.utils.parseEther("0.035") })
       //await transaction.wait()
     } 
   }
   async function tryFlipMint() {
     if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
+      const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
       const transaction = await contract.flipMintState()
       await transaction.wait()
     } 
   }
   async function tryFlipPrivateSale() {
     if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
+      const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
       const transaction = await contract.flipPrivateSale()
       await transaction.wait()
     } 
   }
   async function toadzgotchisOwned() {
     if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
+      const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
       const owned = await contract.toadzgotchisOwned(account)
       //const transactions = await contract.balanceOf('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
       //const acc = await contract.ownerOf(4368)
@@ -406,7 +407,7 @@ function Home() {
   }
   async function tryTransfer() {
     if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiPetsAddress, ToadzgotchiPets.abi, signer)
+      const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
       const transaction = await contract["safeTransferFrom(address,address,uint256)"]('0x70997970C51812dc3A010C7d01b50e0d17dc79C8','0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 3)
       await transaction.wait()
     } 
@@ -433,6 +434,9 @@ function Home() {
       }
     }
   }
+  function displayCurrentToad() {
+
+  }
 
   return (
     <div>
@@ -450,6 +454,15 @@ function Home() {
             url={currentSong}
             playStatus={songStatus}
             loop={true}
+          />
+        </div>
+        <div id='toad' className='bgWrap'>
+          <Image
+            alt='toad'
+            src={selectedToad}
+            layout='fill'
+            objectFit='fill'
+            quality={100}
           />
         </div>
         <div id='feedAnimation' className='hidden'>
@@ -499,6 +512,7 @@ function Home() {
               show={showModal}
               ownsToadzgotchis={ownsToadzgotchis}
               imageURL={imageURL}
+              propSelectedToad={setSelectedToad}
               onClose={ () => { setShowModal(false) } }>
                 Hello!
             </Modal>
@@ -569,23 +583,23 @@ function Home() {
               FEEDBACK
             </PopupButton>
 
-            <button onClick={tryMint}>try mint</button>
+            {/* <button onClick={tryMint}>try mint</button>
             <button onClick={tryFlipMint}>try flip mint</button>
-            <button onClick={tryFlipPrivateSale}>try flip private sale</button>
-            <button onClick={toadzgotchisOwned}>toadzgotchisOwned</button>
-            <button onClick={tryTransfer}>try transfer</button>
+            <button onClick={tryFlipPrivateSale}>try flip private sale</button> */}
+            {/* <button onClick={toadzgotchisOwned}>toadzgotchisOwned</button>
+            <button onClick={tryTransfer}>try transfer</button> */}
 
           </nav>
         </header>
 
         <main>
+        <div id="modal-root" className='modal-root'></div>
           <div className='uiContainer'>
             <img src='/img/ui-box.png'/>
             <div className='uiText'>
               <h1>
                 TOADZGOTCHI
               </h1>
-              <div id="modal-root"></div>
 
               {(isVibing && isWalletConnected) &&
 
@@ -746,6 +760,9 @@ function Home() {
             width: 100vw;
             overflow: hidden;
             z-index: -2;
+          }
+          #modal-root {
+            z-index: 10;
           }
           main {
             font-family: Pixeled;
