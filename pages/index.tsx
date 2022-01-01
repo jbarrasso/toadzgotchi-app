@@ -460,8 +460,8 @@ function Home() {
           <Image
             alt='toad'
             src={selectedToad}
-            layout='fill'
-            objectFit='fill'
+            width={100}
+            height={100}
             quality={100}
           />
         </div>
@@ -540,7 +540,7 @@ function Home() {
               border=' 2px solid #673c37'
               borderRadius='0px'
               cursor= 'pointer'
-              onClick={ () => skipSong(setCurrentSong).then(() => {
+              onClick={() => skipSong(setCurrentSong).then(() => {
                   if (songStatus == 'PLAYING') {
                     setSongStatus(Sound.status.PLAYING)
                   }
@@ -585,8 +585,8 @@ function Home() {
 
             {/* <button onClick={tryMint}>try mint</button>
             <button onClick={tryFlipMint}>try flip mint</button>
-            <button onClick={tryFlipPrivateSale}>try flip private sale</button> */}
-            {/* <button onClick={toadzgotchisOwned}>toadzgotchisOwned</button>
+            <button onClick={tryFlipPrivateSale}>try flip private sale</button>
+            <button onClick={toadzgotchisOwned}>toadzgotchisOwned</button>
             <button onClick={tryTransfer}>try transfer</button> */}
 
           </nav>
@@ -753,6 +753,10 @@ function Home() {
             width: 100vw;
             overflow: hidden;
             z-index: -1;
+          }
+          #toad {
+            top:35%;
+            left:60%;
           }
           .hidden {
             position: fixed;

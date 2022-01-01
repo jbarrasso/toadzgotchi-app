@@ -1,25 +1,19 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
-import Button from "./Button"
-import selectedToad from "../pages/index"
-import setSelectedToad from "../pages/index"
 
 type Props = {
   children: string;
   ownsToadzgotchis: boolean;
   show: boolean;
   imageURL: any;
-  propSelectedToad;
+  propSelectedToad: any;
   onClose: () => void
 };
-const callme = () => {
-  
-} 
 
 const Modal = ({ children, ownsToadzgotchis, propSelectedToad, imageURL, show, onClose }: Props) => {
   const [isBrowser, setIsBrowser] = useState(false)
   const listItems = imageURL.map((image) =>
-    <div key={image} style={{display:'flex', width:'auto',height:'30%', border:'2px solid #673c37' }}>
+    <div key={image} style={{display:'flex', width:'auto', height:'40%', border:'2px solid #673c37' }}>
       <img onClick={ () => { propSelectedToad(image) } } src={image}/>
       {/* <Button
         text='SELECT'
