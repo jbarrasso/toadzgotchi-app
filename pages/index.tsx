@@ -442,6 +442,15 @@ function Home() {
     <div>
       {false ? (<div>Loading</div>) :
       (<div>
+        <div className='case'>
+          <Image
+            alt='Swamp'
+            src='/img/gameboy.png'
+            layout='fill'
+            objectFit='fill'
+            quality={100}
+          />
+        </div>
         <div className='bgWrap'>
           <Image
             alt='Swamp'
@@ -749,10 +758,19 @@ function Home() {
           }
           .bgWrap {
             position: fixed;
-            height: 100vh;
-            width: 100vw;
+            top: 9%;
+            left: 10%;
+            height: 79vh;
+            width: 75vw;
             overflow: hidden;
             z-index: -1;
+          }
+          .case {
+            position: fixed;
+            height: 100vh;
+            width: 100vw;
+            overflow:hidden;
+            z-index:-1;
           }
           #toad {
             top:35%;
