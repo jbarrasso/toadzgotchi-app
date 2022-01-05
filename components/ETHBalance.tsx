@@ -11,11 +11,10 @@ const ETHBalance = ({ margin, padding }) => {
 
   return <p style={{margin: margin,
                     padding: padding}}
-          >TOADZ IN SWAMP:
+          >Ξ{parseBalance(data ?? 0)}
           </p>;
 };
 
 export default ETHBalance;
 
 //Query Eth Balance
-//Ξ{parseBalance(data ?? 0)}

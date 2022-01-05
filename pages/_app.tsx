@@ -6,9 +6,21 @@ import '@fortawesome/fontawesome-svg-core/styles.css'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons'
+import { faHamburger } from '@fortawesome/free-solid-svg-icons'
+import { faBed } from '@fortawesome/free-solid-svg-icons'
+import { faCrown } from '@fortawesome/free-solid-svg-icons'
+import { faUserGraduate } from '@fortawesome/free-solid-svg-icons'
+import { faUmbrellaBeach } from '@fortawesome/free-solid-svg-icons'
+import { faHeartbeat } from '@fortawesome/free-solid-svg-icons'
+import { faStoreAlt } from '@fortawesome/free-solid-svg-icons'
+import { faPlane } from '@fortawesome/free-solid-svg-icons'
+import { faSchool } from '@fortawesome/free-solid-svg-icons'
+import { faCog } from '@fortawesome/free-solid-svg-icons'
+import { faTimesCircle } from '@fortawesome/free-solid-svg-icons'
+
 import "../styles/globals.css";
 config.autoAddCss = false
-library.add(fab, faQuestionCircle)
+library.add(fab, faQuestionCircle, faHamburger, faBed, faUserGraduate, faCrown, faUmbrellaBeach, faHeartbeat, faSchool, faStoreAlt, faPlane, faCog, faTimesCircle)
 
 function NextWeb3App({ Component, pageProps }: AppProps) {
   return (

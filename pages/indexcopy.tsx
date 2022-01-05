@@ -10,8 +10,6 @@ import ProgressBar from '../components/ProgressBar'
 import { PopupButton } from '@typeform/embed-react'
 import { useState, useEffect, useRef } from 'react'
 import { ethers } from 'ethers'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import ETHBalance from '../components/ETHBalance'
 
 const ipfsURL = 'https://ipfs.io/ipfs/'
 const cryptoadzMetadataID = 'QmWEFSMku6yGLQ9TQr66HjSd9kay8ZDYKbBEfjNi4pLtrr/'
@@ -224,9 +222,7 @@ function Home() {
     setTimeout(() => {
       let rand = Math.floor(Math.random() * welcomeMessages.length);
       setGlobalMessage(welcomeMessages[rand])
-      document.getElementById('globalMessageContainer').classList.remove('hidden')
-      document.getElementById('typewriterText').classList.remove('hidden')
-      document.getElementById('typewriterText').classList.add('typewriterEffect')
+      document.getElementById('typewriterText').classList.add('globalMessage')
     }, 1000);
   }, [])
 
@@ -270,7 +266,7 @@ function Home() {
           const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
           console.log(`commence feeding. current state isFed value is ${isFed}`)
           const transaction = await contract.feedToad()
-          //if contract call succeeds, clear current message
+          //if contract call succeeds, clear current message if there is one
           setGlobalMessage('')
           //and remove the class that adds the typewriter effect
           document.getElementById('typewriterText').classList.remove('globalMessage')
@@ -286,7 +282,7 @@ function Home() {
           setIsFed(96)
         } catch(err) {
             console.log(err)
-            //if contract call fails, clear the current message (from possible previous error)
+            //if contract call fails, clear the current message if there is one
             setGlobalMessage('')
             document.getElementById('typewriterText').classList.remove('globalMessage')
             setTimeout(() => {
@@ -439,6 +435,7 @@ function Home() {
     }
   }
   function displayCurrentToad() {
+
   }
 
   return (
@@ -448,98 +445,334 @@ function Home() {
         playStatus={songStatus}
         loop={true}
       />
-      <img className='case' src='/img/gameboy.png'/>
-      <div className='game'>
-        <img className='gameScene' src='/img/swamp.gif'/>
-        <div className='topActionBar'>
-          <FontAwesomeIcon icon='store-alt'/>
-          <FontAwesomeIcon icon='heartbeat'/>
-          <FontAwesomeIcon icon='crown'/>
-          <FontAwesomeIcon icon='cog'/>
+      {false ? (<div>Loading</div>) :
+      (<div>
+        <div className='case'>
+          <Image
+            alt='Swamp'
+            src='/img/gameboy.png'
+            layout='fill'
+            objectFit='fill'
+            quality={100}
+          />
         </div>
-        <div className='bottomActionBar'>
-          <div id='test' onClick={() => {
-            document.getElementById('globalMessageContainer').classList.remove('hidden') }}>
-          <FontAwesomeIcon icon='hamburger'/>
+        <div className='bgWrap'>
+          <Image
+            alt='Swamp'
+            src={dynamicBG}
+            layout='fill'
+            objectFit='fill'
+            quality={100}
+          />
+        </div>
+        <div id='toad' className='bgWrap'>
+          <Image
+            alt='toad'
+            src={selectedToad}
+            width={100}
+            height={100}
+            quality={100}
+          />
+        </div>
+        <div id='feedAnimation' className='hidden'>
+          <Image
+            alt='Swamp'
+            src='/img/feed.gif'
+            layout='fill'
+            objectFit='fill'
+            quality={100}
+          />
+        </div>
+        <div id='playAnimation' className='hidden'>
+          <Image
+            alt='Swamp'
+            src='/img/feed.gif'
+            layout='fill'
+            objectFit='fill'
+            quality={100}
+          />
+        </div>
+        <div id='sleepAnimation' className='hidden'>
+          <Image
+            alt='Swamp'
+            src='/img/sleep.gif'
+            layout='fill'
+            objectFit='fill'
+            quality={100}
+          />
+        </div>
+        <div id='levelUpAnimation' className='hidden'>
+          <Image
+            alt='Swamp'
+            src='/img/level-up.gif'
+            layout='fill'
+            objectFit='fill'
+            quality={100}
+          />
+        </div>
+        <Head>
+          <meta http-equiv="refresh" content="3600"/>
+          <title>Toadzgotchi</title>
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <header>
+          <nav>
+            <Modal
+              show={showModal}
+              ownsToadzgotchis={ownsToadzgotchis}
+              imageURL={imageURL}
+              propSelectedToad={setSelectedToad}
+              onClose={ () => { setShowModal(false) } }>
+                Hello!
+            </Modal>
+            <Button
+              text='🎵'
+              display=''
+              flex='flex'
+              color='#332020'
+              backgroundColor='#b0a28d'
+              margin='0px'
+              padding='0px'
+              border=' 2px solid #673c37'
+              borderRadius='0px'
+              cursor= 'pointer'
+              onClick={() => togglePlaySong(setSongStatus)}
+            />
+            <Button
+              text='Skip'
+              display=''
+              flex='flex'
+              color='#332020'
+              backgroundColor='#b0a28d'
+              margin='0px'
+              padding='0px'
+              border=' 2px solid #673c37'
+              borderRadius='0px'
+              cursor= 'pointer'
+              onClick={() => skipSong(setCurrentSong).then(() => {
+                  if (songStatus == 'PLAYING') {
+                    setSongStatus(Sound.status.PLAYING)
+                  }
+                }
+              )}
+            />
+
+            {isWalletConnected && (
+              <Button
+                text='MY TOADZ'
+                display=''
+                flex=''
+                color='#332020'
+                backgroundColor='#b0a28d'
+                margin='10px'
+                padding='0px'
+                border='2px solid #673c37'
+                borderRadius='0px'
+                cursor='pointer'
+                onClick={() => {setShowModal(true)}}
+              />
+            )}
+
+            <Account
+              isWalletConnected={isWalletConnected}
+              isWeb3Injected={isWeb3Injected}
+              color='white'
+              padding='10px'
+              borderRadius='10px'
+              fontFamily='Pixeled'
+            />
+            <PopupButton id='pxed2IPk' 
+              style={{fontFamily: 'Pixeled', 
+              color: '#332020',
+              backgroundColor: '#b0a28d',
+              border: ' 2px solid #673c37'}}
+              className='feedbackButton'
+              size={75}
+              hideHeaders={true}>
+              FEEDBACK
+            </PopupButton>
+
+            {/* <button onClick={tryMint}>try mint</button>
+            <button onClick={tryFlipMint}>try flip mint</button>
+            <button onClick={tryFlipPrivateSale}>try flip private sale</button>
+            <button onClick={toadzgotchisOwned}>toadzgotchisOwned</button>
+            <button onClick={tryTransfer}>try transfer</button> */}
+
+          </nav>
+        </header>
+
+        <main>
+        <div id="modal-root" className='modal-root'></div>
+          <div className='uiContainer'>
+            <img src='/img/ui-box.png'/>
+            <div className='uiText'>
+              <h1>
+                TOADZGOTCHI
+              </h1>
+
+              {(isVibing && isWalletConnected) &&
+
+              (!isDead ? (<section className='playerActions'>
+                <div className='feedDiv'>
+                  <Button
+                    text='FEED'
+                    display=''
+                    flex=''
+                    color='#332020'
+                    backgroundColor='#b0a28d'
+                    margin='10px'
+                    padding='0px'
+                    border=' 2px solid #673c37'
+                    borderRadius='0px'
+                    cursor='pointer'
+                    onClick={feedToad}
+                  />
+                  <ProgressBar
+                    text='HUNGER'
+                    display=''
+                    flex=''
+                    color='#332020'
+                    backgroundColor='#b0a28d'
+                    margin='10px'
+                    width=''
+                    padding='0px'
+                    border=' 2px solid #673c37'
+                    borderRadius='0px'
+                    progressValue={isFed}
+                    progressMaxValue={100}
+                  />
+                </div>
+                <div className='playDiv'>
+                  <Button
+                    text='PLAY'
+                    display=''
+                    flex=''
+                    color='#332020' 
+                    backgroundColor='#b0a28d'
+                    margin='10px'
+                    padding='0px'
+                    border=' 2px solid #673c37'
+                    borderRadius='0px'
+                    cursor='pointer'
+                    onClick={playToad}
+                  />
+                  <ProgressBar
+                    text='MOOD'
+                    display=''
+                    flex=''
+                    color='#332020'
+                    backgroundColor='#b0a28d'
+                    margin='10px'
+                    width=''
+                    padding='0px'
+                    border=' 2px solid #673c37'
+                    borderRadius='0px'
+                    progressValue={isHappy}
+                    progressMaxValue={100}
+                  />
+                </div>
+                <div className='sleepDiv'>
+                <Button
+                    text='SLEEP'
+                    display=''
+                    flex=''
+                    color='#332020'
+                    backgroundColor='#b0a28d'
+                    margin='10px'
+                    padding='0px'
+                    border=' 2px solid #673c37'
+                    borderRadius='0px'
+                    cursor='pointer'
+                    onClick={sleepToad}
+                  />
+                <ProgressBar
+                  text='REST'
+                  display=''
+                  flex=''
+                  color='#332020'
+                  backgroundColor='#b0a28d'
+                  margin='10px'
+                  width=''
+                  padding='0px'
+                  border=' 2px solid #673c37'
+                  borderRadius='0px'
+                  progressValue={isRested}
+                  progressMaxValue={100}
+                />
+                </div>
+              </section>) : <h1> TOAD IS DEAD!</h1> )}
+
+              {/* <button onClick={ () => {readToadStats(ownsToadzgotchis)} }>Read Toad Stats</button> */}
+
+              {(!isVibing || !isWalletConnected) &&
+  
+              (<Button
+                text={ !isWeb3Injected ? ("INSTALL METAMASK") : 
+                (!isWalletConnected ? ("CONNECT METAMASK") : ((network == 4) ? ("START VIBIN'") : ('CHANGE NETWORK TO RINKEBY'))) }
+                display=''
+                flex=''
+                color='#332020'
+                backgroundColor='#b0a28d'
+                margin='10px'
+                padding='0px'
+                border=' 2px solid #673c37'
+                borderRadius='0px'
+                cursor= 'pointer'
+                onClick={!isWeb3Injected ? 
+                  (() => {window.open('https://metamask.io/download','_blank')}) : 
+                  (!isWalletConnected ? requestAccount : startVibing)}
+              />)}
+
+              {(isVibing && isWalletConnected) &&
+
+              (<div className='toadLevelXP'>
+                <p> Lv. {toadLevel} </p>
+                <ProgressBar
+                  text='XP'
+                  display=''
+                  flex=''
+                  color='#332020'
+                  backgroundColor='#b0a28d'
+                  margin='10px'
+                  width='100%'
+                  padding='0px'
+                  border=' 2px solid #673c37'
+                  borderRadius='0px'
+                  progressValue={toadXP}
+                  progressMaxValue={100}
+                />
+              </div>)}
+            </div>
           </div>
-          <FontAwesomeIcon icon='bed'/>
-          <FontAwesomeIcon icon='umbrella-beach'/>
-          <FontAwesomeIcon icon='school'/>
-        </div>
-        <div id='globalMessageContainer' className='hidden'>
-          <img id='globalMessageImg' className='globalMessageImg' src='/img/global-messages.png'/>
-          <p id='typewriterText' className='hidden'>{globalMessage}</p>
-          <div id='closeMessageButton' className='closeMessageButton' onClick={() => {
-            document.getElementById('globalMessageContainer').classList.add('hidden') }}>
-            x
+          <div className='globalMessageContainer'>
+            <img className='globalMessagesImg' src='/img/global-messages.png'></img>
+            <p id='typewriterText'>{globalMessage}</p>
           </div>
-        </div>
-      </div>
+        </main>
+        {console.log('done running html')}
+      </div>)}
       <style jsx>{`
           header {
             font-family: Pixeled;
             text-align: center;
           }
-          #test{
-            display: flex;
-            align-items: center;
-          }
-          .closeMessageButton {
-            position: absolute;
-            bottom: 17%;
-            right: 3%;
-            font-size: 30px;
-            cursor: pointer;
+          .bgWrap {
+            position: fixed;
+            top: 9.5%;
+            left: 10%;
+            height: 79vh;
+            width: 75vw;
+            overflow: hidden;
+            z-index: -1;
           }
           .case {
+            top:0;
+            left:0;
             position: fixed;
-            width:100vw;
-            height:100vh;
-            z-index:-10;
-          }
-          .game {
-            font-family: Pixeled;
-            position: relative;
-            width: 73.5vw;
-            height: 78.2vh;
-            top: 9.4vh;
-            left: 11vw;
-          }
-          .gameScene {
-            position: absolute;
-            top:15%;
-            width: 100%;
-            height: 70%;
-            z-index:-10;
-          }
-          .topActionBar {
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            font-size: 50px;
-            position: absolute;
-            background: #b0a28d;
-            top:0px;
-            width: 100%;
-            height: 15%;
-          }
-          .bottomActionBar {
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            font-size: 50px;
-            position: absolute;
-            background: #b0a28d;
-            bottom:0px;
-            width: 100%;
-            height: 15%;
-          }
-          .globalMessageImg {
-            position: absolute;
-            margin-left: .5%;
-            bottom: 16%;
-            width: 99%;
-            height: 15%;
+            height: 100vh;
+            width: 100vw;
+            overflow:hidden;
+            z-index:-1;
           }
           #toad {
             top:35%;
@@ -547,9 +780,10 @@ function Home() {
           }
           .hidden {
             position: fixed;
+            height: 100vh;
+            width: 100vw;
             overflow: hidden;
-            z-index: -10;
-            visibility: hidden;
+            z-index: -2;
           }
           #modal-root {
             z-index: 10;
@@ -570,8 +804,9 @@ function Home() {
             margin-top:50px;
             margin-left:70px;
           }
-          .typewriterEffect {
+          .globalMessage {
             overflow: hidden;
+            // border-right: .15em solid orange;
             white-space: nowrap;
             margin: 0 auto;
             letter-spacing: .15em;
@@ -579,14 +814,23 @@ function Home() {
             animation:
             typing 2s steps(40, end) forwards;
             position: absolute;
-            font-size: 1.25vw;
-            width:10%;
-            bottom: 20%;
-            left: 5%;
+            width:100%;
+            margin-top:50px;
+            margin-left:120px;
           }
           @keyframes typing {
             from { width: 0% }
-            to { width: 100% } 
+            to { width: 120% } 
+          }
+          .globalMessagesImg {
+            height:100%;
+            position: absolute;
+          }
+          .globalMessageContainer {
+            position: relative;
+            margin-top: 150px;
+            height:150px;
+            width:65%;
           }
           .uiContainer{
             display: flex;
