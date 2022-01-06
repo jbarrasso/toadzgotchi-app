@@ -5,13 +5,13 @@ import Image from "next/image"
 import Button from "../components/Button"
 import Account from "../components/Account"
 import Sound from "react-sound"
-import Modal from "../components/Modal"
+import MyToadz from "../components/MyToadz"
 import ProgressBar from '../components/ProgressBar'
 import { PopupButton } from '@typeform/embed-react'
 import { useState, useEffect, useRef } from 'react'
 import { ethers } from 'ethers'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import ETHBalance from '../components/ETHBalance'
+import FoodMenu from '../components/FoodMenu'
 
 const ipfsURL = 'https://ipfs.io/ipfs/'
 const cryptoadzMetadataID = 'QmWEFSMku6yGLQ9TQr66HjSd9kay8ZDYKbBEfjNi4pLtrr/'
@@ -460,11 +460,21 @@ function Home() {
         <div className='bottomActionBar'>
           <div id='test' onClick={() => {
             document.getElementById('globalMessageContainer').classList.remove('hidden') }}>
-          <FontAwesomeIcon icon='hamburger'/>
+          <FontAwesomeIcon icon='comment-dots'/>
+          </div>
+          <div id='test' onClick={() => {setShowModal(true)}}>
+            <FontAwesomeIcon icon='hamburger'/>
           </div>
           <FontAwesomeIcon icon='bed'/>
           <FontAwesomeIcon icon='umbrella-beach'/>
           <FontAwesomeIcon icon='school'/>
+        </div>
+        <div id="foodMenuRoot">
+          <FoodMenu
+            show={showModal}
+            propSetGlobalMessage={setGlobalMessage}
+            onClose={() => { setShowModal(false) }}
+          />
         </div>
         <div id='globalMessageContainer' className='hidden'>
           <img id='globalMessageImg' className='globalMessageImg' src='/img/global-messages.png'/>

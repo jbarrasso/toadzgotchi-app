@@ -10,23 +10,11 @@ type Props = {
   onClose: () => void
 };
 
-const Modal = ({ children, ownsToadzgotchis, propSelectedToad, imageURL, show, onClose }: Props) => {
+const MyToadz = ({ children, ownsToadzgotchis, propSelectedToad, imageURL, show, onClose }: Props) => {
   const [isBrowser, setIsBrowser] = useState(false)
   const listItems = imageURL.map((image) =>
     <div key={image} style={{display:'flex', width:'auto', height:'40%', border:'2px solid #673c37' }}>
       <img onClick={ () => { propSelectedToad(image) } } src={image}/>
-      {/* <Button
-        text='SELECT'
-        display=''
-        flex=''
-        color='#332020'
-        backgroundColor='#b0a28d'
-        margin='10px'
-        padding='10px'
-        border=' 2px solid #673c37'
-        borderRadius='0px'
-        onClick={()=>{}}
-      /> */}
     </div>);
 
   useEffect(() => {
@@ -39,7 +27,6 @@ const Modal = ({ children, ownsToadzgotchis, propSelectedToad, imageURL, show, o
   };
 
   const modalWidth = 500;
-  const windowWidth = (typeof window).innerWidth
 
   const modalContent = show ? (
     <div style={{
@@ -70,4 +57,4 @@ const Modal = ({ children, ownsToadzgotchis, propSelectedToad, imageURL, show, o
   }    
 }
 
-export default Modal;
+export default MyToadz;

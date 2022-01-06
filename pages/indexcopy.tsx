@@ -5,7 +5,7 @@ import Image from "next/image"
 import Button from "../components/Button"
 import Account from "../components/Account"
 import Sound from "react-sound"
-import Modal from "../components/Modal"
+import MyToadz from "../components/MyToadz"
 import ProgressBar from '../components/ProgressBar'
 import { PopupButton } from '@typeform/embed-react'
 import { useState, useEffect, useRef } from 'react'
@@ -517,14 +517,14 @@ function Home() {
         </Head>
         <header>
           <nav>
-            <Modal
+            <MyToadz
               show={showModal}
               ownsToadzgotchis={ownsToadzgotchis}
               imageURL={imageURL}
               propSelectedToad={setSelectedToad}
               onClose={ () => { setShowModal(false) } }>
                 Hello!
-            </Modal>
+            </MyToadz>
             <Button
               text='🎵'
               display=''
