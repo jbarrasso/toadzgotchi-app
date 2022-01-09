@@ -62,7 +62,7 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
     }
   }
 }
-export const handleAccountsChanged = async(setIsWalletConnected, checkOwnsToadzgotchis, setOwnsToadzgotchis, setShowModal) => {
+export const handleAccountsChanged = async(setIsWalletConnected, checkOwnsToadzgotchis, setOwnsToadzgotchis, setShowMyToadz) => {
   console.log('running handleAccountsChanged')
   if (ethereum() != undefined || null) {
     ethereum().on("accountsChanged", (accounts) => {
@@ -70,7 +70,7 @@ export const handleAccountsChanged = async(setIsWalletConnected, checkOwnsToadzg
       //if n>2, when disconnecting from n to n-1 accounts, the last connected acc
       //before the nth will be = to accounts[0]
       checkOwnsToadzgotchis(setOwnsToadzgotchis)
-      setShowModal(false)
+      setShowMyToadz(false)
       if (accounts.length > 0){
         account = accounts[0]
         setIsWalletConnected(false) //quick n dirty way to re-render Account when toggling between wallets
@@ -141,10 +141,11 @@ export async function checkOwnsToadzgotchis(setOwnsToadzgotchis, setStats) {
         const cryptoadzMetadataURL = []
         const toadzImagesURL = []
         for (let i=0; i<data.length; i++) {
-          cryptoadzMetadataURL[i] = ipfsURL + cryptoadzMetadataID + data[i].toString()
-          fetch(cryptoadzMetadataURL[i])
+          cryptoadzMetadataURL[i] = ipfsURL + cryptoadzMetadataID + data[i].toString() //this goes away
+          fetch(cryptoadzMetadataURL[i]) //https link of mapped IDs to ipfs hashes
           .then(res => res.json()) // the .json() method parses the JSON response into a JS object literal
           .then((imageID) => {toadzImagesURL[i] = ipfsURL + imageID.image.substring(7)})
+          //.then((imageID => {toadzImagesURL[i] = ipfsURL + imageID.(data[i].toString())})
         }
         setStats(toadzImagesURL)
       } else {
@@ -197,7 +198,8 @@ function Home() {
   const [globalMessage, setGlobalMessage] = useState('')
   const [isWalletConnected, setIsWalletConnected] = useState(false)
   const [isWeb3Injected, setIsWeb3Injected] = useState(false)
-  const [showModal, setShowModal] = useState(false);
+  const [showMyToadz, setShowMyToadz] = useState(false);
+  const [showFood, setShowFood] = useState(false);
   const [songStatus, setSongStatus] = useState(Sound.status.STOPPED)
   const [currentSong, setCurrentSong] = useState(songPlaylist[0])
   const [imageURL, setImageURL] = useState([])
@@ -211,7 +213,7 @@ function Home() {
   const [isHappy, setIsHappy] = useState(() => { return 96 })
   const [isRested, setIsRested] = useState(() => { return 96 })
   const [isDead, setIsDead] = useState(false)
-  const [selectedToad, setSelectedToad] = useState('/img/hoodie.png')
+  const [selectedToad, setSelectedToad] = useState('/img/bruce.png')
 
   getTime()
 
@@ -219,7 +221,7 @@ function Home() {
     setIsLoading(true)
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
     .then(() => {checkOwnsToadzgotchis(setOwnsToadzgotchis, setImageURL)})
-    handleAccountsChanged(setIsWalletConnected, checkOwnsToadzgotchis, setOwnsToadzgotchis, setShowModal)
+    handleAccountsChanged(setIsWalletConnected, checkOwnsToadzgotchis, setOwnsToadzgotchis, setShowMyToadz)
     handleChainChanged(setNetwork)
     setTimeout(() => {
       let rand = Math.floor(Math.random() * welcomeMessages.length);
@@ -237,7 +239,7 @@ function Home() {
   }, [isFed, isHappy, isRested, account])
 
   async function startVibing() {
-    if (network == 4) {
+    if (network == 1) {
       if (isVibing) {
         return
       } else {
@@ -451,6 +453,7 @@ function Home() {
       <img className='case' src='/img/gameboy.png'/>
       <div className='game'>
         <img className='gameScene' src='/img/swamp.gif'/>
+        <img src={selectedToad} style={{height:'50px', width:'70px', zIndex:1, position:'absolute', top:'37%', right:'35%'}}/>
         <div className='topActionBar'>
           <FontAwesomeIcon icon='store-alt'/>
           <FontAwesomeIcon icon='heartbeat'/>
@@ -462,7 +465,7 @@ function Home() {
             document.getElementById('globalMessageContainer').classList.remove('hidden') }}>
           <FontAwesomeIcon icon='comment-dots'/>
           </div>
-          <div id='test' onClick={() => {setShowModal(true)}}>
+          <div id='test' onClick={() => { showFood ? setShowFood(false) : setShowFood(true) }}>
             <FontAwesomeIcon icon='hamburger'/>
           </div>
           <FontAwesomeIcon icon='bed'/>
@@ -471,11 +474,20 @@ function Home() {
         </div>
         <div id="foodMenuRoot">
           <FoodMenu
-            show={showModal}
+            show={showFood}
             propSetGlobalMessage={setGlobalMessage}
-            onClose={() => { setShowModal(false) }}
+            onClose={() => { setShowFood(false) }}
           />
         </div>
+        <div id="myToadzRoot">
+          <MyToadz
+            show={showMyToadz}
+            ownsToadzgotchis={ownsToadzgotchis}
+            imageURL={imageURL}
+            propSelectedToad={setSelectedToad}
+            onClose={ () => { setShowMyToadz(false) } }>
+          </MyToadz>
+      </div>
         <div id='globalMessageContainer' className='hidden'>
           <img id='globalMessageImg' className='globalMessageImg' src='/img/global-messages.png'/>
           <p id='typewriterText' className='hidden'>{globalMessage}</p>
@@ -485,6 +497,65 @@ function Home() {
           </div>
         </div>
       </div>
+      <Button
+        text='Connect' 
+        position='absolute'
+        display=''
+        flex=''
+        color='#332020'
+        backgroundColor='#b0a28d'
+        top='85%'
+        left='38%'
+        height='50px'
+        width='50px'
+        margin='10px'
+        padding='0px'
+        border=' 2px solid #673c37'
+        borderRadius='100%'
+        cursor= 'pointer'
+        onClick={!isWeb3Injected ? 
+        (() => { window.open('https://metamask.io/download','_blank') }) : 
+        (!isWalletConnected ? requestAccount : null)}
+      />
+      <Button
+        text='My Toadz' 
+        position='absolute'
+        display=''
+        flex=''
+        color='#332020'
+        backgroundColor='#b0a28d'
+        top='85%'
+        left='47%'
+        height='50px'
+        width='50px'
+        margin='10px'
+        padding='0px'
+        border=' 2px solid #673c37'
+        borderRadius='100%'
+        cursor= 'pointer'
+        onClick={isWalletConnected ? 
+        (() => { showMyToadz ? setShowMyToadz(false) : setShowMyToadz(true) }) : null }
+      />
+      <Button
+        text='About' 
+        position='absolute'
+        display=''
+        flex=''
+        color='#332020'
+        backgroundColor='#b0a28d'
+        top='85%'
+        left='56%'
+        height='50px'
+        width='50px'
+        margin='10px'
+        padding='0px'
+        border=' 2px solid #673c37'
+        borderRadius='100%'
+        cursor= 'pointer'
+        onClick={!isWeb3Injected ? 
+        (() => { window.open('https://metamask.io/download','_blank') }) : 
+        (!isWalletConnected ? requestAccount : null)}
+      />
       <style jsx>{`
           header {
             font-family: Pixeled;
