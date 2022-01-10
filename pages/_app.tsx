@@ -23,11 +23,11 @@ import { faIceCream } from '@fortawesome/free-solid-svg-icons'
 import { faHotdog } from '@fortawesome/free-solid-svg-icons'
 import { faCandyCane } from '@fortawesome/free-solid-svg-icons'
 import { faCarrot } from '@fortawesome/free-solid-svg-icons'
-
+import { faLaughWink } from '@fortawesome/free-solid-svg-icons'
 
 import "../styles/globals.css";
 config.autoAddCss = false
-library.add(fab, faPepperHot, faIceCream, faCarrot, faCandyCane, faHotdog, faQuestionCircle, faHamburger, faBed, faUserGraduate, faCrown, faUmbrellaBeach, faCommentDots, faHeartbeat, faSchool, faStoreAlt, faPlane, faCog, faTimesCircle)
+library.add(fab, faLaughWink, faPepperHot, faIceCream, faCarrot, faCandyCane, faHotdog, faQuestionCircle, faHamburger, faBed, faUserGraduate, faCrown, faUmbrellaBeach, faCommentDots, faHeartbeat, faSchool, faStoreAlt, faPlane, faCog, faTimesCircle)
 
 function NextWeb3App({ Component, pageProps }: AppProps) {
   return (

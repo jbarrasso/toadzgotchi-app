@@ -12,6 +12,9 @@ import { useState, useEffect, useRef } from 'react'
 import { ethers } from 'ethers'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import FoodMenu from '../components/FoodMenu'
+import RestMenu from '../components/RestMenu'
+import PlayMenu from '../components/PlayMenu'
+import Leaderboard from '../components/Leaderboard'
 
 const ipfsURL = 'https://ipfs.io/ipfs/'
 const cryptoadzMetadataID = 'QmWEFSMku6yGLQ9TQr66HjSd9kay8ZDYKbBEfjNi4pLtrr/'
@@ -200,6 +203,9 @@ function Home() {
   const [isWeb3Injected, setIsWeb3Injected] = useState(false)
   const [showMyToadz, setShowMyToadz] = useState(false);
   const [showFood, setShowFood] = useState(false);
+  const [showRest, setShowRest] = useState(false);
+  const [showPlay, setShowPlay] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [songStatus, setSongStatus] = useState(Sound.status.STOPPED)
   const [currentSong, setCurrentSong] = useState(songPlaylist[0])
   const [imageURL, setImageURL] = useState([])
@@ -442,6 +448,16 @@ function Home() {
   }
   function displayCurrentToad() {
   }
+  function closeAllOtherMenus(onlyShowMe) {
+    const allMenus = [setShowFood, setShowRest, setShowLeaderboard, setShowPlay]
+    for (let i=0; i<allMenus.length; i++) {
+      if (allMenus[i] == onlyShowMe) {
+        allMenus[i](true)
+      } else {
+        allMenus[i](false)
+      }
+    }
+  }
 
   return (
     <div>
@@ -450,26 +466,32 @@ function Home() {
         playStatus={songStatus}
         loop={true}
       />
-      <img className='case' src='/img/gameboy.png'/>
+      <img className='case' src={'/img/gameboy.png'}/>
       <div className='game'>
-        <img className='gameScene' src='/img/swamp.gif'/>
+        <img className='gameScene' src={dynamicBG}/>
         <img src={selectedToad} style={{height:'50px', width:'70px', zIndex:1, position:'absolute', top:'37%', right:'35%'}}/>
         <div className='topActionBar'>
           <FontAwesomeIcon icon='store-alt'/>
           <FontAwesomeIcon icon='heartbeat'/>
-          <FontAwesomeIcon icon='crown'/>
+          <div id='test' onClick={() => { showLeaderboard ? setShowLeaderboard(false) : closeAllOtherMenus(setShowLeaderboard) }}>
+            <FontAwesomeIcon icon='crown'/>
+          </div>
           <FontAwesomeIcon icon='cog'/>
         </div>
         <div className='bottomActionBar'>
           <div id='test' onClick={() => {
             document.getElementById('globalMessageContainer').classList.remove('hidden') }}>
-          <FontAwesomeIcon icon='comment-dots'/>
+            <FontAwesomeIcon icon='comment-dots'/>
           </div>
-          <div id='test' onClick={() => { showFood ? setShowFood(false) : setShowFood(true) }}>
+          <div id='test' onClick={() => { showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood) }}>
             <FontAwesomeIcon icon='hamburger'/>
           </div>
-          <FontAwesomeIcon icon='bed'/>
-          <FontAwesomeIcon icon='umbrella-beach'/>
+          <div id='test' onClick={() => { showRest ? setShowRest(false) : closeAllOtherMenus(setShowRest) }}>
+            <FontAwesomeIcon icon='bed'/>
+          </div>
+          <div id='test' onClick={() => { showPlay ? setShowPlay(false) : closeAllOtherMenus(setShowPlay) }}>
+            <FontAwesomeIcon icon='laugh-wink'/>
+          </div>
           <FontAwesomeIcon icon='school'/>
         </div>
         <div id="foodMenuRoot">
@@ -477,6 +499,20 @@ function Home() {
             show={showFood}
             propSetGlobalMessage={setGlobalMessage}
             onClose={() => { setShowFood(false) }}
+          />
+        </div>
+        <div id="restMenuRoot">
+          <RestMenu
+            show={showRest}
+            propSetGlobalMessage={setGlobalMessage}
+            onClose={() => { setShowRest(false) }}
+          />
+        </div>
+        <div id="playMenuRoot">
+          <PlayMenu
+            show={showPlay}
+            propSetGlobalMessage={setGlobalMessage}
+            onClose={() => { setShowPlay(false) }}
           />
         </div>
         <div id="myToadzRoot">
@@ -487,7 +523,16 @@ function Home() {
             propSelectedToad={setSelectedToad}
             onClose={ () => { setShowMyToadz(false) } }>
           </MyToadz>
-      </div>
+        </div>
+        <div id='leaderboardRoot'>
+          <Leaderboard
+            show={showLeaderboard}
+            ownsToadzgotchis={ownsToadzgotchis}
+            imageURL={imageURL}
+            propSelectedToad={setSelectedToad}
+            onClose={ () => { setShowLeaderboard(false) } }>
+          </Leaderboard>
+        </div>
         <div id='globalMessageContainer' className='hidden'>
           <img id='globalMessageImg' className='globalMessageImg' src='/img/global-messages.png'/>
           <p id='typewriterText' className='hidden'>{globalMessage}</p>
