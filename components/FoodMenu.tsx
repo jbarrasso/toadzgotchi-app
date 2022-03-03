@@ -35,7 +35,7 @@ const FoodMenu = ({ show, propSetGlobalMessage, onClose }: Props) => {
                     document.getElementById('typewriterText').classList.remove('typewriterEffect')
                     document.getElementById('typewriterText').classList.add('hidden')
                     setTimeout(() => {
-                        propSetGlobalMessage(`Mmmm toad loves carrots...`)
+                        propSetGlobalMessage(`Mmmm toad loves pizza...`)
                         document.getElementById('globalMessageContainer').classList.remove('hidden')
                         document.getElementById('typewriterText').classList.add('typewriterEffect')
                         document.getElementById('typewriterText').classList.remove('hidden')

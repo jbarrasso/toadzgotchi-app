@@ -33,6 +33,12 @@ export let welcomeMessages = ['We kept the log warm for you.',
                               'A cool breeze rolls in...',
                               'For miles nothing can be heard but ribbits...',
                               '*Croak* ... *Ribbit*...']
+export let feedingMessages = ['You fed Toad a hot dog! Mmmm Toad loves hot dogs...',
+                              'You fed Toad a carrot! Nice...',
+                              'You fed Toad some candy! Toad is now hyper',
+                              'You fed Toad some flies... Toads favorite!',
+                              'You fed Toad a steak... it was cooked to perfection..']
+
 
 //Anonymous function expression to return a global object of Ethereum injection.
 //provider, signer, address returns undefined unless called inside functions
@@ -219,7 +225,7 @@ function Home() {
   const [isHappy, setIsHappy] = useState(() => { return 96 })
   const [isRested, setIsRested] = useState(() => { return 96 })
   const [isDead, setIsDead] = useState(false)
-  const [selectedToad, setSelectedToad] = useState('/img/bruce.png')
+  const [selectedToad, setSelectedToad] = useState('/img/1-smoke.gif')
 
   getTime()
 
@@ -468,8 +474,8 @@ function Home() {
       />
       <img className='case' src={'/img/gameboy.png'}/>
       <div className='game'>
-        <img className='gameScene' src={dynamicBG}/>
-        <img src={selectedToad} style={{height:'50px', width:'70px', zIndex:1, position:'absolute', top:'37%', right:'35%'}}/>
+        <img className='gameScene' src={dynamicBG} style={{}}/>
+        <img src={selectedToad} style={{height:'100px', width:'100px', zIndex:1, position:'absolute', top:'35%', right:'35%'}}/>
         <div className='topActionBar'>
           <FontAwesomeIcon icon='store-alt'/>
           <FontAwesomeIcon icon='heartbeat'/>
@@ -483,7 +489,21 @@ function Home() {
             document.getElementById('globalMessageContainer').classList.remove('hidden') }}>
             <FontAwesomeIcon icon='comment-dots'/>
           </div>
-          <div id='test' onClick={() => { showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood) }}>
+          <div id='test' onClick={() => { {/*showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood)*/}
+                            setGlobalMessage('')
+                            setSelectedToad('/img/1-gameboy.gif')
+                            document.getElementById('typewriterText').classList.remove('typewriterEffect')
+                            document.getElementById('typewriterText').classList.add('hidden')
+                            setTimeout(() => {
+                                setGlobalMessage(`Mmmm toad loves pizza...`)
+                                document.getElementById('globalMessageContainer').classList.remove('hidden')
+                                document.getElementById('typewriterText').classList.add('typewriterEffect')
+                                document.getElementById('typewriterText').classList.remove('hidden')
+                            }, 100); 
+                            setTimeout(() => {
+                              //make button unclickable until after animation is done running
+                              setSelectedToad('/img/1-smoke.gif')
+                            }, 3700); }}>
             <FontAwesomeIcon icon='hamburger'/>
           </div>
           <div id='test' onClick={() => { showRest ? setShowRest(false) : closeAllOtherMenus(setShowRest) }}>
@@ -492,8 +512,8 @@ function Home() {
           <div id='test' onClick={() => { showPlay ? setShowPlay(false) : closeAllOtherMenus(setShowPlay) }}>
             <FontAwesomeIcon icon='laugh-wink'/>
           </div>
-          <FontAwesomeIcon icon='school'/>
         </div>
+        {/*place roots as direct children of game screen*/}
         <div id="foodMenuRoot">
           <FoodMenu
             show={showFood}
@@ -542,65 +562,85 @@ function Home() {
           </div>
         </div>
       </div>
-      <Button
-        text='Connect' 
-        position='absolute'
-        display=''
-        flex=''
-        color='#332020'
-        backgroundColor='#b0a28d'
-        top='85%'
-        left='38%'
-        height='50px'
-        width='50px'
-        margin='10px'
-        padding='0px'
-        border=' 2px solid #673c37'
-        borderRadius='100%'
-        cursor= 'pointer'
-        onClick={!isWeb3Injected ? 
-        (() => { window.open('https://metamask.io/download','_blank') }) : 
-        (!isWalletConnected ? requestAccount : null)}
-      />
-      <Button
-        text='My Toadz' 
-        position='absolute'
-        display=''
-        flex=''
-        color='#332020'
-        backgroundColor='#b0a28d'
-        top='85%'
-        left='47%'
-        height='50px'
-        width='50px'
-        margin='10px'
-        padding='0px'
-        border=' 2px solid #673c37'
-        borderRadius='100%'
-        cursor= 'pointer'
-        onClick={isWalletConnected ? 
-        (() => { showMyToadz ? setShowMyToadz(false) : setShowMyToadz(true) }) : null }
-      />
-      <Button
-        text='About' 
-        position='absolute'
-        display=''
-        flex=''
-        color='#332020'
-        backgroundColor='#b0a28d'
-        top='85%'
-        left='56%'
-        height='50px'
-        width='50px'
-        margin='10px'
-        padding='0px'
-        border=' 2px solid #673c37'
-        borderRadius='100%'
-        cursor= 'pointer'
-        onClick={!isWeb3Injected ? 
-        (() => { window.open('https://metamask.io/download','_blank') }) : 
-        (!isWalletConnected ? requestAccount : null)}
-      />
+      <div style={{border:'2px red solid', position:'absolute', top:'75%', left:'33.33%', width:'33vw',display:'flex', justifyContent:'space-between', textAlign:'center'}}>
+        <div style={{display:'flex', flexDirection:'column'}}>
+          <Button
+            text='Connect' 
+            position=''
+            display=''
+            flex=''
+            color='#332020'
+            backgroundColor=''
+            fontfamily='Pixeled'
+            top='85%'
+            left='38%'
+            height='auto'
+            width=''
+            margin='0px'
+            padding='0px'
+            border='2px blue solid'
+            borderRadius=''
+            cursor= 'pointer'
+            onClick={!isWeb3Injected ? 
+            (() => { window.open('https://metamask.io/download','_blank') }) : 
+            (!isWalletConnected ? requestAccount : null)}
+          />
+          <div style={{border:'2px solid green', fontFamily:'Pixeled', cursor:'default'}}>
+            Connect
+          </div>
+        </div>
+        <div style={{display:'flex', flexDirection:'column'}}>
+          <Button
+            text='My Toadz' 
+            position=''
+            display=''
+            flex=''
+            color='#332020'
+            backgroundColor=''
+            fontfamily='Pixeled'
+            top='85%'
+            left='47%'
+            height='100%'
+            width=''
+            margin='0px'
+            padding='0px'
+            border='2px blue solid'
+            borderRadius=''
+            cursor= 'pointer'
+            onClick={isWalletConnected ? 
+            (() => { showMyToadz ? setShowMyToadz(false) : setShowMyToadz(true) }) : null }
+          />
+          <div style={{border:'2px solid green', fontFamily:'Pixeled', cursor:'default'}}>
+            My NFTz
+          </div>
+        </div>
+        <div style={{display:'flex', flexDirection:'column'}}>
+          <Button
+            text='About' 
+            position=''
+            display=''
+            flex=''
+            color='#332020'
+            backgroundColor=''
+            fontfamily='Pixeled'
+            top='85%'
+            left='56%' v
+            height='100%'
+            width=''
+            margin='0px'
+            padding='0px'
+            border='2px blue solid'
+            borderRadius=''
+            cursor= 'pointer'
+            onClick={!isWeb3Injected ? 
+            (() => { window.open('https://metamask.io/download','_blank') }) : 
+            (!isWalletConnected ? requestAccount : null)}
+          />
+          <div style={{border:'2px solid green', fontFamily:'Pixeled', cursor:'default'}}>
+              About
+          </div>
+        </div>
+      </div>
       <style jsx>{`
           header {
             font-family: Pixeled;
@@ -626,10 +666,10 @@ function Home() {
           .game {
             font-family: Pixeled;
             position: relative;
-            width: 73.5vw;
-            height: 78.2vh;
-            top: 9.4vh;
-            left: 11vw;
+            width: 41vw;
+            height: 52.2vh;
+            top: 15.4vh;
+            left: 29.5vw;
           }
           .gameScene {
             position: absolute;
@@ -644,7 +684,6 @@ function Home() {
             justify-content: space-around;
             font-size: 50px;
             position: absolute;
-            background: #b0a28d;
             top:0px;
             width: 100%;
             height: 15%;
@@ -655,7 +694,6 @@ function Home() {
             justify-content: space-around;
             font-size: 50px;
             position: absolute;
-            background: #b0a28d;
             bottom:0px;
             width: 100%;
             height: 15%;
