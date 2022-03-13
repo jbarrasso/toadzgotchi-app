@@ -1,0 +1,25 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url = env("DATABASE_URL")
+}
+
+model Toadz {
+  toad_id Int @id
+  toad_name String
+  owner_id String
+  level Int
+  xp Int
+  health Int
+  full Int
+  rest Int
+  happiness Int
+  fitness Int
+  fulfillment Int
+}

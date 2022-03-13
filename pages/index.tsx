@@ -1,3 +1,4 @@
+import CrypToadz from '../artifacts/contracts/CrypToadz.sol/CrypToadz.json'
 import Toadzgotchi from '../artifacts/contracts/Toadzgotchi.sol/Toadzgotchi.json'
 import ToadzgotchiNFT from '../artifacts/contracts/ToadzgotchiNFT.sol/ToadzgotchiNFT.json'
 import Head from "next/head"
@@ -15,9 +16,13 @@ import FoodMenu from '../components/FoodMenu'
 import RestMenu from '../components/RestMenu'
 import PlayMenu from '../components/PlayMenu'
 import Leaderboard from '../components/Leaderboard'
+import { prisma } from '../lib/prisma'
+import { createPatch, applyPatch } from 'rfc6902'
 
+const rfc6902 = require('rfc6902')
 const ipfsURL = 'https://ipfs.io/ipfs/'
 const cryptoadzMetadataID = 'QmWEFSMku6yGLQ9TQr66HjSd9kay8ZDYKbBEfjNi4pLtrr/'
+const cryptoadzAddress = '0x1CB1A5e65610AEFF2551A50f76a87a7d3fB649C6'
 const toadzgotchiAddress = '0x624754b1cDD431b6b92acf5bA5D9539DBE9b3707'
 const toadzgotchiNFTAddress = '0x5f5Cc7BC9BFe1e6319BDE9E30d883ECE36D00cAd'
 export let provider: ethers.providers.Web3Provider;
@@ -39,7 +44,14 @@ export let feedingMessages = ['You fed Toad a hot dog! Mmmm Toad loves hot dogs.
                               'You fed Toad some flies... Toads favorite!',
                               'You fed Toad a steak... it was cooked to perfection..']
 
-
+export async function getServerSideProps() {
+  const data = await prisma.toadz.findFirst()
+  return {
+    props: {
+      test:data
+    }
+  }
+} 
 //Anonymous function expression to return a global object of Ethereum injection.
 //provider, signer, address returns undefined unless called inside functions
 export const ethereum = () => {
@@ -139,24 +151,50 @@ export const calcDecay = async(stats, i) => {
     return (decayedValue)
   }
 }
+async function pushOwnerToDb(owner, id) {
+  let s = '/api/toadStats/' + id
+  //console.log(s)
+  const response = await fetch('/api/toadStats/' + id, {
+    method: 'PATCH',
+    body: JSON.stringify(owner)
+  })
+  // const y = []
+  // const x = await response.json()
+  // y[0]=x
+  // const { owner_id } = x;
+  // console.log(y)
+  // console.log(owner_id)
+  // rfc6902.applyPatch(x, [
+  //   {op: 'replace', path: '/owner_id', value:'dd'}
+  // ])
+  //console.log(owner_id)
+  //return await response.json()
+}
 export async function checkOwnsToadzgotchis(setOwnsToadzgotchis, setStats) {
   console.log('Running useEffect checkOwnsToadzgotchis')
   if (ethereum() != undefined || null) {
     try {
-      const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-      if (await contract.ownsToadzgotchis()) {
+      const contract = new ethers.Contract(cryptoadzAddress, CrypToadz.abi, signer)
+      if (await contract.balanceOf('0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB') > 0) {
         setOwnsToadzgotchis(true)
-        const data = await contract.toadzgotchiIdsOwned()
-        const cryptoadzMetadataURL = []
-        const toadzImagesURL = []
-        for (let i=0; i<data.length; i++) {
-          cryptoadzMetadataURL[i] = ipfsURL + cryptoadzMetadataID + data[i].toString() //this goes away
-          fetch(cryptoadzMetadataURL[i]) //https link of mapped IDs to ipfs hashes
-          .then(res => res.json()) // the .json() method parses the JSON response into a JS object literal
-          .then((imageID) => {toadzImagesURL[i] = ipfsURL + imageID.image.substring(7)})
+        const numberOfToadzOwned = await contract.balanceOf('0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB')
+        //console.log(numToadzOwned.toNumber())
+        //const cryptoadzMetadataURL = []
+        //const toadzImagesURL = []
+        const arrayOfToadIds = []
+        for (let i=0; i<numberOfToadzOwned; i++) {
+          let id = await contract.tokenOfOwnerByIndex('0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB', i)
+          //console.log(id.toString())
+          await pushOwnerToDb('0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB', id.toString())
+          arrayOfToadIds[i] = id.toNumber()
+          //console.log(arrayOfToadIds)
+          //cryptoadzMetadataURL[i] = ipfsURL + cryptoadzMetadataID + data[i].toString() //this goes away
+          //fetch(cryptoadzMetadataURL[i]) //https link of mapped IDs to ipfs hashes
+          //.then(res => res.json()) // the .json() method parses the JSON response into a JS object literal
+          //.then((imageID) => {toadzImagesURL[i] = ipfsURL + imageID.image.substring(7)})
           //.then((imageID => {toadzImagesURL[i] = ipfsURL + imageID.(data[i].toString())})
         }
-        setStats(toadzImagesURL)
+        //load img/gif of toadz when prompted
       } else {
         setOwnsToadzgotchis(false)
       }
@@ -202,7 +240,7 @@ export async function getToadzStats(ownsToadzgotchis) {
   }
 }
 
-function Home() {
+function Home({test}) {
   const [isLoading, setIsLoading] = useState(true)
   const [globalMessage, setGlobalMessage] = useState('')
   const [isWalletConnected, setIsWalletConnected] = useState(false)
@@ -225,7 +263,7 @@ function Home() {
   const [isHappy, setIsHappy] = useState(() => { return 96 })
   const [isRested, setIsRested] = useState(() => { return 96 })
   const [isDead, setIsDead] = useState(false)
-  const [selectedToad, setSelectedToad] = useState('/img/1-smoke.gif')
+  const [selectedToad, setSelectedToad] = useState('/img/1826-bg.png')
 
   getTime()
 
@@ -472,10 +510,11 @@ function Home() {
         playStatus={songStatus}
         loop={true}
       />
-      <img className='case' src={'/img/gameboy.png'}/>
+      <img className='case' src={'/img/nyancatskin.gif'}/>
       <div className='game'>
         <img className='gameScene' src={dynamicBG} style={{}}/>
-        <img src={selectedToad} style={{height:'100px', width:'100px', zIndex:1, position:'absolute', top:'35%', right:'35%'}}/>
+        <img src={selectedToad} style={{height:'200px', width:'200px', zIndex:1, position:'absolute', top:'20%', right:'25%'}}/>
+        <img id='mouth' className='hidden' src="/img/mouth.gif"/>
         <div className='topActionBar'>
           <FontAwesomeIcon icon='store-alt'/>
           <FontAwesomeIcon icon='heartbeat'/>
@@ -491,11 +530,12 @@ function Home() {
           </div>
           <div id='test' onClick={() => { {/*showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood)*/}
                             setGlobalMessage('')
-                            setSelectedToad('/img/1-gameboy.gif')
+                            // setSelectedToad('/img/1-pizza.gif')
                             document.getElementById('typewriterText').classList.remove('typewriterEffect')
                             document.getElementById('typewriterText').classList.add('hidden')
                             setTimeout(() => {
-                                setGlobalMessage(`Mmmm toad loves pizza...`)
+                              setGlobalMessage(`Mmmm toad loves pizza...`)
+                                document.getElementById('mouth').classList.remove('hidden')
                                 document.getElementById('globalMessageContainer').classList.remove('hidden')
                                 document.getElementById('typewriterText').classList.add('typewriterEffect')
                                 document.getElementById('typewriterText').classList.remove('hidden')
@@ -645,6 +685,14 @@ function Home() {
           header {
             font-family: Pixeled;
             text-align: center;
+          }
+          #mouth {
+            height:200px;
+            width:200px;
+            z-index: 20;
+            position: absolute;
+            top:20%;
+            right:25%;
           }
           #test{
             display: flex;
