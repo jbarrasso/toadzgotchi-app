@@ -3,6 +3,7 @@ import Toadzgotchi from '../artifacts/contracts/Toadzgotchi.sol/Toadzgotchi.json
 import ToadzgotchiNFT from '../artifacts/contracts/ToadzgotchiNFT.sol/ToadzgotchiNFT.json'
 import Head from "next/head"
 import Image from "next/image"
+import { useRouter } from 'next/router'
 import Button from "../components/Button"
 import Account from "../components/Account"
 import Sound from "react-sound"
@@ -17,11 +18,7 @@ import RestMenu from '../components/RestMenu'
 import PlayMenu from '../components/PlayMenu'
 import Leaderboard from '../components/Leaderboard'
 import { prisma } from '../lib/prisma'
-import { createPatch, applyPatch } from 'rfc6902'
 
-const rfc6902 = require('rfc6902')
-const ipfsURL = 'https://ipfs.io/ipfs/'
-const cryptoadzMetadataID = 'QmWEFSMku6yGLQ9TQr66HjSd9kay8ZDYKbBEfjNi4pLtrr/'
 const cryptoadzAddress = '0x1CB1A5e65610AEFF2551A50f76a87a7d3fB649C6'
 const toadzgotchiAddress = '0x624754b1cDD431b6b92acf5bA5D9539DBE9b3707'
 const toadzgotchiNFTAddress = '0x5f5Cc7BC9BFe1e6319BDE9E30d883ECE36D00cAd'
@@ -36,7 +33,6 @@ export let welcomeMessages = ['We kept the log warm for you.',
                               'Sit a while and relax...',
                               'Toad is happy to see you again...',
                               'A cool breeze rolls in...',
-                              'For miles nothing can be heard but ribbits...',
                               '*Croak* ... *Ribbit*...']
 export let feedingMessages = ['You fed Toad a hot dog! Mmmm Toad loves hot dogs...',
                               'You fed Toad a carrot! Nice...',
@@ -45,10 +41,10 @@ export let feedingMessages = ['You fed Toad a hot dog! Mmmm Toad loves hot dogs.
                               'You fed Toad a steak... it was cooked to perfection..']
 
 export async function getServerSideProps() {
-  const data = await prisma.toadz.findFirst()
+  const allToadz = await prisma.toadz.findMany()
   return {
     props: {
-      test:data
+      toadData: allToadz
     }
   }
 } 
@@ -87,7 +83,7 @@ export const handleAccountsChanged = async(setIsWalletConnected, checkOwnsToadzg
   console.log('running handleAccountsChanged')
   if (ethereum() != undefined || null) {
     ethereum().on("accountsChanged", (accounts) => {
-      //length of accounts is always 1, no matter how many wallets connected to site.
+      //Length of accounts is always 1, no matter how many wallets connected to site.
       //if n>2, when disconnecting from n to n-1 accounts, the last connected acc
       //before the nth will be = to accounts[0]
       checkOwnsToadzgotchis(setOwnsToadzgotchis)
@@ -151,96 +147,183 @@ export const calcDecay = async(stats, i) => {
     return (decayedValue)
   }
 }
-async function pushOwnerToDb(owner, id) {
-  let s = '/api/toadStats/' + id
-  //console.log(s)
-  const response = await fetch('/api/toadStats/' + id, {
-    method: 'PATCH',
-    body: JSON.stringify(owner)
-  })
-  // const y = []
-  // const x = await response.json()
-  // y[0]=x
-  // const { owner_id } = x;
-  // console.log(y)
-  // console.log(owner_id)
-  // rfc6902.applyPatch(x, [
-  //   {op: 'replace', path: '/owner_id', value:'dd'}
-  // ])
-  //console.log(owner_id)
-  //return await response.json()
-}
-export async function checkOwnsToadzgotchis(setOwnsToadzgotchis, setStats) {
-  console.log('Running useEffect checkOwnsToadzgotchis')
-  if (ethereum() != undefined || null) {
-    try {
-      const contract = new ethers.Contract(cryptoadzAddress, CrypToadz.abi, signer)
-      if (await contract.balanceOf('0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB') > 0) {
-        setOwnsToadzgotchis(true)
-        const numberOfToadzOwned = await contract.balanceOf('0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB')
-        //console.log(numToadzOwned.toNumber())
-        //const cryptoadzMetadataURL = []
-        //const toadzImagesURL = []
-        const arrayOfToadIds = []
-        for (let i=0; i<numberOfToadzOwned; i++) {
-          let id = await contract.tokenOfOwnerByIndex('0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB', i)
-          //console.log(id.toString())
-          await pushOwnerToDb('0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB', id.toString())
-          arrayOfToadIds[i] = id.toNumber()
-          //console.log(arrayOfToadIds)
-          //cryptoadzMetadataURL[i] = ipfsURL + cryptoadzMetadataID + data[i].toString() //this goes away
-          //fetch(cryptoadzMetadataURL[i]) //https link of mapped IDs to ipfs hashes
-          //.then(res => res.json()) // the .json() method parses the JSON response into a JS object literal
-          //.then((imageID) => {toadzImagesURL[i] = ipfsURL + imageID.image.substring(7)})
-          //.then((imageID => {toadzImagesURL[i] = ipfsURL + imageID.(data[i].toString())})
-        }
-        //load img/gif of toadz when prompted
-      } else {
-        setOwnsToadzgotchis(false)
-      }
-    } catch(err) {
-      console.log(err)
-    }
-  }
-}
-export async function getToadzStats(ownsToadzgotchis) {
-  console.log('running getToadzMetadata')
-  if (ethereum()) {
-    if (ownsToadzgotchis) {
-      console.log(`inside getToadzMetadata: owns toadszgotchis? ${ownsToadzgotchis}`)
-      try {
-        const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-        //setStats(toadzImages)
-        // setIsVibing(data[0])
-        // setIsFed(await calcDecay(3))
-        // setIsHappy(await calcDecay(5))
-        // setIsRested(await calcDecay(7))
-        // setToadXP(data[8].toNumber())
-        // setToadLevel(data[9].toNumber())
-        // setIsLoading(false)
-        // console.log(`isVibing: ${data[0]}
-        // startVibingBlock: ${data[1].toNumber()}
-        // isFed: ${data[2].toNumber()}
-        // lastFeedBlock: ${data[3].toNumber()}
-        // isHappy: ${data[4].toNumber()}
-        // lastPlayBlock: ${data[5].toNumber()}
-        // isRested: ${data[6].toNumber()}
-        // lastSleepBlock: ${data[7].toNumber()}
-        // toadXP: ${data[8].toNumber()}
-        // toadLevel: ${data[9].toNumber()}
-        // isDead: ${data[10]}`)
-        // console.log(`just completed block number: ${await provider.getBlockNumber()}`)
-        //return(toadzImages)
-      } catch (err) {
-        console.log('Cannot read toad stats', err)
-      }
-    } else {
-      return []
-    }
-  }
-}
+// async function startVibing() {
+//   if (network == 1) {
+//     if (isVibing) {
+//       return
+//     } else {
+//       const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+//       console.log('commence vibing')
+//       try {
+//         const transaction = await contract.startVibing()
+//         await transaction.wait()
+//         setIsVibing(true)
+//         setIsDead(false)
+//         window.location.reload()
+//       } catch(err) {
+//         console.log(err)
+//         setGlobalMessage('')
+//         document.getElementById('typewriterText').classList.remove('globalMessage')
+//         setTimeout(() => {
+//           setGlobalMessage("Oops! Toad can't vibe right now")
+//           document.getElementById('typewriterText').classList.add('globalMessage')
+//         }, 100);
+//       }
+//     }
+//   } else {
+//     console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
+//   }
+// }
+// // async function feedToad() {
+// //   if (network == 4) {
+// //     if (isWalletConnected) {
+// //       try {
+// //         const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+// //         console.log(`commence feeding. current state isFed value is ${isFed}`)
+// //         const transaction = await contract.feedToad()
+// //         //if contract call succeeds, clear current message
+// //         setGlobalMessage('')
+// //         //and remove the class that adds the typewriter effect
+// //         document.getElementById('typewriterText').classList.remove('globalMessage')
+// //         //add the class that superimposes animation on scene
+// //         document.getElementById('feedAnimation').classList.add('bgWrap')
+// //         //remove the class that hides the animation
+// //         document.getElementById('feedAnimation').classList.remove('hidden')
+// //         //wait for the transaction to finish, then hide the animation
+// //         await transaction.wait().then(() => {
+// //           document.getElementById('feedAnimation').classList.add('hidden')
+// //           document.getElementById('feedAnimation').classList.remove('bgWrap')
+// //         })
+// //         setIsFed(96)
+// //       } catch(err) {
+// //           console.log(err)
+// //           //if contract call fails, clear the current message (from possible previous error)
+// //           setGlobalMessage('')
+// //           document.getElementById('typewriterText').classList.remove('globalMessage')
+// //           setTimeout(() => {
+// //             try {
+// //               //and after .1s, add the new message and keep it on screen
+// //               setGlobalMessage(`Hmmm.. It seems that ${err.error.message.slice(20)}...`)
+// //               document.getElementById('typewriterText').classList.add('globalMessage')
+// //             } catch {
+// //               return
+// //             }
+// //           }, 100);
+// //       }
+// //     }
+// //   } else {
+// //     console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
+// //   }
+// // }
+// async function playToad() {
+//   if (network == 4) {
+//     if (isWalletConnected) {
+//       try {
+//         const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+//         console.log(`commence play. current state isHappy is ${isHappy}`)
+//         const transaction = await contract.playToad()
+//         setGlobalMessage('')
+//         document.getElementById('typewriterText').classList.remove('globalMessage')
+//         document.getElementById('playAnimation').classList.add('bgWrap')
+//         document.getElementById('playAnimation').classList.remove('hidden')
+//         await transaction.wait().then(() => {
+//           document.getElementById('playAnimation').classList.add('hidden')
+//           document.getElementById('playAnimation').classList.remove('bgWrap')
+//         })
+//         setIsHappy(96)
+//       } catch(err) {
+//           console.log(err)
+//           setGlobalMessage('')
+//           document.getElementById('typewriterText').classList.remove('globalMessage')
+//           setTimeout(() => {
+//             try {
+//               setGlobalMessage(`Hmmm.. It seems that ${err.error.message.slice(20)}...`)
+//               document.getElementById('typewriterText').classList.add('globalMessage')
+//             } catch {
+//               return
+//             }
+//           }, 100);
+//       }
+//     }
+//   } else {
+//     console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
+//   }
+// }
+// async function sleepToad() {
+//   if (network == 4) {
+//     if (isWalletConnected) {
+//       try {
+//         const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+//         console.log(`commence sleep. current state isRested is ${isRested}`)
+//         const transaction = await contract.sleepToad()
+//         setGlobalMessage('')
+//         document.getElementById('typewriterText').classList.remove('globalMessage')
+//         document.getElementById('sleepAnimation').classList.add('bgWrap')
+//         document.getElementById('sleepAnimation').classList.remove('hidden')
+//         await transaction.wait().then(() => {
+//           document.getElementById('sleepAnimation').classList.add('hidden')
+//           document.getElementById('sleepAnimation').classList.remove('bgWrap')
+//         })
+//         setIsRested(96)
+//       } catch(err) {
+//           console.log(err)
+//           setGlobalMessage('')
+//           document.getElementById('typewriterText').classList.remove('globalMessage')
+//           setTimeout(() => {
+//             try {
+//               setGlobalMessage(`Hmmm.. It seems that ${err.error.message.slice(20)}...`)
+//               document.getElementById('typewriterText').classList.add('globalMessage')
+//             } catch {
+//               return
+//             }
+//           }, 100);
+//       }
+//     }
+//   } else {
+//     console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
+//   }
+// }
+// async function tryMint() {
+//   if (isWalletConnected) {
+//     const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
+//     const transaction = await contract.tryMint([1,2,3,4,5,6,7], { value: ethers.utils.parseEther("0.035") })
+//     //await transaction.wait()
+//   } 
+// }
+// async function tryFlipMint() {
+//   if (isWalletConnected) {
+//     const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
+//     const transaction = await contract.flipMintState()
+//     await transaction.wait()
+//   } 
+// }
+// async function tryFlipPrivateSale() {
+//   if (isWalletConnected) {
+//     const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
+//     const transaction = await contract.flipPrivateSale()
+//     await transaction.wait()
+//   } 
+// }
+// async function toadzgotchisOwned() {
+//   if (isWalletConnected) {
+//     const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
+//     const owned = await contract.toadzgotchisOwned(account)
+//     //const transactions = await contract.balanceOf('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
+//     //const acc = await contract.ownerOf(4368)
+//     console.log(owned)
+//   } 
+// }
+// async function tryTransfer() {
+//   if (isWalletConnected) {
+//     const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
+//     const transaction = await contract["safeTransferFrom(address,address,uint256)"]('0x70997970C51812dc3A010C7d01b50e0d17dc79C8','0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 3)
+//     await transaction.wait()
+//   } 
+// }
 
-function Home({test}) {
+function Home({toadData}) {
+  const router = useRouter()
+  const levelChange = useRef(0)
   const [isLoading, setIsLoading] = useState(true)
   const [globalMessage, setGlobalMessage] = useState('')
   const [isWalletConnected, setIsWalletConnected] = useState(false)
@@ -252,25 +335,34 @@ function Home({test}) {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [songStatus, setSongStatus] = useState(Sound.status.STOPPED)
   const [currentSong, setCurrentSong] = useState(songPlaylist[0])
-  const [imageURL, setImageURL] = useState([])
+  const [toadIdsOwned, setToadIdsOwned] = useState([])
   const [ownsToadzgotchis, setOwnsToadzgotchis] = useState(false)
   const [isVibing, setIsVibing] = useState(false)
   const [network, setNetwork] = useState()
   const [toadLevel, setToadLevel] = useState(1)
-  const levelChange = useRef(0)
   const [toadXP, setToadXP] = useState(0)
   const [isFed, setIsFed] = useState(() => { return 96 })
   const [isHappy, setIsHappy] = useState(() => { return 96 })
   const [isRested, setIsRested] = useState(() => { return 96 })
   const [isDead, setIsDead] = useState(false)
-  const [selectedToad, setSelectedToad] = useState('/img/1826-bg.png')
+  const [toadId, setToadId] = useState('1')
+  const [selectedToad, setSelectedToad] = useState('/img/' + toadId + '.png')
 
+  function getTime() {
+    if ((new Date().getHours() >= 18) || (new Date().getHours() < 6)) {
+      dynamicBG = '/img/nightswamp.gif'
+    } else {
+      dynamicBG = '/img/swamp.gif'
+    }
+  }
   getTime()
 
   useEffect(() => {
     setIsLoading(true)
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
-    .then(() => {checkOwnsToadzgotchis(setOwnsToadzgotchis, setImageURL)})
+    .then(() => {
+      checkOwnsToadzgotchis(setOwnsToadzgotchis, setToadIdsOwned)
+    })
     handleAccountsChanged(setIsWalletConnected, checkOwnsToadzgotchis, setOwnsToadzgotchis, setShowMyToadz)
     handleChainChanged(setNetwork)
     setTimeout(() => {
@@ -285,189 +377,68 @@ function Home({test}) {
   //runs no matter what on page hard reload
   useEffect(() => {
     console.log('one of 4 variables changed, running useeffect')
-    checkOwnsToadzgotchis(setOwnsToadzgotchis, setImageURL)
+    checkOwnsToadzgotchis(setOwnsToadzgotchis, setToadIdsOwned)
   }, [isFed, isHappy, isRested, account])
 
-  async function startVibing() {
-    if (network == 1) {
-      if (isVibing) {
-        return
-      } else {
-        const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-        console.log('commence vibing')
-        try {
-          const transaction = await contract.startVibing()
-          await transaction.wait()
-          setIsVibing(true)
-          setIsDead(false)
-          window.location.reload()
-        } catch(err) {
-          console.log(err)
-          setGlobalMessage('')
-          document.getElementById('typewriterText').classList.remove('globalMessage')
-          setTimeout(() => {
-            setGlobalMessage("Oops! Toad can't vibe right now")
-            document.getElementById('typewriterText').classList.add('globalMessage')
-          }, 100);
+  const refreshData = () => {
+    router.replace(router.asPath)
+  }
+
+  async function pushData(property: string, newValue: number | string, id: string) {
+    let newJSON = {}
+    newJSON[property] = newValue
+    const res = await fetch('/api/toadStats/' + id, {
+      method: 'PATCH',
+      body: JSON.stringify(newJSON)
+    })
+    if (res.status < 300) {
+      refreshData()
+    }
+  }
+
+  // async function feed(id: string) {
+  //   const res = await fetch('/api/toadStats/' + id, {
+  //     method: 'GET'
+  //   })
+
+  //   const x = await res.json()
+  //   console.log(x.full)
+  // }
+
+  async function checkOwnsToadzgotchis(setOwnsToadzgotchis, setToadIdsOwned) {
+    console.log('Running useEffect checkOwnsToadzgotchis')
+    if ((ethereum() != undefined || null) && (network == 1)) {
+      try {
+        const contract = new ethers.Contract(cryptoadzAddress, CrypToadz.abi, signer)
+        if (await contract.balanceOf(account) > 0) {
+          setOwnsToadzgotchis(true)
+          const numberOfToadzOwned = await contract.balanceOf(account)
+          const arrayOfToadIds = []
+          for (let i=0; i<numberOfToadzOwned; i++) {
+            let id = await contract.tokenOfOwnerByIndex(account, i)
+            await pushData('owner_id', account, id.toString())
+            arrayOfToadIds[i] = id.toNumber()
+          }
+          //console.log(arrayOfToadIds[0])
+          setToadIdsOwned(arrayOfToadIds)
+        } else {
+          setOwnsToadzgotchis(false)
         }
+      } catch(err) {
+        console.log(err)
       }
-    } else {
-      console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
     }
   }
-  async function feedToad() {
-    if (network == 4) {
-      if (isWalletConnected) {
-        try {
-          const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-          console.log(`commence feeding. current state isFed value is ${isFed}`)
-          const transaction = await contract.feedToad()
-          //if contract call succeeds, clear current message
-          setGlobalMessage('')
-          //and remove the class that adds the typewriter effect
-          document.getElementById('typewriterText').classList.remove('globalMessage')
-          //add the class that superimposes animation on scene
-          document.getElementById('feedAnimation').classList.add('bgWrap')
-          //remove the class that hides the animation
-          document.getElementById('feedAnimation').classList.remove('hidden')
-          //wait for the transaction to finish, then hide the animation
-          await transaction.wait().then(() => {
-            document.getElementById('feedAnimation').classList.add('hidden')
-            document.getElementById('feedAnimation').classList.remove('bgWrap')
-          })
-          setIsFed(96)
-        } catch(err) {
-            console.log(err)
-            //if contract call fails, clear the current message (from possible previous error)
-            setGlobalMessage('')
-            document.getElementById('typewriterText').classList.remove('globalMessage')
-            setTimeout(() => {
-              try {
-                //and after .1s, add the new message and keep it on screen
-                setGlobalMessage(`Hmmm.. It seems that ${err.error.message.slice(20)}...`)
-                document.getElementById('typewriterText').classList.add('globalMessage')
-              } catch {
-                return
-              }
-            }, 100);
-        }
+
+  async function getToadData(toadIdsOwned) {
+    let j=1
+    for (let i=0; i<toadIdsOwned.length; i++) {
+      if (toadIdsOwned[i] > 6968) {
       }
-    } else {
-      console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
+      console.log(toadData[toadIdsOwned[i]-1].toad_id)
     }
   }
-  async function playToad() {
-    if (network == 4) {
-      if (isWalletConnected) {
-        try {
-          const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-          console.log(`commence play. current state isHappy is ${isHappy}`)
-          const transaction = await contract.playToad()
-          setGlobalMessage('')
-          document.getElementById('typewriterText').classList.remove('globalMessage')
-          document.getElementById('playAnimation').classList.add('bgWrap')
-          document.getElementById('playAnimation').classList.remove('hidden')
-          await transaction.wait().then(() => {
-            document.getElementById('playAnimation').classList.add('hidden')
-            document.getElementById('playAnimation').classList.remove('bgWrap')
-          })
-          setIsHappy(96)
-        } catch(err) {
-            console.log(err)
-            setGlobalMessage('')
-            document.getElementById('typewriterText').classList.remove('globalMessage')
-            setTimeout(() => {
-              try {
-                setGlobalMessage(`Hmmm.. It seems that ${err.error.message.slice(20)}...`)
-                document.getElementById('typewriterText').classList.add('globalMessage')
-              } catch {
-                return
-              }
-            }, 100);
-        }
-      }
-    } else {
-      console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
-    }
-  }
-  async function sleepToad() {
-    if (network == 4) {
-      if (isWalletConnected) {
-        try {
-          const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-          console.log(`commence sleep. current state isRested is ${isRested}`)
-          const transaction = await contract.sleepToad()
-          setGlobalMessage('')
-          document.getElementById('typewriterText').classList.remove('globalMessage')
-          document.getElementById('sleepAnimation').classList.add('bgWrap')
-          document.getElementById('sleepAnimation').classList.remove('hidden')
-          await transaction.wait().then(() => {
-            document.getElementById('sleepAnimation').classList.add('hidden')
-            document.getElementById('sleepAnimation').classList.remove('bgWrap')
-          })
-          setIsRested(96)
-        } catch(err) {
-            console.log(err)
-            setGlobalMessage('')
-            document.getElementById('typewriterText').classList.remove('globalMessage')
-            setTimeout(() => {
-              try {
-                setGlobalMessage(`Hmmm.. It seems that ${err.error.message.slice(20)}...`)
-                document.getElementById('typewriterText').classList.add('globalMessage')
-              } catch {
-                return
-              }
-            }, 100);
-        }
-      }
-    } else {
-      console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
-    }
-  }
-  function getTime() {
-    if ((new Date().getHours() >= 18) || (new Date().getHours() < 6)) {
-      dynamicBG = '/img/nightswamp.gif'
-    } else {
-      dynamicBG = '/img/swamp.gif'
-    }
-  }
-  async function tryMint() {
-    if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
-      const transaction = await contract.tryMint([1,2,3,4,5,6,7], { value: ethers.utils.parseEther("0.035") })
-      //await transaction.wait()
-    } 
-  }
-  async function tryFlipMint() {
-    if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
-      const transaction = await contract.flipMintState()
-      await transaction.wait()
-    } 
-  }
-  async function tryFlipPrivateSale() {
-    if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
-      const transaction = await contract.flipPrivateSale()
-      await transaction.wait()
-    } 
-  }
-  async function toadzgotchisOwned() {
-    if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
-      const owned = await contract.toadzgotchisOwned(account)
-      //const transactions = await contract.balanceOf('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
-      //const acc = await contract.ownerOf(4368)
-      console.log(owned)
-    } 
-  }
-  async function tryTransfer() {
-    if (isWalletConnected) {
-      const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
-      const transaction = await contract["safeTransferFrom(address,address,uint256)"]('0x70997970C51812dc3A010C7d01b50e0d17dc79C8','0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 3)
-      await transaction.wait()
-    } 
-  }
+
   function togglePlaySong(setSongStatus) {
     if (songStatus == 'PLAYING') {
       setSongStatus(Sound.status.STOPPED)
@@ -489,8 +460,6 @@ function Home({test}) {
         }
       }
     }
-  }
-  function displayCurrentToad() {
   }
   function closeAllOtherMenus(onlyShowMe) {
     const allMenus = [setShowFood, setShowRest, setShowLeaderboard, setShowPlay]
@@ -529,20 +498,23 @@ function Home({test}) {
             <FontAwesomeIcon icon='comment-dots'/>
           </div>
           <div id='test' onClick={() => { {/*showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood)*/}
+
+                            //add account as arg below to authenticate?
+                            pushData('rest',175, toadId)
+
                             setGlobalMessage('')
-                            // setSelectedToad('/img/1-pizza.gif')
+                            setSelectedToad('/img/' + toadId + '.png')
                             document.getElementById('typewriterText').classList.remove('typewriterEffect')
                             document.getElementById('typewriterText').classList.add('hidden')
                             setTimeout(() => {
                               setGlobalMessage(`Mmmm toad loves pizza...`)
-                                document.getElementById('mouth').classList.remove('hidden')
                                 document.getElementById('globalMessageContainer').classList.remove('hidden')
                                 document.getElementById('typewriterText').classList.add('typewriterEffect')
                                 document.getElementById('typewriterText').classList.remove('hidden')
                             }, 100); 
                             setTimeout(() => {
                               //make button unclickable until after animation is done running
-                              setSelectedToad('/img/1-smoke.gif')
+                              setSelectedToad('/img/' + toadId + '.png')
                             }, 3700); }}>
             <FontAwesomeIcon icon='hamburger'/>
           </div>
@@ -579,8 +551,11 @@ function Home({test}) {
           <MyToadz
             show={showMyToadz}
             ownsToadzgotchis={ownsToadzgotchis}
-            imageURL={imageURL}
-            propSelectedToad={setSelectedToad}
+            imageURL={toadIdsOwned}
+            SetToadId={setToadId}
+            SetSelectedToad={setSelectedToad}
+            toadData={toadData}
+            toadIdsOwned={[1,3860,5900,3857]}
             onClose={ () => { setShowMyToadz(false) } }>
           </MyToadz>
         </div>
@@ -588,7 +563,7 @@ function Home({test}) {
           <Leaderboard
             show={showLeaderboard}
             ownsToadzgotchis={ownsToadzgotchis}
-            imageURL={imageURL}
+            imageURL={toadIdsOwned}
             propSelectedToad={setSelectedToad}
             onClose={ () => { setShowLeaderboard(false) } }>
           </Leaderboard>

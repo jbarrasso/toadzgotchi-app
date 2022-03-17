@@ -6,19 +6,24 @@ type Props = {
   ownsToadzgotchis: boolean;
   show: boolean;
   imageURL: any;
-  propSelectedToad: any;
+  SetToadId: any;
+  SetSelectedToad: any;
+  toadData: any;
+  toadIdsOwned: any;
   onClose: () => void
 };
 
-const MyToadz = ({ ownsToadzgotchis, propSelectedToad, imageURL, show, onClose }: Props) => {
+const MyToadz = ({ ownsToadzgotchis, SetToadId, SetSelectedToad, toadData, toadIdsOwned, imageURL, show, onClose }: Props) => {
   const [isBrowser, setIsBrowser] = useState(false)
-  const [previewToad, setPreviewToad] = useState('')
+  const [previewToad, setPreviewToad] = useState(0)
 
-  const listItems = imageURL.map((image) =>
-    <div key={image} style={{display:'flex', width:'100%', height:'100px', alignItems:'center', border:'2px solid #673c37' }}>
-      <img onClick={ () => { setPreviewToad(image) } } src={image} style={{cursor:'pointer',height:'100%'}}/>
-      <p>Toad Name</p>
-      <progress></progress>
+  const listItems = toadIdsOwned.map((image) =>
+    <div key={image} style={{display:'flex', justifyContent:'space-around', width:'100%', height:'100px', alignItems:'center', border:'2px solid #673c37' }}>
+      <img onClick={ () => { setPreviewToad(image) } } src={'/img/' + image + '.png'} style={{cursor:'pointer',height:'100%'}}/>
+      <div style={{display:'flex', flexDirection: 'column', alignItems:'center', justifyContent:'space-around', height:'100%'}}>
+        <span style={{height:'auto', width:'100%', fontSize:'.75vw'}}>Overall Health</span>
+        <progress max={100} value={toadData[image-1].rest} style={{border: 'solid 2px black', width:'100%'}}></progress>
+      </div>
     </div>);
 
   useEffect(() => {
@@ -40,17 +45,20 @@ const MyToadz = ({ ownsToadzgotchis, propSelectedToad, imageURL, show, onClose }
         {ownsToadzgotchis? {listItems}.listItems : <div></div>}
       </div>
       <div className='toadPreview' style={{position:'absolute', alignItems: 'center', flexWrap:'wrap', top:'11%', left:'50%', display:'flex', width:'45%', height:'85%'}}>
-        {previewToad != '' && (
+        {previewToad >= 1 && (
           <div>
-          <img src={previewToad} style={{width:'30%', height: '50%'}} />
-          <progress></progress>
-          <p>Toad Level</p>
-          <p>Toad Name</p>
+          <img src={'/img/' + previewToad + '.png'} style={{width:'30%', height: '50%'}} />
+          <progress value={toadData[previewToad-1].health} style={{border: 'solid 2px red'}}></progress>
+          <p>CrypToadz ID# {toadData[previewToad-1].toad_id}</p>
+          <p>Toad Level: {toadData[previewToad-1].level}</p>
+          {toadData[previewToad-1].toad_name != '' && (
+          <p>Toad Name: {toadData[previewToad-1].toad_name}</p> )}
           <Button
             text='Select Toad' 
             position=''
             display=''
             flex=''
+            fontfamily=''
             color='#332020'
             backgroundColor='#b0a28d'
             top='80%'
@@ -63,7 +71,8 @@ const MyToadz = ({ ownsToadzgotchis, propSelectedToad, imageURL, show, onClose }
             borderRadius='5%'
             cursor= 'pointer'
             onClick={() => {
-              propSelectedToad(previewToad)
+              SetToadId(previewToad)
+              SetSelectedToad('/img/' + previewToad + '.png')
               onClose() }}
           />
           </div> )}
