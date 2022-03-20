@@ -47,7 +47,9 @@
     "react-typeform-embed": "^1.0.7",
     "rfc6902": "^5.0.1",
     "solidity-coverage": "^0.7.17",
-    "swr": "^1.0.1"
+    "swr": "^1.0.1",
+    "web3": "^1.7.1",
+    "web3modal": "^1.9.5"
   },
   "devDependencies": {
     "@prisma/client": "^3.10.0",

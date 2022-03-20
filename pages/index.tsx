@@ -12,6 +12,8 @@ import ProgressBar from '../components/ProgressBar'
 import { PopupButton } from '@typeform/embed-react'
 import { useState, useEffect, useRef } from 'react'
 import { ethers } from 'ethers'
+import Web3Modal from 'web3modal'
+import WalletConnectProvider from "@wallet"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import FoodMenu from '../components/FoodMenu'
 import RestMenu from '../components/RestMenu'
@@ -50,6 +52,15 @@ export async function getServerSideProps() {
 } 
 //Anonymous function expression to return a global object of Ethereum injection.
 //provider, signer, address returns undefined unless called inside functions
+export const providerOptions = {
+
+ }
+export const web3Modal = new Web3Modal({
+  network: "mainnet",
+  cacheProvider: true,
+  providerOptions
+})
+
 export const ethereum = () => {
   return (window as any).ethereum
 }
@@ -63,6 +74,7 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
     setIsWeb3Injected(true)
     console.log('Web3 is injected')
     try {
+      console.log('fetching wallet data')
       const tryProvider = new ethers.providers.Web3Provider(ethereum())
       provider=tryProvider
       const tryNetwork = (await tryProvider.getNetwork()).chainId
@@ -321,6 +333,12 @@ export const calcDecay = async(stats, i) => {
 //   } 
 // }
 
+// export async function findOwner(account: string) {
+//   const res = await fetch('/api/owners/' + account, {
+//     method: 'GET'
+//   })
+// }
+
 function Home({toadData}) {
   const router = useRouter()
   const levelChange = useRef(0)
@@ -341,15 +359,13 @@ function Home({toadData}) {
   const [network, setNetwork] = useState()
   const [toadLevel, setToadLevel] = useState(1)
   const [toadXP, setToadXP] = useState(0)
-  const [isFed, setIsFed] = useState(() => { return 96 })
-  const [isHappy, setIsHappy] = useState(() => { return 96 })
-  const [isRested, setIsRested] = useState(() => { return 96 })
   const [isDead, setIsDead] = useState(false)
   const [toadId, setToadId] = useState('1')
   const [selectedToad, setSelectedToad] = useState('/img/' + toadId + '.png')
 
   function getTime() {
     if ((new Date().getHours() >= 18) || (new Date().getHours() < 6)) {
+      //query last location, set it here
       dynamicBG = '/img/nightswamp.gif'
     } else {
       dynamicBG = '/img/swamp.gif'
@@ -374,33 +390,59 @@ function Home({toadData}) {
     }, 1000);
   }, [])
 
-  //runs no matter what on page hard reload
+
   useEffect(() => {
+    //runs no matter what on page hard reload
+    //should be waiting until checkweb3 is done to call
+    //handleAcc/Chain change with [isWalletConnected] listener
     console.log('one of 4 variables changed, running useeffect')
     checkOwnsToadzgotchis(setOwnsToadzgotchis, setToadIdsOwned)
-  }, [isFed, isHappy, isRested, account])
+  }, [account])
 
+  useEffect(() => {
+    if (toadIdsOwned.length > 0) {
+      console.log('toad ids loaded')
+      console.log(toadIdsOwned)
+      setIsLoading(false)
+    } else { return }
+  }, [toadIdsOwned])
+  
   const refreshData = () => {
     router.replace(router.asPath)
   }
 
-  async function pushData(property: string, newValue: number | string, id: string) {
-    let newJSON = {}
-    newJSON[property] = newValue
+  async function updateOwner(account: string, id: string) {
     const res = await fetch('/api/toadStats/' + id, {
-      method: 'PATCH',
-      body: JSON.stringify(newJSON)
+      method: 'PUT',
+      body: JSON.stringify(account)
     })
     if (res.status < 300) {
       refreshData()
     }
+    let data = await res.json()
+    let key = Object.keys(data)[0]
+    let keyValue = data[key]
+    console.log(data)
+  }
+
+  async function updateStats(properties: string[], id: string) {
+    const res = await fetch('/api/toadStats/' + id, {
+      method: 'PATCH',
+      body: JSON.stringify(properties)
+    })
+    if (res.status < 300) {
+      refreshData()
+    }
+    let data = await res.json()
+    let key = Object.keys(data)[0]
+    let keyValue = data[key]
+    console.log(data)
   }
 
   // async function feed(id: string) {
   //   const res = await fetch('/api/toadStats/' + id, {
   //     method: 'GET'
   //   })
-
   //   const x = await res.json()
   //   console.log(x.full)
   // }
@@ -416,10 +458,11 @@ function Home({toadData}) {
           const arrayOfToadIds = []
           for (let i=0; i<numberOfToadzOwned; i++) {
             let id = await contract.tokenOfOwnerByIndex(account, i)
-            await pushData('owner_id', account, id.toString())
+            //before pushing, authenticate with signature pass in verifiedAccount instead of account or key in localstorage
+            //check if toads are the same.. no need to push if the same
+            await updateOwner(account, id.toString())
             arrayOfToadIds[i] = id.toNumber()
           }
-          //console.log(arrayOfToadIds[0])
           setToadIdsOwned(arrayOfToadIds)
         } else {
           setOwnsToadzgotchis(false)
@@ -479,10 +522,10 @@ function Home({toadData}) {
         playStatus={songStatus}
         loop={true}
       />
-      <img className='case' src={'/img/nyancatskin.gif'}/>
+      <img className='case' src={'/img/common1.png'}/>
       <div className='game'>
-        <img className='gameScene' src={dynamicBG} style={{}}/>
-        <img src={selectedToad} style={{height:'200px', width:'200px', zIndex:1, position:'absolute', top:'20%', right:'25%'}}/>
+        <img className='gameScene' src={ isLoading ? dynamicBG='/img/1.png': dynamicBG } style={{}}/>
+        <img src={selectedToad} style={{display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'40%', width:'30%', zIndex:1, position:'absolute', top:'20%', right:'37%'}}/>
         <img id='mouth' className='hidden' src="/img/mouth.gif"/>
         <div className='topActionBar'>
           <FontAwesomeIcon icon='store-alt'/>
@@ -498,10 +541,9 @@ function Home({toadData}) {
             <FontAwesomeIcon icon='comment-dots'/>
           </div>
           <div id='test' onClick={() => { {/*showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood)*/}
-
-                            //add account as arg below to authenticate?
-                            pushData('rest',175, toadId)
-
+                            //pushData(['hamburger', account], toadid)
+                            //check if toad transferred checkownstoadzg
+                            updateStats(['hamburger', account], '4')
                             setGlobalMessage('')
                             setSelectedToad('/img/' + toadId + '.png')
                             document.getElementById('typewriterText').classList.remove('typewriterEffect')
@@ -555,7 +597,7 @@ function Home({toadData}) {
             SetToadId={setToadId}
             SetSelectedToad={setSelectedToad}
             toadData={toadData}
-            toadIdsOwned={[1,3860,5900,3857]}
+            toadIdsOwned={toadIdsOwned}
             onClose={ () => { setShowMyToadz(false) } }>
           </MyToadz>
         </div>
@@ -577,7 +619,7 @@ function Home({toadData}) {
           </div>
         </div>
       </div>
-      <div style={{border:'2px red solid', position:'absolute', top:'75%', left:'33.33%', width:'33vw',display:'flex', justifyContent:'space-between', textAlign:'center'}}>
+      <div style={{border:'2px solid blue', position:'absolute', top:'80%', left:'35%', width:'30vw',display:'flex', justifyContent:'space-between', textAlign:'center'}}>
         <div style={{display:'flex', flexDirection:'column'}}>
           <Button
             text='Connect' 
@@ -589,18 +631,18 @@ function Home({toadData}) {
             fontfamily='Pixeled'
             top='85%'
             left='38%'
-            height='auto'
-            width=''
+            height='100%'
+            width='1vw'
             margin='0px'
             padding='0px'
-            border='2px blue solid'
+            border='2px solid red'
             borderRadius=''
             cursor= 'pointer'
             onClick={!isWeb3Injected ? 
             (() => { window.open('https://metamask.io/download','_blank') }) : 
             (!isWalletConnected ? requestAccount : null)}
           />
-          <div style={{border:'2px solid green', fontFamily:'Pixeled', cursor:'default'}}>
+          <div style={{border:'2px solid red', fontFamily:'Pixeled', cursor:'default'}}>
             Connect
           </div>
         </div>
@@ -619,13 +661,13 @@ function Home({toadData}) {
             width=''
             margin='0px'
             padding='0px'
-            border='2px blue solid'
+            border='2px solid red'
             borderRadius=''
             cursor= 'pointer'
             onClick={isWalletConnected ? 
             (() => { showMyToadz ? setShowMyToadz(false) : setShowMyToadz(true) }) : null }
           />
-          <div style={{border:'2px solid green', fontFamily:'Pixeled', cursor:'default'}}>
+          <div style={{border:'', fontFamily:'Pixeled', cursor:'default'}}>
             My NFTz
           </div>
         </div>
@@ -639,19 +681,19 @@ function Home({toadData}) {
             backgroundColor=''
             fontfamily='Pixeled'
             top='85%'
-            left='56%' v
-            height='100%'
+            left='56%'
+            height='50%'
             width=''
             margin='0px'
             padding='0px'
-            border='2px blue solid'
+            border='2px solid red'
             borderRadius=''
             cursor= 'pointer'
             onClick={!isWeb3Injected ? 
             (() => { window.open('https://metamask.io/download','_blank') }) : 
             (!isWalletConnected ? requestAccount : null)}
           />
-          <div style={{border:'2px solid green', fontFamily:'Pixeled', cursor:'default'}}>
+          <div style={{border:'', fontFamily:'Pixeled', cursor:'default'}}>
               About
           </div>
         </div>
@@ -689,10 +731,10 @@ function Home({toadData}) {
           .game {
             font-family: Pixeled;
             position: relative;
-            width: 41vw;
-            height: 52.2vh;
-            top: 15.4vh;
-            left: 29.5vw;
+            width: 40.6vw;
+            height: 54.3vh;
+            top: 15vh;
+            left: 29.75vw;
           }
           .gameScene {
             position: absolute;

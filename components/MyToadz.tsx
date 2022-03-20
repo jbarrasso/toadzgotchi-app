@@ -48,7 +48,7 @@ const MyToadz = ({ ownsToadzgotchis, SetToadId, SetSelectedToad, toadData, toadI
         {previewToad >= 1 && (
           <div>
           <img src={'/img/' + previewToad + '.png'} style={{width:'30%', height: '50%'}} />
-          <progress value={toadData[previewToad-1].health} style={{border: 'solid 2px red'}}></progress>
+          <progress value={toadData[previewToad-1].health} style={{border: 'solid 2px black'}}></progress>
           <p>CrypToadz ID# {toadData[previewToad-1].toad_id}</p>
           <p>Toad Level: {toadData[previewToad-1].level}</p>
           {toadData[previewToad-1].toad_name != '' && (
