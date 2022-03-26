@@ -3,7 +3,7 @@ import Toadzgotchi from '../artifacts/contracts/Toadzgotchi.sol/Toadzgotchi.json
 import ToadzgotchiNFT from '../artifacts/contracts/ToadzgotchiNFT.sol/ToadzgotchiNFT.json'
 import Head from "next/head"
 import Image from "next/image"
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router"
 import Button from "../components/Button"
 import Account from "../components/Account"
 import Sound from "react-sound"
@@ -13,7 +13,7 @@ import { PopupButton } from '@typeform/embed-react'
 import { useState, useEffect, useRef } from 'react'
 import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
-import WalletConnectProvider from "@wallet"
+import WalletConnectProvider from '@walletconnect/core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import FoodMenu from '../components/FoodMenu'
 import RestMenu from '../components/RestMenu'
@@ -36,11 +36,6 @@ export let welcomeMessages = ['We kept the log warm for you.',
                               'Toad is happy to see you again...',
                               'A cool breeze rolls in...',
                               '*Croak* ... *Ribbit*...']
-export let feedingMessages = ['You fed Toad a hot dog! Mmmm Toad loves hot dogs...',
-                              'You fed Toad a carrot! Nice...',
-                              'You fed Toad some candy! Toad is now hyper',
-                              'You fed Toad some flies... Toads favorite!',
-                              'You fed Toad a steak... it was cooked to perfection..']
 
 export async function getServerSideProps() {
   const allToadz = await prisma.toadz.findMany()
@@ -50,16 +45,17 @@ export async function getServerSideProps() {
     }
   }
 } 
+
 //Anonymous function expression to return a global object of Ethereum injection.
 //provider, signer, address returns undefined unless called inside functions
 export const providerOptions = {
 
  }
-export const web3Modal = new Web3Modal({
-  network: "mainnet",
-  cacheProvider: true,
-  providerOptions
-})
+// export const web3Modal = new Web3Modal({
+//   network: "mainnet",
+//   cacheProvider: true,
+//   providerOptions
+// })
 
 export const ethereum = () => {
   return (window as any).ethereum
@@ -82,7 +78,7 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
       const trySigner = tryProvider.getSigner()
       signer = trySigner
       const tryAccount = await trySigner.getAddress()
-      account = tryAccount
+      account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
       setIsWalletConnected(true)
       console.log('Wallect is connected')
     } catch (err) {
@@ -137,28 +133,28 @@ export const handleChainChanged = async(setNetwork) => {
 export const requestAccount = async() => {
   await ethereum().request({ method: 'eth_requestAccounts' });
 }
-export const gethours = async() => {
-  const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-  const data = await contract.gethours()
-  console.log(`currentblock ${await provider.getBlockNumber()} hourselapsed${data.toNumber()}`)
-  return data
-}
-export const calcDecay = async(stats, i) => {
-  if (ethereum() !== undefined || null) {
-    const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-    const currentBlock = await provider.getBlockNumber()
-    const hoursElapsed = (((currentBlock - stats[i])*15)/60)/60
-    let decayBy = (4 * hoursElapsed)
-    let decayedValue: number
-    if (decayBy > stats[i-1].toNumber()) {
-      decayedValue = 0
-    } else {
-      decayedValue = stats[i-1].toNumber() - decayBy
-    }
-    console.log(`currentblock: ${currentBlock} hrselapsed: ${hoursElapsed} decayedvalue: ${decayedValue}`)
-    return (decayedValue)
-  }
-}
+// export const gethours = async() => {
+//   const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+//   const data = await contract.gethours()
+//   console.log(`currentblock ${await provider.getBlockNumber()} hourselapsed${data.toNumber()}`)
+//   return data
+// }
+// export const calcDecay = async(stats, i) => {
+//   if (ethereum() !== undefined || null) {
+//     const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
+//     const currentBlock = await provider.getBlockNumber()
+//     const hoursElapsed = (((currentBlock - stats[i])*15)/60)/60
+//     let decayBy = (4 * hoursElapsed)
+//     let decayedValue: number
+//     if (decayBy > stats[i-1].toNumber()) {
+//       decayedValue = 0
+//     } else {
+//       decayedValue = stats[i-1].toNumber() - decayBy
+//     }
+//     console.log(`currentblock: ${currentBlock} hrselapsed: ${hoursElapsed} decayedvalue: ${decayedValue}`)
+//     return (decayedValue)
+//   }
+// }
 // async function startVibing() {
 //   if (network == 1) {
 //     if (isVibing) {
@@ -361,7 +357,7 @@ function Home({toadData}) {
   const [toadXP, setToadXP] = useState(0)
   const [isDead, setIsDead] = useState(false)
   const [toadId, setToadId] = useState('1')
-  const [selectedToad, setSelectedToad] = useState('/img/' + toadId + '.png')
+  const [toadDisplayState, setToadDisplayState] = useState('/img/' + toadId + '-smoke.gif')
 
   function getTime() {
     if ((new Date().getHours() >= 18) || (new Date().getHours() < 6)) {
@@ -375,6 +371,7 @@ function Home({toadData}) {
 
   useEffect(() => {
     setIsLoading(true)
+    triggerRefresh()
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
     .then(() => {
       checkOwnsToadzgotchis(setOwnsToadzgotchis, setToadIdsOwned)
@@ -395,7 +392,7 @@ function Home({toadData}) {
     //runs no matter what on page hard reload
     //should be waiting until checkweb3 is done to call
     //handleAcc/Chain change with [isWalletConnected] listener
-    console.log('one of 4 variables changed, running useeffect')
+    console.log('account changed, running useeffect')
     checkOwnsToadzgotchis(setOwnsToadzgotchis, setToadIdsOwned)
   }, [account])
 
@@ -409,9 +406,17 @@ function Home({toadData}) {
   
   const refreshData = () => {
     router.replace(router.asPath)
+    console.log('refreshed db data, will reflect on next state action')
   }
 
-  async function updateOwner(account: string, id: string) {
+  //call at vibe start
+  //or figure out when the last decay was, then call after
+  function triggerRefresh() {
+    setInterval(refreshData, 1000*60*60*4)
+    console.log('run callme')
+  }
+
+  async function updateOwner(account: string[], id: string) {
     const res = await fetch('/api/toadStats/' + id, {
       method: 'PUT',
       body: JSON.stringify(account)
@@ -430,13 +435,27 @@ function Home({toadData}) {
       method: 'PATCH',
       body: JSON.stringify(properties)
     })
-    if (res.status < 300) {
-      refreshData()
-    }
+
     let data = await res.json()
     let key = Object.keys(data)[0]
     let keyValue = data[key]
-    console.log(data)
+    setTimeout(() => {
+      setGlobalMessage(`${keyValue}`)
+        document.getElementById('globalMessageContainer').classList.remove('hidden')
+        document.getElementById('typewriterText').classList.add('typewriterEffect')
+        document.getElementById('typewriterText').classList.remove('hidden')
+    }, 100);
+    if (res.status < 300) {
+      refreshData()
+      if (data[Object.keys(data)[1]] != '') {
+        setToadDisplayState('/img/' + toadId + data[Object.keys(data)[1]])
+        setTimeout(() => {
+        //make button unclickable until after animation is done running
+        setToadDisplayState('/img/' + toadId + '.png')
+        }, 3700);
+      }
+      //to check if toad is sick, toadData wont update until next state action, so have toadAction be a state variable and run useeffect
+    }
   }
 
   // async function feed(id: string) {
@@ -460,12 +479,13 @@ function Home({toadData}) {
             let id = await contract.tokenOfOwnerByIndex(account, i)
             //before pushing, authenticate with signature pass in verifiedAccount instead of account or key in localstorage
             //check if toads are the same.. no need to push if the same
-            await updateOwner(account, id.toString())
+            await updateOwner([account], id.toString())
             arrayOfToadIds[i] = id.toNumber()
           }
           setToadIdsOwned(arrayOfToadIds)
         } else {
           setOwnsToadzgotchis(false)
+          setToadIdsOwned([])
         }
       } catch(err) {
         console.log(err)
@@ -525,7 +545,9 @@ function Home({toadData}) {
       <img className='case' src={'/img/common1.png'}/>
       <div className='game'>
         <img className='gameScene' src={ isLoading ? dynamicBG='/img/1.png': dynamicBG } style={{}}/>
-        <img src={selectedToad} style={{display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'40%', width:'30%', zIndex:1, position:'absolute', top:'20%', right:'37%'}}/>
+        {/* FOR SELECTED TOAD PATH... PULL TOAD STATE FROM TOADDATA (GETSERVERSIDEPROPS) TO POINT TO PATH */}
+        {/* <progress max={10} value={toadData[parseInt(toadId)-1].health} style={{border: 'solid 2px black'}}></progress> */}
+        <img src={toadDisplayState} style={{display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'40%', width:'30%', zIndex:1, position:'absolute', top:'20%', right:'37%'}}/>
         <img id='mouth' className='hidden' src="/img/mouth.gif"/>
         <div className='topActionBar'>
           <FontAwesomeIcon icon='store-alt'/>
@@ -540,24 +562,8 @@ function Home({toadData}) {
             document.getElementById('globalMessageContainer').classList.remove('hidden') }}>
             <FontAwesomeIcon icon='comment-dots'/>
           </div>
-          <div id='test' onClick={() => { {/*showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood)*/}
-                            //pushData(['hamburger', account], toadid)
-                            //check if toad transferred checkownstoadzg
-                            updateStats(['hamburger', account], '4')
-                            setGlobalMessage('')
-                            setSelectedToad('/img/' + toadId + '.png')
-                            document.getElementById('typewriterText').classList.remove('typewriterEffect')
-                            document.getElementById('typewriterText').classList.add('hidden')
-                            setTimeout(() => {
-                              setGlobalMessage(`Mmmm toad loves pizza...`)
-                                document.getElementById('globalMessageContainer').classList.remove('hidden')
-                                document.getElementById('typewriterText').classList.add('typewriterEffect')
-                                document.getElementById('typewriterText').classList.remove('hidden')
-                            }, 100); 
-                            setTimeout(() => {
-                              //make button unclickable until after animation is done running
-                              setSelectedToad('/img/' + toadId + '.png')
-                            }, 3700); }}>
+          <div id='test' onClick={() => { showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood) } }>
+                            {/*//check if toad transferred checkownstoadzg*/}
             <FontAwesomeIcon icon='hamburger'/>
           </div>
           <div id='test' onClick={() => { showRest ? setShowRest(false) : closeAllOtherMenus(setShowRest) }}>
@@ -571,33 +577,50 @@ function Home({toadData}) {
         <div id="foodMenuRoot">
           <FoodMenu
             show={showFood}
-            propSetGlobalMessage={setGlobalMessage}
+            ToadId={toadId}
+            ToadData={toadData}
+            UpdateStats={updateStats}
+            Account={account}
+            SetGlobalMessage={setGlobalMessage}
+            SetToadDisplayState={setToadDisplayState}
             onClose={() => { setShowFood(false) }}
           />
         </div>
         <div id="restMenuRoot">
           <RestMenu
             show={showRest}
-            propSetGlobalMessage={setGlobalMessage}
+            ToadId={toadId}
+            ToadData={toadData}
+            UpdateStats={updateStats}
+            Account={account}
+            SetGlobalMessage={setGlobalMessage}
+            SetToadDisplayState={setToadDisplayState}
             onClose={() => { setShowRest(false) }}
           />
         </div>
         <div id="playMenuRoot">
           <PlayMenu
             show={showPlay}
-            propSetGlobalMessage={setGlobalMessage}
+            ToadId={toadId}
+            ToadData={toadData}
+            UpdateStats={updateStats}
+            Account={account}
+            SetGlobalMessage={setGlobalMessage}
+            SetToadDisplayState={setToadDisplayState}
             onClose={() => { setShowPlay(false) }}
           />
         </div>
         <div id="myToadzRoot">
           <MyToadz
             show={showMyToadz}
+            ToadData={toadData}
+            UpdateStats={updateStats}
+            Account={account}
+            SetToadDisplayState={setToadDisplayState}
+            SetGlobalMessage={setGlobalMessage}
             ownsToadzgotchis={ownsToadzgotchis}
-            imageURL={toadIdsOwned}
             SetToadId={setToadId}
-            SetSelectedToad={setSelectedToad}
-            toadData={toadData}
-            toadIdsOwned={toadIdsOwned}
+            ToadIdsOwned={toadIdsOwned}
             onClose={ () => { setShowMyToadz(false) } }>
           </MyToadz>
         </div>
@@ -606,7 +629,7 @@ function Home({toadData}) {
             show={showLeaderboard}
             ownsToadzgotchis={ownsToadzgotchis}
             imageURL={toadIdsOwned}
-            propSelectedToad={setSelectedToad}
+            SetToadDisplayState={setToadDisplayState}
             onClose={ () => { setShowLeaderboard(false) } }>
           </Leaderboard>
         </div>
@@ -619,49 +642,51 @@ function Home({toadData}) {
           </div>
         </div>
       </div>
-      <div style={{border:'2px solid blue', position:'absolute', top:'80%', left:'35%', width:'30vw',display:'flex', justifyContent:'space-between', textAlign:'center'}}>
+      <div style={{border:'', position:'absolute', top:'80%', left:'35%', width:'30vw',display:'flex', justifyContent:'space-between', textAlign:'center'}}>
         <div style={{display:'flex', flexDirection:'column'}}>
           <Button
-            text='Connect' 
-            position=''
+            text=''
+            img='/img/button.png'
+            position='relative'
             display=''
             flex=''
             color='#332020'
             backgroundColor=''
             fontfamily='Pixeled'
-            top='85%'
+            top='0%'
             left='38%'
-            height='100%'
-            width='1vw'
+            height='100px'
+            width='100px'
             margin='0px'
             padding='0px'
-            border='2px solid red'
+            border=''
             borderRadius=''
             cursor= 'pointer'
             onClick={!isWeb3Injected ? 
             (() => { window.open('https://metamask.io/download','_blank') }) : 
             (!isWalletConnected ? requestAccount : null)}
           />
-          <div style={{border:'2px solid red', fontFamily:'Pixeled', cursor:'default'}}>
+          <div style={{border:'', fontFamily:'Pixeled', cursor:'default'}}>
             Connect
           </div>
         </div>
         <div style={{display:'flex', flexDirection:'column'}}>
           <Button
-            text='My Toadz' 
-            position=''
+            text=''
+            img='/img/button.png'
+            position='relative'
             display=''
             flex=''
             color='#332020'
             backgroundColor=''
             fontfamily='Pixeled'
-            top='85%'
+            top='0%'
             left='47%'
-            height='100%'
-            width=''
+            height='100px'
+            width='100px'
             margin='0px'
             padding='0px'
-            border='2px solid red'
+            border=''
             borderRadius=''
             cursor= 'pointer'
             onClick={isWalletConnected ? 
@@ -673,20 +698,21 @@ function Home({toadData}) {
         </div>
         <div style={{display:'flex', flexDirection:'column'}}>
           <Button
-            text='About' 
-            position=''
+            text=''
+            img='/img/button.png' 
+            position='relative'
             display=''
             flex=''
             color='#332020'
             backgroundColor=''
             fontfamily='Pixeled'
-            top='85%'
-            left='56%'
-            height='50%'
-            width=''
+            top='0%'
+            left='0%'
+            height='100px'
+            width='100px'
             margin='0px'
             padding='0px'
-            border='2px solid red'
+            border=''
             borderRadius=''
             cursor= 'pointer'
             onClick={!isWeb3Injected ? 
@@ -806,9 +832,9 @@ function Home({toadData}) {
             letter-spacing: .15em;
             display: inline-block;
             animation:
-            typing 2s steps(40, end) forwards;
+            typing 0.25s steps(40, end) forwards;
             position: absolute;
-            font-size: 1.25vw;
+            font-size: 0.75vw;
             width:10%;
             bottom: 20%;
             left: 5%;
