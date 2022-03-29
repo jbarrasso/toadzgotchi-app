@@ -7,10 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model toadz {
-  toad_id   Int @id
-  toad_name String @default("")
-  owner_id  String @default("")
+model Toadz {
+  toadId   Int @id
+  toadName String @default("")
+  user  User? @relation(fields:[userId], references: [address])
+  userId  String?
   vibing    Boolean @default(false)
   level     Int @default(0)
   xp        Int @default(0)
@@ -21,4 +22,10 @@ model toadz {
   health    Int @default(10)
   spirit    Int @default(10)
   state     String @default("")
+}
+
+model User {
+  address String @id
+  token String?
+  toadz Toadz[]
 }

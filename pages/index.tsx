@@ -21,7 +21,7 @@ import PlayMenu from '../components/PlayMenu'
 import Leaderboard from '../components/Leaderboard'
 import { prisma } from '../lib/prisma'
 
-const cryptoadzAddress = '0x1CB1A5e65610AEFF2551A50f76a87a7d3fB649C6'
+export const cryptoadzAddress = '0x1CB1A5e65610AEFF2551A50f76a87a7d3fB649C6'
 const toadzgotchiAddress = '0x624754b1cDD431b6b92acf5bA5D9539DBE9b3707'
 const toadzgotchiNFTAddress = '0x5f5Cc7BC9BFe1e6319BDE9E30d883ECE36D00cAd'
 export let provider: ethers.providers.Web3Provider;
@@ -37,14 +37,24 @@ export let welcomeMessages = ['We kept the log warm for you.',
                               'A cool breeze rolls in...',
                               '*Croak* ... *Ribbit*...']
 
+//Runs on the server, not client
 export async function getServerSideProps() {
   const allToadz = await prisma.toadz.findMany()
+  const allOwners = await prisma.user.findMany()
   return {
     props: {
-      toadData: allToadz
+      toadData: allToadz,
+      ownerData: allOwners
     }
   }
-} 
+}
+
+
+//if (myUser)
+// await prisma.toadz.findMany({
+//   where: {toadId : id.toNumber(),
+//           userId: 1}
+// })
 
 //Anonymous function expression to return a global object of Ethereum injection.
 //provider, signer, address returns undefined unless called inside functions
@@ -78,6 +88,7 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
       const trySigner = tryProvider.getSigner()
       signer = trySigner
       const tryAccount = await trySigner.getAddress()
+      //ask for a sign here?
       account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
       setIsWalletConnected(true)
       console.log('Wallect is connected')
@@ -335,7 +346,7 @@ export const requestAccount = async() => {
 //   })
 // }
 
-function Home({toadData}) {
+function Home({toadData, ownerData}) {
   const router = useRouter()
   const levelChange = useRef(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -370,6 +381,7 @@ function Home({toadData}) {
   getTime()
 
   useEffect(() => {
+    console.log(ownerData)
     setIsLoading(true)
     triggerRefresh()
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
@@ -409,18 +421,20 @@ function Home({toadData}) {
     console.log('refreshed db data, will reflect on next state action')
   }
 
-  //call at vibe start
+  //call at vibe start, not useeffect []
   //or figure out when the last decay was, then call after
   function triggerRefresh() {
     setInterval(refreshData, 1000*60*60*4)
     console.log('run callme')
   }
 
-  async function updateOwner(account: string[], id: string) {
-    const res = await fetch('/api/toadStats/' + id, {
+  async function updateOwner(account: string, toadIdsOwned: string[]) {
+    const res = await fetch('/api/users/' + account, {
+      //patch with newly added toad
       method: 'PUT',
-      body: JSON.stringify(account)
+      body: JSON.stringify(toadIdsOwned)
     })
+
     if (res.status < 300) {
       refreshData()
     }
@@ -428,6 +442,7 @@ function Home({toadData}) {
     let key = Object.keys(data)[0]
     let keyValue = data[key]
     console.log(data)
+      
   }
 
   async function updateStats(properties: string[], id: string) {
@@ -477,11 +492,13 @@ function Home({toadData}) {
           const arrayOfToadIds = []
           for (let i=0; i<numberOfToadzOwned; i++) {
             let id = await contract.tokenOfOwnerByIndex(account, i)
+            arrayOfToadIds[i] = id.toNumber()
+
             //before pushing, authenticate with signature pass in verifiedAccount instead of account or key in localstorage
             //check if toads are the same.. no need to push if the same
-            await updateOwner([account], id.toString())
-            arrayOfToadIds[i] = id.toNumber()
+            //await updateOwner([account], id.toString())
           }
+          updateOwner(account, arrayOfToadIds)
           setToadIdsOwned(arrayOfToadIds)
         } else {
           setOwnsToadzgotchis(false)

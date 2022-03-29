@@ -10,7 +10,7 @@ async function decay(toadid: number) {
     const allToadz = await prisma.toadz.findMany()
 
     await prisma.toadz.update({
-        where: { toad_id: allToadz[toadid-1].toad_id },
+        where: { toadId: allToadz[toadid-1].toadId },
         data: { fed: allToadz[toadid-1].fed - 1,
                 energy: allToadz[toadid-1].energy - 1,
                 happiness: allToadz[toadid-1].happiness - 1,
@@ -25,7 +25,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
     //get all the toad data
     const allToadz = await prisma.toadz.findMany()
     //grab only the toad data for /api/toadStats/i
-    const selectedToad = allToadz.filter((data) => (data.toad_id).toString() === req.query.id)
+    const selectedToad = allToadz.filter((data) => (data.toadId).toString() === req.query.id)
 
     //pull feed data from another mySQL table
     //const feedData = await prisma.mechanics.findMany()
@@ -69,7 +69,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
     const eatFlies = async() => {
         if (canFeed()) {
             const update = await prisma.toadz.update({
-                where: { toad_id : selectedToad[0].toad_id },
+                where: { toadId : selectedToad[0].toadId },
                 data: { fed : selectedToad[0].fed + 1 }
             })
         }
@@ -78,7 +78,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
     const eatHamburger = async() => {
         if (canFeed()) {
             const update = await prisma.toadz.update({
-                where: { toad_id : selectedToad[0].toad_id },
+                where: { toadId : selectedToad[0].toadId },
                 data: { fed : selectedToad[0].fed + 4,
                         health: selectedToad[0].health - 1 }
             })
@@ -89,13 +89,13 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
         if (canFeed()) {
             if (selectedToad[0].health == 1) {
                 const update = await prisma.toadz.update({
-                    where: { toad_id : selectedToad[0].toad_id },
+                    where: { toadId : selectedToad[0].toadId },
                     data: { fed : selectedToad[0].fed + 2,
                             health : 0 }
                 })
             } else {
                 const update = await prisma.toadz.update({
-                    where: { toad_id : selectedToad[0].toad_id },
+                    where: { toadId : selectedToad[0].toadId },
                     data: { fed : selectedToad[0].fed + 2,
                             health : selectedToad[0].health - 2 }
                 })
@@ -106,7 +106,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
     const eatVeggies = async() => {
         if (canFeed()) {
             const update = await prisma.toadz.update({
-                where: { toad_id : selectedToad[0].toad_id },
+                where: { toadId : selectedToad[0].toadId },
                 data: { fed : selectedToad[0].fed + 1,
                         health : selectedToad[0].health + 3,
                         happiness : selectedToad[0].happiness - 1 }
@@ -117,7 +117,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
     const takeNap = async() => {
         if (canRest()) {
             const update = await prisma.toadz.update({
-                where: { toad_id : selectedToad[0].toad_id },
+                where: { toadId : selectedToad[0].toadId },
                 data: { energy : selectedToad[0].energy + 2,
                         health : selectedToad[0].health + 1 }
             })
@@ -127,7 +127,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
     const goToSleep = async() => {
         if (canRest()) {
             const update = await prisma.toadz.update({
-                where: { toad_id : selectedToad[0].toad_id },
+                where: { toadId : selectedToad[0].toadId },
                 data: { energy : selectedToad[0].energy + 6,
                         health : selectedToad[0].health + 2 }
             })
@@ -137,7 +137,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
     const playGameboy = async() => {
         if (canPlay()) {
             const update = await prisma.toadz.update({
-                where: { toad_id : selectedToad[0].toad_id },
+                where: { toadId : selectedToad[0].toadId },
                 data: { happiness : selectedToad[0].happiness + 3,
                         fed : selectedToad[0].fed - 1 }
             })
@@ -147,7 +147,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
     const playBall = async() => {
         if (canPlay()) {
             const update = await prisma.toadz.update({
-                where: { toad_id : selectedToad[0].toad_id },
+                where: { toadId : selectedToad[0].toadId },
                 data: { happiness : selectedToad[0].happiness + 2,
                         fed : selectedToad[0].fed - 4,
                         energy : selectedToad[0].energy - 3,
@@ -158,17 +158,17 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
     const vibe = async() => {
         if (selectedToad[0].vibing != true) {
             const update = await prisma.toadz.update({
-                where: { toad_id : selectedToad[0].toad_id },
+                where: { toadId : selectedToad[0].toadId },
                 data: { vibing : true }
             })
-            callme(selectedToad[0].toad_id)
+            callme(selectedToad[0].toadId)
         } else {
             res.status(500).json({message: `Toad is already vibing`})
         }
     }
 
     const gameLogic = async(propertiesToUpdate: string[], account: string) => {
-        if (account === selectedToad[0].owner_id) {
+        if (account === selectedToad[0].userId) {
             for (let i=0; i<propertiesToUpdate.length; i++) {
                 if (propertiesToUpdate[i] == 'vibe') {
                     vibe()
@@ -227,12 +227,12 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
 
                     //check user key against db first
                     account = propertiesToUpdate[0]
-                    if (account != selectedToad[0].owner_id) {
+                    if (account != selectedToad[0].userId) {
                         const update = await prisma.toadz.update({
-                            where: { toad_id : selectedToad[0].toad_id },
-                            data: { owner_id: propertiesToUpdate[0]}
+                            where: { toadId : selectedToad[0].toadId },
+                            data: { userId: propertiesToUpdate[0]}
                         })
-                        res.status(200).json({message: `toad id ${selectedToad[0].toad_id} updated with new owner ${account}`})
+                        res.status(200).json({message: `toad id ${selectedToad[0].toadId} updated with new owner ${account}`})
                     } else {
                         res.status(200).json({message:'toad owner is the same'})
                     }
