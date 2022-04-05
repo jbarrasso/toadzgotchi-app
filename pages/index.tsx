@@ -89,6 +89,7 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
       signer = trySigner
       const tryAccount = await trySigner.getAddress()
       //ask for a sign here?
+      //account = tryAccount
       account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
       setIsWalletConnected(true)
       console.log('Wallect is connected')
@@ -499,6 +500,7 @@ function Home({toadData, ownerData}) {
             //await updateOwner([account], id.toString())
           }
           updateOwner(account, arrayOfToadIds)
+          //set states below in updateOwner
           setToadIdsOwned(arrayOfToadIds)
         } else {
           setOwnsToadzgotchis(false)

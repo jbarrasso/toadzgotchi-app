@@ -19,7 +19,7 @@ let j = 1;
 
 //use this with createMany instead of updateMany if creating rows, not updating
 //make sure data and type declarations are consistent with prisma schema 
-for (let i=1; i<7025; i++) {
+for (let i=0; i<7025; i++) {
     if (i > 6968) {
         data[i]={toadId:j *1000000, toadName:'', vibing: false, level: 0, xp: 0, overall: 10, fed: 10, energy: 10, happiness: 10, health: 10, spirit: 10, state:''}
         j++
@@ -29,19 +29,14 @@ for (let i=1; i<7025; i++) {
 }
 
 async function main() {
-    await prisma.toadz.updateMany({
-        data: { fed: 10,
-                energy: 10,
-                happiness: 10,
-                health: 10,
-                spirit: 10
-        }   
-    })
-    // await prisma.user.create({
-    //     data: {
-    //         address: '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
-    //     }
+    // await prisma.toadz.createMany({
+    //     data 
     // })
+    await prisma.user.delete({
+        where: {
+            address: '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
+        }
+    })
 }
 
 main()
