@@ -7,14 +7,14 @@ type Props = {
   ToadData: any;
   UpdateStats: any;
   Account: string;
-  ownsToadzgotchis: boolean;
+  OwnsToadz: boolean;
   SetToadId: any;
   SetToadDisplayState: any;
   ToadIdsOwned: any;
   onClose: () => void
 };
 
-const MyToadz = ({ UpdateStats, Account, ownsToadzgotchis, SetToadId, SetToadDisplayState, ToadData, ToadIdsOwned, show, onClose }: Props) => {
+const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplayState, ToadData, ToadIdsOwned, show, onClose }: Props) => {
   const [isBrowser, setIsBrowser] = useState(false)
   const [previewToadId, setPreviewToadId] = useState(0)
 
@@ -43,7 +43,7 @@ const MyToadz = ({ UpdateStats, Account, ownsToadzgotchis, SetToadId, SetToadDis
       <img style={{height:'100%', width: '100%'}} src='/img/menu.png'/>
       <a href="#" style={{ position: 'absolute', top:'-1%', right: '3%', fontSize:'20px'}} onClick={handleCloseClick}>x</a>
       <div className='toadContainer' style={{position:'absolute', overflow: 'auto', top: '11%', display:'flex', flexWrap: 'wrap', flexDirection:'row', alignContent: 'flex-start', left: '2.5%', width: '45%',height:'85%'}}>
-        {ownsToadzgotchis? {listItems}.listItems : <div></div>}
+        {OwnsToadz? {listItems}.listItems : <div></div>}
       </div>
       <div className='toadPreview' style={{position:'absolute', alignItems: 'center', flexWrap:'wrap', top:'11%', left:'50%', display:'flex', width:'45%', height:'85%'}}>
         {previewToadId >= 1 && (

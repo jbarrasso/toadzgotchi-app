@@ -1,27 +1,20 @@
 import { prisma } from '../../../lib/prisma'
 import { NextApiRequest, NextApiResponse } from 'next';
-import { userInfo } from 'os';
-import { account } from '../..';
 import { ethers } from 'ethers';
-import { ethereum } from '../..';
 import { cryptoadzAddress } from '../..';
 import CrypToadz from '../../../artifacts/contracts/CrypToadz.sol/CrypToadz.json'
-import { signer } from '../..';
-import { provider } from '../..';
-import { InfuraProvider } from '@ethersproject/providers';
 
 async function queryToadContract(account: string) {
-    //if ((ethereum() != undefined || null)) {
-    const prov = ethers.getDefaultProvider()
-    const p = new ethers.providers.InfuraProvider("homestead", "33719c306ed84d0c824bbe1fee3cd025")
-    const contract = new ethers.Contract(cryptoadzAddress, CrypToadz.abi, p)
+    //const defProvider = ethers.getDefaultProvider() rate-limited
+    const provider = new ethers.providers.InfuraProvider("homestead", "33719c306ed84d0c824bbe1fee3cd025")
+    const contract = new ethers.Contract(cryptoadzAddress, CrypToadz.abi, provider)
     const arrayOfToadIds = []
     
-    if (await contract.balanceOf('0xb75F87261a1FAC3a86f8A48d55597A622BA3CC48') > 0) {
-        const numberOfToadzOwned = await contract.balanceOf('0xb75F87261a1FAC3a86f8A48d55597A622BA3CC48')
+    if (await contract.balanceOf(account) > 0) {
+        const numberOfToadzOwned = await contract.balanceOf(account)
 
         for (let i=0; i<numberOfToadzOwned; i++) {
-            let id = await contract.tokenOfOwnerByIndex('0xb75F87261a1FAC3a86f8A48d55597A622BA3CC48', i)
+            let id = await contract.tokenOfOwnerByIndex(account, i)
             arrayOfToadIds[i] = id.toNumber()
         }
     }
@@ -30,56 +23,40 @@ async function queryToadContract(account: string) {
 
 export default async function getUserByAddress( req:NextApiRequest, res:NextApiResponse) {
     res.statusCode = 200;
+    const account = JSON.parse(req.body)
+    const toadIdsOwned = await queryToadContract(account)
 
-    queryToadContract('0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB')
-    // .then( async(data) => {
-    //     if (data.length > 0) {
-    //         pushOwnerToDb(data)
-    //         //res.status(200).json({message: 'sajdfh'})
-    //     } else {
-    //         res.status(404).json({message: 'user odesnt own toadz'})
-    //     }
-    // })
-   
-    // async function pushOwnerToDb() {
-        const allOwners = await prisma.user.findMany({
-            //include: {toadz:true},
-            //where: {address: '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'}
-            //grabs all the users that own toadz with this address
-        })
-        //before continuing, check that the array of toads passed in matches with toads in db
-        //res.status(200).json(`${allOwners[0].toadz[0].toadId}`)
-        //returns array of objects, each an address that holds n amount of toads
-
-        //selectedOwner won't return anything if acc is not in db (aka new player)
-        const selectedOwner = allOwners.filter((data) => (data.address).toString() === req.query.id)
-        const newToadIds = JSON.parse(req.body)
+    if (toadIdsOwned.length == 0) {
+        res.status(500).json({message: "This account doesn't own toadz"})
+    } else {
         const array = [{}]
- 
-        for (let i=0; i<newToadIds.length; i++) {
-            array[i] = {toadId:newToadIds[i]}
+        for (let i=0; i<toadIdsOwned.length; i++) {
+            array[i] = {toadId:toadIdsOwned[i]}
         }
+        const thisOwner = await prisma.user.findUnique({
+            where: {address: req.query.id}
+        })
 
-        if (selectedOwner.length > 0) {
-            const update = await prisma.user.update({
-                where: {address: selectedOwner[0].address},
+        if (thisOwner == null) {
+            await prisma.user.create({
                 data: {
-                    toadz: {
-                        set: array
-                    }
-                }
-            })    
-            res.status(200).json({message:`${selectedOwner[0].address} owns the following toads: ${newToadIds}`})
-        } else { 
-            const update = await prisma.user.create({
-                data: {
-                    address: "0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB",
+                    address: account,
                     toadz: { 
                         connect: array
                     }
                 }    
             })
-            res.status(200).json({message:`new user created and owns the following toads: `})
+            res.status(200).json({message:`New user ${account} created. The account owns the following toads: ${toadIdsOwned}`, newPlayer: true})
+        } else {
+            await prisma.user.update({
+                where: {address: account},
+                data: {
+                    toadz: {
+                        set: array
+                    }
+                }
+            }) 
+            res.status(200).json({message:`User ${account} already exists. The account owns the following toads: ${toadIdsOwned}`, newPlayer: false})
         }
-    //}
+    }
 }

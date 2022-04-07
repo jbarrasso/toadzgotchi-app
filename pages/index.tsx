@@ -49,18 +49,11 @@ export async function getServerSideProps() {
   }
 }
 
-
-//if (myUser)
-// await prisma.toadz.findMany({
-//   where: {toadId : id.toNumber(),
-//           userId: 1}
-// })
-
 //Anonymous function expression to return a global object of Ethereum injection.
 //provider, signer, address returns undefined unless called inside functions
 export const providerOptions = {
 
- }
+}
 // export const web3Modal = new Web3Modal({
 //   network: "mainnet",
 //   cacheProvider: true,
@@ -73,7 +66,7 @@ export const ethereum = () => {
 export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork) => {
   console.log('Running useEffect checkweb3')
   if (ethereum() == undefined || null) {
-    setIsLoading(false)    
+    //setIsLoading(false)    
     console.log('Web3 is not injected')
     return
   } else {
@@ -93,20 +86,20 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
       account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
       setIsWalletConnected(true)
       console.log('Wallect is connected')
+      console.log(account)
     } catch (err) {
-      setIsLoading(false)
+      //setIsLoading(false)
       console.log("Wallet is not connected. Cannot instantiate provider or get signer", err)
     }
   }
 }
-export const handleAccountsChanged = async(setIsWalletConnected, checkOwnsToadzgotchis, setOwnsToadzgotchis, setShowMyToadz) => {
+export const handleAccountsChanged = async(setIsWalletConnected, checkOwnsToadz, setOwnsToadz, setShowMyToadz) => {
   console.log('running handleAccountsChanged')
   if (ethereum() != undefined || null) {
     ethereum().on("accountsChanged", (accounts) => {
       //Length of accounts is always 1, no matter how many wallets connected to site.
       //if n>2, when disconnecting from n to n-1 accounts, the last connected acc
       //before the nth will be = to accounts[0]
-      checkOwnsToadzgotchis(setOwnsToadzgotchis)
       setShowMyToadz(false)
       if (accounts.length > 0){
         account = accounts[0]
@@ -349,8 +342,8 @@ export const requestAccount = async() => {
 
 function Home({toadData, ownerData}) {
   const router = useRouter()
-  const levelChange = useRef(0)
   const [isLoading, setIsLoading] = useState(true)
+  const [isNewPlayer, setIsNewPlayer] = useState(true)
   const [globalMessage, setGlobalMessage] = useState('')
   const [isWalletConnected, setIsWalletConnected] = useState(false)
   const [isWeb3Injected, setIsWeb3Injected] = useState(false)
@@ -362,60 +355,52 @@ function Home({toadData, ownerData}) {
   const [songStatus, setSongStatus] = useState(Sound.status.STOPPED)
   const [currentSong, setCurrentSong] = useState(songPlaylist[0])
   const [toadIdsOwned, setToadIdsOwned] = useState([])
-  const [ownsToadzgotchis, setOwnsToadzgotchis] = useState(false)
-  const [isVibing, setIsVibing] = useState(false)
+  const [ownsToadz, setOwnsToadz] = useState(false)
   const [network, setNetwork] = useState()
-  const [toadLevel, setToadLevel] = useState(1)
-  const [toadXP, setToadXP] = useState(0)
-  const [isDead, setIsDead] = useState(false)
-  const [toadId, setToadId] = useState('1')
-  const [toadDisplayState, setToadDisplayState] = useState('/img/' + toadId + '-smoke.gif')
+  const [toadId, setToadId] = useState('')
+  const [toadDisplayState, setToadDisplayState] = useState('')
 
   function getTime() {
     if ((new Date().getHours() >= 18) || (new Date().getHours() < 6)) {
       //query last location, set it here
       dynamicBG = '/img/nightswamp.gif'
     } else {
-      dynamicBG = '/img/swamp.gif'
+      dynamicBG = '/img/dayswamp.gif'
     }
   }
   getTime()
 
   useEffect(() => {
-    console.log(ownerData)
-    setIsLoading(true)
+    console.log(account)
+    //setIsLoading(true)
     triggerRefresh()
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
-    .then(() => {
-      checkOwnsToadzgotchis(setOwnsToadzgotchis, setToadIdsOwned)
-    })
-    handleAccountsChanged(setIsWalletConnected, checkOwnsToadzgotchis, setOwnsToadzgotchis, setShowMyToadz)
+    // .then(() => {
+    //   checkOwnsToadz(setOwnsToadz, setToadIdsOwned)
+    // })
+    handleAccountsChanged(setIsWalletConnected, checkOwnsToadz, setOwnsToadz, setShowMyToadz)
     handleChainChanged(setNetwork)
-    setTimeout(() => {
-      let rand = Math.floor(Math.random() * welcomeMessages.length);
-      setGlobalMessage(welcomeMessages[rand])
-      document.getElementById('globalMessageContainer').classList.remove('hidden')
-      document.getElementById('typewriterText').classList.remove('hidden')
-      document.getElementById('typewriterText').classList.add('typewriterEffect')
-    }, 1000);
   }, [])
 
 
   useEffect(() => {
+    console.log(account)
     //runs no matter what on page hard reload
     //should be waiting until checkweb3 is done to call
     //handleAcc/Chain change with [isWalletConnected] listener
-    console.log('account changed, running useeffect')
-    checkOwnsToadzgotchis(setOwnsToadzgotchis, setToadIdsOwned)
+    if (account != undefined) {
+      console.log('Account changed, running useEffect checkOwnsToadz')
+      checkOwnsToadz(setOwnsToadz, setToadIdsOwned)
+    }
   }, [account])
 
-  useEffect(() => {
-    if (toadIdsOwned.length > 0) {
-      console.log('toad ids loaded')
-      console.log(toadIdsOwned)
-      setIsLoading(false)
-    } else { return }
-  }, [toadIdsOwned])
+  // useEffect(() => {
+  //   if (toadIdsOwned.length > 0) {
+  //     console.log('toad ids loaded')
+  //     console.log(toadIdsOwned)
+  //     setIsLoading(false)
+  //   } else { return }
+  // }, [toadIdsOwned])
   
   const refreshData = () => {
     router.replace(router.asPath)
@@ -429,21 +414,40 @@ function Home({toadData, ownerData}) {
     console.log('run callme')
   }
 
-  async function updateOwner(account: string, toadIdsOwned: string[]) {
+  async function updateOwner(account: string) {
     const res = await fetch('/api/users/' + account, {
-      //patch with newly added toad
       method: 'PUT',
-      body: JSON.stringify(toadIdsOwned)
+      body: JSON.stringify(account)
     })
+
+    let data = await res.json()
+    let messageKey = Object.keys(data)[0]
+    let message = data[messageKey]
+    let newPlayerKey = Object.keys(data)[1]
+    let isNewPlayer = data[newPlayerKey]
+    console.log(isNewPlayer)
 
     if (res.status < 300) {
       refreshData()
+      setIsNewPlayer(isNewPlayer)
+      setIsLoading(false)
+      setTimeout(() => {
+        let rand = Math.floor(Math.random() * welcomeMessages.length);
+        setGlobalMessage(welcomeMessages[rand])
+        document.getElementById('globalMessageContainer').classList.remove('hidden')
+        document.getElementById('typewriterText').classList.remove('hidden')
+        document.getElementById('typewriterText').classList.add('typewriterEffect')
+      }, 1100);
     }
-    let data = await res.json()
-    let key = Object.keys(data)[0]
-    let keyValue = data[key]
-    console.log(data)
-      
+
+    if (res.status == 500) {
+      setTimeout(() => {
+        setGlobalMessage(`${message}`)
+          document.getElementById('globalMessageContainer').classList.remove('hidden')
+          document.getElementById('typewriterText').classList.add('typewriterEffect')
+          document.getElementById('typewriterText').classList.remove('hidden')
+      }, 100);
+    }
   }
 
   async function updateStats(properties: string[], id: string) {
@@ -453,14 +457,16 @@ function Home({toadData, ownerData}) {
     })
 
     let data = await res.json()
-    let key = Object.keys(data)[0]
-    let keyValue = data[key]
+    let messageKey = Object.keys(data)[0]
+    let message = data[messageKey]
+
     setTimeout(() => {
-      setGlobalMessage(`${keyValue}`)
+      setGlobalMessage(`${message}`)
         document.getElementById('globalMessageContainer').classList.remove('hidden')
         document.getElementById('typewriterText').classList.add('typewriterEffect')
         document.getElementById('typewriterText').classList.remove('hidden')
     }, 100);
+
     if (res.status < 300) {
       refreshData()
       if (data[Object.keys(data)[1]] != '') {
@@ -474,21 +480,15 @@ function Home({toadData, ownerData}) {
     }
   }
 
-  // async function feed(id: string) {
-  //   const res = await fetch('/api/toadStats/' + id, {
-  //     method: 'GET'
-  //   })
-  //   const x = await res.json()
-  //   console.log(x.full)
-  // }
-
-  async function checkOwnsToadzgotchis(setOwnsToadzgotchis, setToadIdsOwned) {
-    console.log('Running useEffect checkOwnsToadzgotchis')
+  async function checkOwnsToadz(setOwnsToadz, setToadIdsOwned) {
+    console.log('Running useEffect checkOwnsToadz')
     if ((ethereum() != undefined || null) && (network == 1)) {
       try {
         const contract = new ethers.Contract(cryptoadzAddress, CrypToadz.abi, signer)
+        //Basic frontend check
+
         if (await contract.balanceOf(account) > 0) {
-          setOwnsToadzgotchis(true)
+          setOwnsToadz(true)
           const numberOfToadzOwned = await contract.balanceOf(account)
           const arrayOfToadIds = []
           for (let i=0; i<numberOfToadzOwned; i++) {
@@ -496,14 +496,13 @@ function Home({toadData, ownerData}) {
             arrayOfToadIds[i] = id.toNumber()
 
             //before pushing, authenticate with signature pass in verifiedAccount instead of account or key in localstorage
-            //check if toads are the same.. no need to push if the same
-            //await updateOwner([account], id.toString())
           }
-          updateOwner(account, arrayOfToadIds)
+          updateOwner(account)
           //set states below in updateOwner
+          setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '.png')
           setToadIdsOwned(arrayOfToadIds)
         } else {
-          setOwnsToadzgotchis(false)
+          setOwnsToadz(false)
           setToadIdsOwned([])
         }
       } catch(err) {
@@ -563,11 +562,48 @@ function Home({toadData, ownerData}) {
       />
       <img className='case' src={'/img/common1.png'}/>
       <div className='game'>
-        <img className='gameScene' src={ isLoading ? dynamicBG='/img/1.png': dynamicBG } style={{}}/>
-        {/* FOR SELECTED TOAD PATH... PULL TOAD STATE FROM TOADDATA (GETSERVERSIDEPROPS) TO POINT TO PATH */}
-        {/* <progress max={10} value={toadData[parseInt(toadId)-1].health} style={{border: 'solid 2px black'}}></progress> */}
-        <img src={toadDisplayState} style={{display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'40%', width:'30%', zIndex:1, position:'absolute', top:'20%', right:'37%'}}/>
-        <img id='mouth' className='hidden' src="/img/mouth.gif"/>
+        <img className='gameScene' src={dynamicBG} style={{border: '5px solid black'}}/>
+        {isLoading ? (<img className='loadingScreen' src={'/img/loadingScreen.gif'} style={{}}/>) : 
+        (isNewPlayer == true &&
+        <div>
+          <img className='welcomeScreen' src={'/img/welcomeScreen.gif'} style={{}}/>
+          <Button
+            text='ENTER'
+            img=''
+            position='absolute'
+            display=''
+            flex=''
+            fontfamily=''
+            color='#332020'
+            backgroundColor='#b0a28d'
+            top='70%'
+            left='40%'
+            height=''
+            width=''
+            zIndex={11}
+            margin='10px'
+            padding='0px'
+            border=' 2px solid #673c37'
+            borderRadius=''
+            cursor= 'pointer'
+            onClick={() => {
+              setIsNewPlayer(false)
+              setGlobalMessage('')
+              document.getElementById('globalMessageContainer').classList.add('hidden')
+              document.getElementById('typewriterText').classList.remove('typewriterEffect')
+              document.getElementById('typewriterText').classList.add('hidden')
+              setTimeout(() => {
+                let rand = Math.floor(Math.random() * welcomeMessages.length);
+                setGlobalMessage(welcomeMessages[rand])
+                document.getElementById('globalMessageContainer').classList.remove('hidden')
+                document.getElementById('typewriterText').classList.remove('hidden')
+                document.getElementById('typewriterText').classList.add('typewriterEffect')
+              }, 1100);
+            }}/>
+        </div>)
+        }
+        {/* FOR TOADDISPLAYSTATE PATH... PULL TOAD STATE FROM TOADDATA (GETSERVERSIDEPROPS) TO POINT TO PATH */}
+        {toadIdsOwned.length > 0 && <img src={toadDisplayState} style={{display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'40%', width:'30%', zIndex:1, position:'absolute', top:'32%', right:'37%'}}/>}
         <div className='topActionBar'>
           <FontAwesomeIcon icon='store-alt'/>
           <FontAwesomeIcon icon='heartbeat'/>
@@ -592,7 +628,7 @@ function Home({toadData, ownerData}) {
             <FontAwesomeIcon icon='laugh-wink'/>
           </div>
         </div>
-        {/*place roots as direct children of game screen*/}
+        {/*Place roots as direct children of game screen*/}
         <div id="foodMenuRoot">
           <FoodMenu
             show={showFood}
@@ -637,7 +673,7 @@ function Home({toadData, ownerData}) {
             Account={account}
             SetToadDisplayState={setToadDisplayState}
             SetGlobalMessage={setGlobalMessage}
-            ownsToadzgotchis={ownsToadzgotchis}
+            OwnsToadz={ownsToadz}
             SetToadId={setToadId}
             ToadIdsOwned={toadIdsOwned}
             onClose={ () => { setShowMyToadz(false) } }>
@@ -646,7 +682,7 @@ function Home({toadData, ownerData}) {
         <div id='leaderboardRoot'>
           <Leaderboard
             show={showLeaderboard}
-            ownsToadzgotchis={ownsToadzgotchis}
+            OwnsToadz={ownsToadz}
             imageURL={toadIdsOwned}
             SetToadDisplayState={setToadDisplayState}
             onClose={ () => { setShowLeaderboard(false) } }>
@@ -787,6 +823,20 @@ function Home({toadData, ownerData}) {
             width: 100%;
             height: 70%;
             z-index:-10;
+          }
+          .loadingScreen {
+            position: absolute;
+            top:15%;
+            width: 100%;
+            height: 70%;
+            z-index:10;
+          }
+          .welcomeScreen {
+            position: absolute;
+            top:15%;
+            width: 100%;
+            height: 70%;
+            z-index:9;
           }
           .topActionBar {
             display: flex;
