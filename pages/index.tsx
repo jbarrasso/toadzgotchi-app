@@ -49,24 +49,23 @@ export async function getServerSideProps() {
   }
 }
 
-//Anonymous function expression to return a global object of Ethereum injection.
-//provider, signer, address returns undefined unless called inside functions
-export const providerOptions = {
 
-}
+// export const providerOptions = {
+// }
 // export const web3Modal = new Web3Modal({
 //   network: "mainnet",
 //   cacheProvider: true,
 //   providerOptions
 // })
 
+//Anonymous function expression to return a global object of Ethereum injection.
+//provider, signer, address returns undefined unless called inside functions
 export const ethereum = () => {
   return (window as any).ethereum
 }
 export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork) => {
   console.log('Running useEffect checkweb3')
   if (ethereum() == undefined || null) {
-    //setIsLoading(false)    
     console.log('Web3 is not injected')
     return
   } else {
@@ -82,13 +81,12 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
       signer = trySigner
       const tryAccount = await trySigner.getAddress()
       //ask for a sign here?
-      //account = tryAccount
-      account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
+      account = tryAccount
+      //account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
       setIsWalletConnected(true)
       console.log('Wallect is connected')
       console.log(account)
     } catch (err) {
-      //setIsLoading(false)
       console.log("Wallet is not connected. Cannot instantiate provider or get signer", err)
     }
   }
@@ -100,18 +98,23 @@ export const handleAccountsChanged = async(setIsWalletConnected, checkOwnsToadz,
       //Length of accounts is always 1, no matter how many wallets connected to site.
       //if n>2, when disconnecting from n to n-1 accounts, the last connected acc
       //before the nth will be = to accounts[0]
-      setShowMyToadz(false)
-      if (accounts.length > 0){
-        account = accounts[0]
-        setIsWalletConnected(false) //quick n dirty way to re-render Account when toggling between wallets
-        setIsWalletConnected(true)
-        console.log('wallet accounts changed')
-      } else {
-        account = ''
-        setIsWalletConnected(false)
-        console.log('wallet disconnected')
+
+      // setShowMyToadz(false)
+      // if (accounts.length > 0){
+      //   account = accounts[0]
+      //   setIsWalletConnected(false) //quick n dirty way to re-render Account when toggling between wallets
+      //   setIsWalletConnected(true)
+      //   console.log('wallet accounts changed')
+      // } else {
+      //   account = ''
+      //   setIsWalletConnected(false)
+      //   console.log('wallet disconnected')
+      // }
+      try {
+        window.location.reload()
+      } catch(err) {
+        console.log(err)
       }
-      window.location.reload()
     });
   }
 }
@@ -119,226 +122,35 @@ export const handleChainChanged = async(setNetwork) => {
   console.log('running handleChainChanged')
   if (ethereum() != undefined || null) {
     ethereum().on('chainChanged', (chainId) => {
-      console.log(chainId)
-      if (chainId == 0x1) {
-        setNetwork(1)
-      } else if (chainId == 0x4) {
-        setNetwork(4)
-      } else if (chainId == 0x539) {
-        setNetwork(1337)
-      } else if (chainId == 0x3) {
-        setNetwork(3)
-      } else if (chainId == 0x42) {
-        setNetwork(42)
+
+      //Has no effect because page reloads anyway
+      // console.log(chainId)
+      // if (chainId == 0x1) {
+      //   setNetwork(1)
+      // } else if (chainId == 0x4) {
+      //   setNetwork(4)
+      // } else if (chainId == 0x539) {
+      //   setNetwork(1337)
+      // } else if (chainId == 0x3) {
+      //   setNetwork(3)
+      // } else if (chainId == 0x42) {
+      //   setNetwork(42)
+      // }
+      try {
+        window.location.reload()
+      } catch(err) {
+        console.log(err)
       }
-      window.location.reload()
     })
   }
 }
 export const requestAccount = async() => {
-  await ethereum().request({ method: 'eth_requestAccounts' });
+  try {
+    await ethereum().request({ method: 'eth_requestAccounts' });
+  } catch(err) {
+    console.log(err)
+  }
 }
-// export const gethours = async() => {
-//   const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-//   const data = await contract.gethours()
-//   console.log(`currentblock ${await provider.getBlockNumber()} hourselapsed${data.toNumber()}`)
-//   return data
-// }
-// export const calcDecay = async(stats, i) => {
-//   if (ethereum() !== undefined || null) {
-//     const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-//     const currentBlock = await provider.getBlockNumber()
-//     const hoursElapsed = (((currentBlock - stats[i])*15)/60)/60
-//     let decayBy = (4 * hoursElapsed)
-//     let decayedValue: number
-//     if (decayBy > stats[i-1].toNumber()) {
-//       decayedValue = 0
-//     } else {
-//       decayedValue = stats[i-1].toNumber() - decayBy
-//     }
-//     console.log(`currentblock: ${currentBlock} hrselapsed: ${hoursElapsed} decayedvalue: ${decayedValue}`)
-//     return (decayedValue)
-//   }
-// }
-// async function startVibing() {
-//   if (network == 1) {
-//     if (isVibing) {
-//       return
-//     } else {
-//       const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-//       console.log('commence vibing')
-//       try {
-//         const transaction = await contract.startVibing()
-//         await transaction.wait()
-//         setIsVibing(true)
-//         setIsDead(false)
-//         window.location.reload()
-//       } catch(err) {
-//         console.log(err)
-//         setGlobalMessage('')
-//         document.getElementById('typewriterText').classList.remove('globalMessage')
-//         setTimeout(() => {
-//           setGlobalMessage("Oops! Toad can't vibe right now")
-//           document.getElementById('typewriterText').classList.add('globalMessage')
-//         }, 100);
-//       }
-//     }
-//   } else {
-//     console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
-//   }
-// }
-// // async function feedToad() {
-// //   if (network == 4) {
-// //     if (isWalletConnected) {
-// //       try {
-// //         const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-// //         console.log(`commence feeding. current state isFed value is ${isFed}`)
-// //         const transaction = await contract.feedToad()
-// //         //if contract call succeeds, clear current message
-// //         setGlobalMessage('')
-// //         //and remove the class that adds the typewriter effect
-// //         document.getElementById('typewriterText').classList.remove('globalMessage')
-// //         //add the class that superimposes animation on scene
-// //         document.getElementById('feedAnimation').classList.add('bgWrap')
-// //         //remove the class that hides the animation
-// //         document.getElementById('feedAnimation').classList.remove('hidden')
-// //         //wait for the transaction to finish, then hide the animation
-// //         await transaction.wait().then(() => {
-// //           document.getElementById('feedAnimation').classList.add('hidden')
-// //           document.getElementById('feedAnimation').classList.remove('bgWrap')
-// //         })
-// //         setIsFed(96)
-// //       } catch(err) {
-// //           console.log(err)
-// //           //if contract call fails, clear the current message (from possible previous error)
-// //           setGlobalMessage('')
-// //           document.getElementById('typewriterText').classList.remove('globalMessage')
-// //           setTimeout(() => {
-// //             try {
-// //               //and after .1s, add the new message and keep it on screen
-// //               setGlobalMessage(`Hmmm.. It seems that ${err.error.message.slice(20)}...`)
-// //               document.getElementById('typewriterText').classList.add('globalMessage')
-// //             } catch {
-// //               return
-// //             }
-// //           }, 100);
-// //       }
-// //     }
-// //   } else {
-// //     console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
-// //   }
-// // }
-// async function playToad() {
-//   if (network == 4) {
-//     if (isWalletConnected) {
-//       try {
-//         const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-//         console.log(`commence play. current state isHappy is ${isHappy}`)
-//         const transaction = await contract.playToad()
-//         setGlobalMessage('')
-//         document.getElementById('typewriterText').classList.remove('globalMessage')
-//         document.getElementById('playAnimation').classList.add('bgWrap')
-//         document.getElementById('playAnimation').classList.remove('hidden')
-//         await transaction.wait().then(() => {
-//           document.getElementById('playAnimation').classList.add('hidden')
-//           document.getElementById('playAnimation').classList.remove('bgWrap')
-//         })
-//         setIsHappy(96)
-//       } catch(err) {
-//           console.log(err)
-//           setGlobalMessage('')
-//           document.getElementById('typewriterText').classList.remove('globalMessage')
-//           setTimeout(() => {
-//             try {
-//               setGlobalMessage(`Hmmm.. It seems that ${err.error.message.slice(20)}...`)
-//               document.getElementById('typewriterText').classList.add('globalMessage')
-//             } catch {
-//               return
-//             }
-//           }, 100);
-//       }
-//     }
-//   } else {
-//     console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
-//   }
-// }
-// async function sleepToad() {
-//   if (network == 4) {
-//     if (isWalletConnected) {
-//       try {
-//         const contract = new ethers.Contract(toadzgotchiAddress, Toadzgotchi.abi, signer)
-//         console.log(`commence sleep. current state isRested is ${isRested}`)
-//         const transaction = await contract.sleepToad()
-//         setGlobalMessage('')
-//         document.getElementById('typewriterText').classList.remove('globalMessage')
-//         document.getElementById('sleepAnimation').classList.add('bgWrap')
-//         document.getElementById('sleepAnimation').classList.remove('hidden')
-//         await transaction.wait().then(() => {
-//           document.getElementById('sleepAnimation').classList.add('hidden')
-//           document.getElementById('sleepAnimation').classList.remove('bgWrap')
-//         })
-//         setIsRested(96)
-//       } catch(err) {
-//           console.log(err)
-//           setGlobalMessage('')
-//           document.getElementById('typewriterText').classList.remove('globalMessage')
-//           setTimeout(() => {
-//             try {
-//               setGlobalMessage(`Hmmm.. It seems that ${err.error.message.slice(20)}...`)
-//               document.getElementById('typewriterText').classList.add('globalMessage')
-//             } catch {
-//               return
-//             }
-//           }, 100);
-//       }
-//     }
-//   } else {
-//     console.log(`Error: Network is set to ${network}. Set network to 4 (Rinkeby)`)
-//   }
-// }
-// async function tryMint() {
-//   if (isWalletConnected) {
-//     const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
-//     const transaction = await contract.tryMint([1,2,3,4,5,6,7], { value: ethers.utils.parseEther("0.035") })
-//     //await transaction.wait()
-//   } 
-// }
-// async function tryFlipMint() {
-//   if (isWalletConnected) {
-//     const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
-//     const transaction = await contract.flipMintState()
-//     await transaction.wait()
-//   } 
-// }
-// async function tryFlipPrivateSale() {
-//   if (isWalletConnected) {
-//     const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
-//     const transaction = await contract.flipPrivateSale()
-//     await transaction.wait()
-//   } 
-// }
-// async function toadzgotchisOwned() {
-//   if (isWalletConnected) {
-//     const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
-//     const owned = await contract.toadzgotchisOwned(account)
-//     //const transactions = await contract.balanceOf('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
-//     //const acc = await contract.ownerOf(4368)
-//     console.log(owned)
-//   } 
-// }
-// async function tryTransfer() {
-//   if (isWalletConnected) {
-//     const contract = new ethers.Contract(toadzgotchiNFTAddress, ToadzgotchiNFT.abi, signer)
-//     const transaction = await contract["safeTransferFrom(address,address,uint256)"]('0x70997970C51812dc3A010C7d01b50e0d17dc79C8','0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 3)
-//     await transaction.wait()
-//   } 
-// }
-
-// export async function findOwner(account: string) {
-//   const res = await fetch('/api/owners/' + account, {
-//     method: 'GET'
-//   })
-// }
 
 function Home({toadData, ownerData}) {
   const router = useRouter()
@@ -361,6 +173,8 @@ function Home({toadData, ownerData}) {
   const [toadDisplayState, setToadDisplayState] = useState('')
 
   function getTime() {
+    //const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    //console.log(timezone)
     if ((new Date().getHours() >= 18) || (new Date().getHours() < 6)) {
       //query last location, set it here
       dynamicBG = '/img/nightswamp.gif'
@@ -371,10 +185,16 @@ function Home({toadData, ownerData}) {
   getTime()
 
   useEffect(() => {
-    console.log(account)
-    //setIsLoading(true)
+    console.log(Math.round(((toadData[3859].fed + 
+      toadData[3859].energy +
+      toadData[3859].happiness +
+      toadData[3859].health +
+      toadData[3859].spirit) / 5)))
+      console.log(toadData[3859].fed)
+      console.log(toadData[3859].health)
     triggerRefresh()
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
+    //Below has no effect because ethereum() and network are not set yet
     // .then(() => {
     //   checkOwnsToadz(setOwnsToadz, setToadIdsOwned)
     // })
@@ -459,6 +279,9 @@ function Home({toadData, ownerData}) {
     let data = await res.json()
     let messageKey = Object.keys(data)[0]
     let message = data[messageKey]
+    console.log(data)
+    console.log(messageKey)
+    console.log(message)
 
     setTimeout(() => {
       setGlobalMessage(`${message}`)
@@ -612,6 +435,7 @@ function Home({toadData, ownerData}) {
           </div>
           <FontAwesomeIcon icon='cog'/>
         </div>
+        
         <div className='bottomActionBar'>
           <div id='test' onClick={() => {
             document.getElementById('globalMessageContainer').classList.remove('hidden') }}>

@@ -36,7 +36,7 @@ const FoodMenu = ({ show, ToadId, ToadData, UpdateStats, Account, SetGlobalMessa
       <div className='foodSelection' style={{position: 'absolute', top: '12%',display:'flex', flexDirection: 'column',height:'86%', width:'95%',marginLeft:'2.5%'}}>
         <div className='firstFood' style={{ display: 'flex', justifyContent:'space-around', alignItems:'center', width: '100%', height:'20%'}}>
           <div style={{display: 'flex', alignItems:'center'}} onClick={()=>{
-            UpdateStats(['hamburger', Account], ToadId)
+            UpdateStats(['pizza', Account], ToadId)
             SetGlobalMessage('')
             document.getElementById('typewriterText').classList.remove('typewriterEffect')
             document.getElementById('typewriterText').classList.add('hidden')
@@ -47,9 +47,9 @@ const FoodMenu = ({ show, ToadId, ToadData, UpdateStats, Account, SetGlobalMessa
           <p>Pizza</p>
           <p></p>
         </div>
-        <div className='secondFood' style={{ display: 'flex', justifyContent:'space-around', alignItems:'center', width: '100%', height:'20%'}}>
+        {/* <div className='secondFood' style={{ display: 'flex', justifyContent:'space-around', alignItems:'center', width: '100%', height:'20%'}}>
           <div style={{display: 'flex', alignItems:'center'}} onClick={()=>{
-            UpdateStats(['veggies', Account], ToadId)
+            UpdateStats(['icecream', Account], ToadId)
             SetGlobalMessage('')
             document.getElementById('typewriterText').classList.remove('typewriterEffect')
             document.getElementById('typewriterText').classList.add('hidden')
@@ -59,22 +59,22 @@ const FoodMenu = ({ show, ToadId, ToadData, UpdateStats, Account, SetGlobalMessa
           </div>
           <p>Ice Cream</p>
           <p></p>
+        </div> */}
+        {/* <div className='thirdFood' style={{ display: 'flex', justifyContent:'space-around', alignItems:'center', width: '100%', height:'20%'}}>
+            <FontAwesomeIcon icon='hotdog' style={{fontSize:'40px'}}/>
+            <p>Hot Dog</p>
+            <p>35+</p>
         </div>
-          {/* <div className='thirdFood' style={{ display: 'flex', justifyContent:'space-around', alignItems:'center', width: '100%', height:'20%'}}>
-              <FontAwesomeIcon icon='hotdog' style={{fontSize:'40px'}}/>
-              <p>Hot Dog</p>
-              <p>35+</p>
-          </div>
-          <div className='fourthFood' style={{display: 'flex', justifyContent:'space-around', alignItems:'center', width: '100%', height:'20%'}}>
-              <FontAwesomeIcon icon='pepper-hot' style={{fontSize:'40px'}}/>
-              <p>Pepper</p>
-              <p>25+</p>
-          </div>
-          <div className='fifthFood' style={{ display: 'flex', justifyContent:'space-around', alignItems:'center', width: '100%', height:'20%'}}>
-              <FontAwesomeIcon icon='candy-cane' style={{fontSize:'40px'}}/>
-              <p>Candy Cane</p>
-              <p>10+</p>
-          </div> */}
+        <div className='fourthFood' style={{display: 'flex', justifyContent:'space-around', alignItems:'center', width: '100%', height:'20%'}}>
+            <FontAwesomeIcon icon='pepper-hot' style={{fontSize:'40px'}}/>
+            <p>Pepper</p>
+            <p>25+</p>
+        </div>
+        <div className='fifthFood' style={{ display: 'flex', justifyContent:'space-around', alignItems:'center', width: '100%', height:'20%'}}>
+            <FontAwesomeIcon icon='candy-cane' style={{fontSize:'40px'}}/>
+            <p>Candy Cane</p>
+            <p>10+</p>
+        </div> */}
       </div>
     </div>
   ) : null;

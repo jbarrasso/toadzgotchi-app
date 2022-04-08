@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client"
-//import { toadzCreateManyInput } from "@prisma/client"
 
 const prisma = new PrismaClient()
 let data: { toadId: number,
@@ -17,7 +16,7 @@ let data: { toadId: number,
         }[] = []
 let j = 1;
 
-//use this with createMany instead of updateMany if creating rows, not updating
+//use this with createMany instead of updateMany if creating rows, not updating.
 //make sure data and type declarations are consistent with prisma schema 
 for (let i=0; i<7025; i++) {
     if (i > 6968) {
@@ -32,11 +31,22 @@ async function main() {
     // await prisma.toadz.createMany({
     //     data 
     // })
-    await prisma.user.delete({
-        where: {
-            address: '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
+
+    await prisma.toadz.updateMany({
+        data : {
+            fed: 5,
+            energy: 5,
+            happiness: 5,
+            health: 5,
+            spirit: 5
         }
     })
+
+    // await prisma.user.delete({
+    //     where: {
+    //         address: '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
+    //     }
+    // })
 }
 
 main()

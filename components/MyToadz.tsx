@@ -23,7 +23,7 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
       <img onClick={ () => { setPreviewToadId(image) } } src={'/img/' + image + '.png'} style={{cursor:'pointer',height:'100%'}}/>
       <div style={{display:'flex', flexDirection: 'column', alignItems:'center', justifyContent:'space-around', height:'100%'}}>
         <span style={{height:'auto', width:'100%', fontSize:'.75vw'}}>Overall Health</span>
-        <progress max={10} value={ToadData[image-1].health} style={{border: 'solid 2px black', width:'100%'}}></progress>
+        <progress max={10} value={ToadData[image-1].overall} style={{border: 'solid 2px black', width:'100%'}}></progress>
       </div>
     </div>);
 
@@ -49,7 +49,7 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
         {previewToadId >= 1 && (
           <div style={{border:'2px solid black'}}>
             <img src={'/img/' + previewToadId + '.png'} style={{width:'30%', height: '50%'}} />
-            <progress max={10} value={ToadData[previewToadId-1].health} style={{border: 'solid 2px black'}}></progress>
+            <progress max={10} value={ToadData[previewToadId-1].overall} style={{border: 'solid 2px black'}}></progress>
             <p>CrypToadz ID# {ToadData[previewToadId-1].toad_id}</p>
             { (ToadData[previewToadId-1].vibing == true) ?
             <div>

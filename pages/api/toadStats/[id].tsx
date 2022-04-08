@@ -2,11 +2,11 @@ import { prisma } from '../../../lib/prisma'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { useState } from 'react'
 
-function callme(toadid: number) {
-    setInterval(function() {decay(toadid)}, 1000*60*60*4)
+function startDecay(toadid: number) {
+    setInterval(function() {decayStats(toadid)}, 1000*60*60*4)
 }
 
-async function decay(toadid: number) {
+async function decayStats(toadid: number) {
     const allToadz = await prisma.toadz.findMany()
 
     await prisma.toadz.update({
@@ -22,13 +22,8 @@ async function decay(toadid: number) {
 
 export default async function getToadById( req:NextApiRequest, res:NextApiResponse) {
     res.statusCode = 200;
-    //get all the toad data
     const allToadz = await prisma.toadz.findMany()
-    //grab only the toad data for /api/toadStats/i
     const selectedToad = allToadz.filter((data) => (data.toadId).toString() === req.query.id)
-
-    //pull feed data from another mySQL table
-    //const feedData = await prisma.mechanics.findMany()
 
     const canFeed = () => {
         if (selectedToad[0].fed < 10) {
@@ -74,13 +69,36 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
             })
         }
     }
-
-    const eatHamburger = async() => {
+    
+    const eatPizza = async() => {
         if (canFeed()) {
-            const update = await prisma.toadz.update({
-                where: { toadId : selectedToad[0].toadId },
-                data: { fed : selectedToad[0].fed + 4,
-                        health: selectedToad[0].health - 1 }
+            return await prisma.$transaction(async (prisma) => {
+                if (selectedToad[0].fed >= 9) {
+                    await prisma.toadz.update({
+                        where: { toadId : selectedToad[0].toadId },
+                        data: { fed : 10,
+                                health: selectedToad[0].health - 1 }
+                    })
+                } else {
+                    await prisma.toadz.update({
+                        where: { toadId : selectedToad[0].toadId },
+                        data: { fed : selectedToad[0].fed + 2,
+                                health: selectedToad[0].health - 1,
+                                energy: selectedToad[0].energy - 1,
+                                spirit: selectedToad[0].spirit - 1,
+                                happiness: selectedToad[0].happiness - 1 }
+                    })
+                }
+                const newOverall = Math.round(((selectedToad[0].fed + 
+                                                selectedToad[0].energy +
+                                                selectedToad[0].happiness +
+                                                selectedToad[0].health +
+                                                selectedToad[0].spirit) / 5))
+
+                const update = await prisma.toadz.update({
+                    where: { toadId : selectedToad[0].toadId },
+                    data: { overall: newOverall }
+                })
             })
         }
     }
@@ -155,51 +173,50 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
             })
         }
     }
+    
     const vibe = async() => {
         if (selectedToad[0].vibing != true) {
             const update = await prisma.toadz.update({
                 where: { toadId : selectedToad[0].toadId },
                 data: { vibing : true }
             })
-            callme(selectedToad[0].toadId)
+            startDecay(selectedToad[0].toadId)
         } else {
             res.status(500).json({message: `Toad is already vibing`})
         }
     }
 
-    const gameLogic = async(propertiesToUpdate: string[], account: string) => {
+    const gameLogic = async(action: string, account: string) => {
         if (account === selectedToad[0].userId) {
-            for (let i=0; i<propertiesToUpdate.length; i++) {
-                if (propertiesToUpdate[i] == 'vibe') {
-                    vibe()
-                    res.status(200).json({message:'Toad is vibing', animation: ''})
-                } else if (propertiesToUpdate[i] === 'flies') {
-                    eatFlies()
-                    res.status(200).json({message:'YOU FED TOAD SOME FLIES.', animation: ''})
-                } else if (propertiesToUpdate[i] === 'hamburger') {
-                    eatHamburger()
-                    res.status(200).json({message:'YOU FED TOAD SOME PIZZA.', animation: ''})
-                } else if (propertiesToUpdate[i] === 'icecream') {
-                    eatIceCream()
-                    res.status(200).json({message:`YOU FED TOAD SOME ICE CREAM!`, animation: ''})
-                } else if (propertiesToUpdate[i] === 'veggies') {
-                    eatVeggies()
-                    res.status(200).json({message:`YOU FED TOAD SOME VEGGIES.`, animation: ''})
-                } else if (propertiesToUpdate[i] === 'nap') {
-                    takeNap()
-                    res.status(200).json({message:`TOAD IS RESTING IT'S EYES FOR A LITTLE`, animation: ''})
-                } else if (propertiesToUpdate[i] === 'sleep') {
-                    goToSleep()
-                    res.status(200).json({message:`ZZZ..ZZzzz`, animation: ''})
-                } else if (propertiesToUpdate[i] === 'gameboy') {
-                    playGameboy()
-                    res.status(200).json({message:`*BOOTS UP GAMEBOY*`, animation: ''})
-                } else if (propertiesToUpdate[i] === 'ball') {
-                    playBall()
-                    res.status(200).json({message:`boing boing boing`, animation: ''})
-                } else {
-                    res.status(404).json({message: 'Not a valid action'})
-                }
+            if (action == 'vibe') {
+                vibe()
+                res.status(200).json({message:'Toad is vibing', animation: ''})
+            } else if (action === 'flies') {
+                eatFlies()
+                res.status(200).json({message:'YOU FED TOAD SOME FLIES.', animation: ''})
+            } else if (action === 'pizza') {
+                eatPizza()
+                res.status(200).json({message:'YOU FED TOAD SOME PIZZA.', animation: ''})
+            } else if (action === 'icecream') {
+                eatIceCream()
+                res.status(200).json({message:`YOU FED TOAD SOME ICE CREAM!`, animation: ''})
+            } else if (action === 'veggies') {
+                eatVeggies()
+                res.status(200).json({message:`YOU FED TOAD SOME VEGGIES.`, animation: ''})
+            } else if (action === 'nap') {
+                takeNap()
+                res.status(200).json({message:`TOAD IS RESTING IT'S EYES FOR A LITTLE`, animation: ''})
+            } else if (action === 'sleep') {
+                goToSleep()
+                res.status(200).json({message:`ZZZ..ZZzzz`, animation: ''})
+            } else if (action === 'gameboy') {
+                playGameboy()
+                res.status(200).json({message:`*BOOTS UP GAMEBOY*`, animation: ''})
+            } else if (action === 'ball') {
+                playBall()
+                res.status(200).json({message:`boing boing boing`, animation: ''})
+            } else {
+                res.status(404).json({message: 'Not a valid action'})
             }
         } else {
             res.status(404).json({message: 'You are not the owner of this toad.'})
@@ -209,38 +226,17 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
     if (selectedToad.length > 0) {
         if (req.method === 'GET') {
             res.status(200).json(selectedToad[0])
-        } else {
-            let account: string = ''
-            const propertiesToUpdate = JSON.parse(req.body)
-
-            if (propertiesToUpdate.length > 0) {
-
-                if (req.method === 'PATCH') {
-                    for (let i=0; i<propertiesToUpdate.length; i++) {
-                        if (i == (propertiesToUpdate.length - 1)) {
-                            account = propertiesToUpdate[i]
-                        }
-                    }
-                    gameLogic(propertiesToUpdate, account)
-
-                } else if (req.method === 'PUT') {
-
-                    //check user key against db first
-                    account = propertiesToUpdate[0]
-                    if (account != selectedToad[0].userId) {
-                        const update = await prisma.toadz.update({
-                            where: { toadId : selectedToad[0].toadId },
-                            data: { userId: propertiesToUpdate[0]}
-                        })
-                        res.status(200).json({message: `toad id ${selectedToad[0].toadId} updated with new owner ${account}`})
-                    } else {
-                        res.status(200).json({message:'toad owner is the same'})
-                    }
-
-                }
+        } else if (req.method === 'PATCH') {
+            const data = JSON.parse(req.body)
+            if (data.length > 1) {
+                let action: string = data[0]
+                let account: string = data[1]
+                gameLogic(action, account)
             } else {
                 res.status(404).json({message: 'No data sent'})
             }
+        } else {
+            res.status(404).json({message: 'Invalid request method'}) 
         }
     } else {
         res.status(404).json({message: 'Toad id not found'})
