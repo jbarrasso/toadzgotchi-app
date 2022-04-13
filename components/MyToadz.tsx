@@ -19,7 +19,7 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
   const [previewToadId, setPreviewToadId] = useState(0)
 
   const listItems = ToadIdsOwned.map((image) =>
-    <div key={image} style={{display:'flex', justifyContent:'space-around', width:'100%', height:'100px', alignItems:'center', border:'2px solid #673c37' }}>
+    <div key={image} style={{display:'flex', justifyContent:'space-around', width:'100%', height:'35%', alignItems:'center', border:'2px solid #673c37' }}>
       <img onClick={ () => { setPreviewToadId(image) } } src={'/img/' + image + '.png'} style={{cursor:'pointer',height:'100%'}}/>
       <div style={{display:'flex', flexDirection: 'column', alignItems:'center', justifyContent:'space-around', height:'100%'}}>
         <span style={{height:'auto', width:'100%', fontSize:'.75vw'}}>Overall Health</span>
@@ -45,34 +45,38 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
       <div className='toadContainer' style={{position:'absolute', overflow: 'auto', top: '11%', display:'flex', flexWrap: 'wrap', flexDirection:'row', alignContent: 'flex-start', left: '2.5%', width: '45%',height:'85%'}}>
         {OwnsToadz? {listItems}.listItems : <div></div>}
       </div>
-      <div className='toadPreview' style={{position:'absolute', alignItems: 'center', flexWrap:'wrap', top:'11%', left:'50%', display:'flex', width:'45%', height:'85%'}}>
-        {previewToadId >= 1 && (
-          <div style={{border:'2px solid black'}}>
-            <img src={'/img/' + previewToadId + '.png'} style={{width:'30%', height: '50%'}} />
-            <progress max={10} value={ToadData[previewToadId-1].overall} style={{border: 'solid 2px black'}}></progress>
-            <p>CrypToadz ID# {ToadData[previewToadId-1].toad_id}</p>
+      {previewToadId >= 1 && (
+      <div className='toadPreview' style={{position:'absolute', flexDirection:'row', alignItems: 'flex-start', flexWrap:'wrap', alignContent: 'flex-start', top:'11%', left:'50%', display:'flex', width:'45%', height:'85%'}}>
+            <img src={'/img/' + previewToadId + '.png'} style={{width:'35%', height: '35%'}} />
+            <p style={{width:'60%', fontSize: '.75vw', textAlign: 'center'}}>CrypToadz ID# {ToadData[previewToadId-1].toadId}</p>
             { (ToadData[previewToadId-1].vibing == true) ?
-            <div>
-              {ToadData[previewToadId-1].toad_name != '' && (
-              <p>Toad Name: {ToadData[previewToadId-1].toad_name}</p>
+            <div style={{width: '100%', height: '65%',textAlign: 'center', overflow:'auto', padding:'1px'}}>
+              {ToadData[previewToadId-1].toadName != '' && (
+              <p style={{width:'', fontSize:'.5vw'}}>Toad Name: {ToadData[previewToadId-1].toadName}</p>
               )}
-              <p>Toad Level: {ToadData[previewToadId-1].level}</p>
+              <p style={{fontSize:'.75vw', margin:'0px'}}>Overall Health</p> 
+              <progress max={10} value={ToadData[previewToadId-1].overall} style={{border: 'solid 2px black'}}></progress>
+              <p style={{fontSize: '.75vw', marginTop:'0px', marginBottom:'0px'}}>Toad Level: {ToadData[previewToadId-1].level}</p>
               <Button
-                text='Select Toad'
-                img=''
-                position='absolute'
-                display=''
+                text=''
+                img='/img/select.png'
+                position='relative'
+                display='block'
+                alignItems=''
                 flex=''
                 fontfamily=''
                 color='#332020'
                 backgroundColor='#b0a28d'
-                top='80%'
-                left='50%'
-                height=''
-                width=''
-                margin='10px'
+                top=''
+                left='25%'
+                height='35%'
+                width='50%'
+                zIndex={1}
+                marginLeft=''
+                marginRight=''
+                margin=''
                 padding='0px'
-                border=' 2px solid #673c37'
+                border=''
                 borderRadius=''
                 cursor= 'pointer'
                 onClick={() => {
@@ -83,20 +87,24 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
             :
             <Button
               text='Vibe'
-              img=''
+              img='/img/vibe.png'
               position='relative'
-              display=''
+              display='block'
+              alignItems=''
               flex=''
               fontfamily=''
               color='#332020'
               backgroundColor='#b0a28d'
               top=''
-              left=''
-              height='100%'
+              left='25%'
+              height='35%'
               width='50%'
-              margin='0px'
+              zIndex={1}
+              marginLeft=''
+              marginRight=''
+              margin=''
               padding='0px'
-              border=' 2px solid red'
+              border=''
               borderRadius=''
               cursor= 'pointer'
               onClick={() => {
@@ -105,8 +113,7 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
                 SetToadDisplayState('/img/' + previewToadId + '.png')
                 onClose() }}/>
             }
-          </div> )}
-      </div>
+      </div>)}
     </div>
   ) : null;
 

@@ -3,10 +3,13 @@ type Props = {
     img: string;
     position: string;
     display: string;
+    alignItems: string;
     flex: string;
     color: string;
     backgroundColor: string;
     fontfamily: string;
+    marginLeft: string;
+    marginRight: string;
     margin: string;
     padding: string;
     top: string;
@@ -20,7 +23,7 @@ type Props = {
     onClick: (event: React.MouseEvent<HTMLElement>) => void
 };
 
-const Button = ({ text, img, position, display, flex, color, backgroundColor, fontfamily, top, left, height, width, zIndex, margin, padding, border, borderRadius, cursor, onClick }: Props) => {
+const Button = ({ text, img, position, display, alignItems, flex, color, backgroundColor, fontfamily, top, left, height, width, zIndex, marginLeft, marginRight, margin, padding, border, borderRadius, cursor, onClick }: Props) => {
     // if (text=keyword) {
     //call hook to execute keyword logic (each keyword has diff logic)
     //return value for ProgressBar component
@@ -29,6 +32,7 @@ const Button = ({ text, img, position, display, flex, color, backgroundColor, fo
         <div style={{
             color: color,
             display: display,
+            alignItems: alignItems,
             position: position,
             flex: flex,
             backgroundColor: backgroundColor,
@@ -38,6 +42,8 @@ const Button = ({ text, img, position, display, flex, color, backgroundColor, fo
             height: height,
             width: width,
             zIndex: zIndex,
+            marginLeft: marginLeft,
+            marginRight: marginRight,
             margin: margin,
             padding: padding,
             border: border,
@@ -45,7 +51,7 @@ const Button = ({ text, img, position, display, flex, color, backgroundColor, fo
             cursor: cursor }}
             onClick={onClick}>
             
-            {img != '' && <img src={img} style={{position:'absolute', border: '2px solid green', top:'', left:'', width:'100%', height:'100%'}}/> }
+            {img != '' && <img src={img} style={{position:'absolute', border: '', top:'0', left:'0', width:'100%', height:'100%'}}/> }
             {text}
         </div>
     );

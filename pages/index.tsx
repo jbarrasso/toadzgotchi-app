@@ -81,8 +81,9 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
       signer = trySigner
       const tryAccount = await trySigner.getAddress()
       //ask for a sign here?
-      account = tryAccount
-      //account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
+      //account = tryAccount
+      //account = '0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8'
+      account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
       setIsWalletConnected(true)
       console.log('Wallect is connected')
       console.log(account)
@@ -178,6 +179,10 @@ function Home({toadData, ownerData}) {
     if ((new Date().getHours() >= 18) || (new Date().getHours() < 6)) {
       //query last location, set it here
       dynamicBG = '/img/nightswamp.gif'
+    } else if (new Date().getHours() == 6 ) {
+      dynamicBG = '/img/duskswamp.png'
+    } else if (new Date().getHours() == 17) {
+      dynamicBG = '/img/duskswamp.png'
     } else {
       dynamicBG = '/img/dayswamp.gif'
     }
@@ -185,13 +190,14 @@ function Home({toadData, ownerData}) {
   getTime()
 
   useEffect(() => {
+    console.log(new Date().getHours())
     console.log(Math.round(((toadData[3859].fed + 
       toadData[3859].energy +
       toadData[3859].happiness +
       toadData[3859].health +
       toadData[3859].spirit) / 5)))
       console.log(toadData[3859].fed)
-      console.log(toadData[3859].health)
+      console.log(toadData[5002].overall)
     triggerRefresh()
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
     //Below has no effect because ethereum() and network are not set yet
@@ -243,14 +249,16 @@ function Home({toadData, ownerData}) {
     let data = await res.json()
     let messageKey = Object.keys(data)[0]
     let message = data[messageKey]
-    let newPlayerKey = Object.keys(data)[1]
-    let isNewPlayer = data[newPlayerKey]
-    console.log(isNewPlayer)
 
     if (res.status < 300) {
+      let newPlayerKey = Object.keys(data)[1]
+      let isNewPlayer = data[newPlayerKey]
+      let firstToadKey = Object.keys(data)[2]
+      let firstToad = data[firstToadKey]
+
       refreshData()
       setIsNewPlayer(isNewPlayer)
-      setIsLoading(false)
+      setToadId(firstToad)
       setTimeout(() => {
         let rand = Math.floor(Math.random() * welcomeMessages.length);
         setGlobalMessage(welcomeMessages[rand])
@@ -268,6 +276,7 @@ function Home({toadData, ownerData}) {
           document.getElementById('typewriterText').classList.remove('hidden')
       }, 100);
     }
+    setIsLoading(false)
   }
 
   async function updateStats(properties: string[], id: string) {
@@ -291,9 +300,11 @@ function Home({toadData, ownerData}) {
     }, 100);
 
     if (res.status < 300) {
+      let animationKey = Object.keys(data)[1]
+      let animation = data[animationKey]
       refreshData()
-      if (data[Object.keys(data)[1]] != '') {
-        setToadDisplayState('/img/' + toadId + data[Object.keys(data)[1]])
+      if (animation != '') {
+        setToadDisplayState('/img/' + toadId + animation)
         setTimeout(() => {
         //make button unclickable until after animation is done running
         setToadDisplayState('/img/' + toadId + '.png')
@@ -317,14 +328,16 @@ function Home({toadData, ownerData}) {
           for (let i=0; i<numberOfToadzOwned; i++) {
             let id = await contract.tokenOfOwnerByIndex(account, i)
             arrayOfToadIds[i] = id.toNumber()
-
             //before pushing, authenticate with signature pass in verifiedAccount instead of account or key in localstorage
           }
           updateOwner(account)
           //set states below in updateOwner
           setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '.png')
+          setOwnsToadz(true)
           setToadIdsOwned(arrayOfToadIds)
         } else {
+          setIsLoading(false)
+          setToadDisplayState('/img/bruce.png')
           setOwnsToadz(false)
           setToadIdsOwned([])
         }
@@ -386,27 +399,26 @@ function Home({toadData, ownerData}) {
       <img className='case' src={'/img/common1.png'}/>
       <div className='game'>
         <img className='gameScene' src={dynamicBG} style={{border: '5px solid black'}}/>
-        {isLoading ? (<img className='loadingScreen' src={'/img/loadingScreen.gif'} style={{}}/>) : 
+        {isLoading ? (<img className='loadingScreen' src={'/img/loadingScreen.gif'} style={{border: '5px solid black'}}/>) : 
         (isNewPlayer == true &&
         <div>
-          <img className='welcomeScreen' src={'/img/welcomeScreen.gif'} style={{}}/>
           <Button
-            text='ENTER'
-            img=''
+            text='enter'
+            img='/img/enter.png'
             position='absolute'
             display=''
             flex=''
             fontfamily=''
-            color='#332020'
-            backgroundColor='#b0a28d'
-            top='70%'
-            left='40%'
+            color=''
+            backgroundColor=''
+            top='67%'
+            left='41.5%'
             height=''
             width=''
-            zIndex={11}
+            zIndex={15}
             margin='10px'
             padding='0px'
-            border=' 2px solid #673c37'
+            border=''
             borderRadius=''
             cursor= 'pointer'
             onClick={() => {
@@ -423,10 +435,13 @@ function Home({toadData, ownerData}) {
                 document.getElementById('typewriterText').classList.add('typewriterEffect')
               }, 1100);
             }}/>
+          <img id='welcomeScreen' src={'/img/intro2.gif'} style={{}}/>
+ 
+
         </div>)
         }
         {/* FOR TOADDISPLAYSTATE PATH... PULL TOAD STATE FROM TOADDATA (GETSERVERSIDEPROPS) TO POINT TO PATH */}
-        {toadIdsOwned.length > 0 && <img src={toadDisplayState} style={{display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'40%', width:'30%', zIndex:1, position:'absolute', top:'32%', right:'37%'}}/>}
+        <img src={toadDisplayState} style={{display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'40%', width:'30%', zIndex:1, position:'absolute', top:'32%', right:'37%'}}/>
         <div className='topActionBar'>
           <FontAwesomeIcon icon='store-alt'/>
           <FontAwesomeIcon icon='heartbeat'/>
@@ -435,7 +450,6 @@ function Home({toadData, ownerData}) {
           </div>
           <FontAwesomeIcon icon='cog'/>
         </div>
-        
         <div className='bottomActionBar'>
           <div id='test' onClick={() => {
             document.getElementById('globalMessageContainer').classList.remove('hidden') }}>
@@ -655,7 +669,7 @@ function Home({toadData, ownerData}) {
             height: 70%;
             z-index:10;
           }
-          .welcomeScreen {
+          #welcomeScreen {
             position: absolute;
             top:15%;
             width: 100%;
