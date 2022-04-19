@@ -49,7 +49,6 @@ export async function getServerSideProps() {
   }
 }
 
-
 // export const providerOptions = {
 // }
 // export const web3Modal = new Web3Modal({
@@ -81,9 +80,9 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
       signer = trySigner
       const tryAccount = await trySigner.getAddress()
       //ask for a sign here?
-      //account = tryAccount
+      account = tryAccount
       //account = '0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8'
-      account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
+      //account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
       setIsWalletConnected(true)
       console.log('Wallect is connected')
       console.log(account)
@@ -180,9 +179,9 @@ function Home({toadData, ownerData}) {
       //query last location, set it here
       dynamicBG = '/img/nightswamp.gif'
     } else if (new Date().getHours() == 6 ) {
-      dynamicBG = '/img/duskswamp.png'
+      dynamicBG = '/img/dawnswamp.gif'
     } else if (new Date().getHours() == 17) {
-      dynamicBG = '/img/duskswamp.png'
+      dynamicBG = '/img/duskswamp.gif'
     } else {
       dynamicBG = '/img/dayswamp.gif'
     }

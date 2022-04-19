@@ -36,19 +36,6 @@ const RestMenu = ({ show, ToadId, ToadData, UpdateStats, Account, SetGlobalMessa
       <div className='foodSelection' style={{position: 'absolute', top: '12%',display:'flex', flexDirection: 'column',height:'86%', width:'95%',marginLeft:'2.5%'}}>
         <div className='firstRest' style={{ display: 'flex', justifyContent:'space-around', alignItems:'center', width: '100%', height:'20%'}}>
           <div style={{display: 'flex', alignItems:'center'}} onClick={()=>{
-            UpdateStats(['nap', Account], ToadId)
-            SetGlobalMessage('')
-            document.getElementById('typewriterText').classList.remove('typewriterEffect')
-            document.getElementById('typewriterText').classList.add('hidden')
-            onClose()
-            } }>
-            <FontAwesomeIcon icon='bed' style={{fontSize:'40px'}}/>
-          </div>
-          <p>Power Nap</p>
-          <p></p>
-        </div>
-        <div className='secondRest' style={{ display: 'flex', justifyContent:'space-around', alignItems:'center', width: '100%', height:'20%'}}>
-          <div style={{display: 'flex', alignItems:'center'}} onClick={()=>{
             UpdateStats(['sleep', Account], ToadId)
             SetGlobalMessage('')
             document.getElementById('typewriterText').classList.remove('typewriterEffect')
@@ -57,12 +44,24 @@ const RestMenu = ({ show, ToadId, ToadData, UpdateStats, Account, SetGlobalMessa
             } }>
             <FontAwesomeIcon icon='bed' style={{fontSize:'40px'}}/>
           </div>
-          <p>Power Nap</p>
+          <p>Sleep</p>
           <p></p>
         </div>
+        <div className='secondRest' style={{ display: 'flex', justifyContent:'space-around', alignItems:'center', width: '100%', height:'20%'}}>
+          {/* <div style={{display: 'flex', alignItems:'center'}} onClick={()=>{
+            UpdateStats(['sleep', Account], ToadId)
+            SetGlobalMessage('')
+            document.getElementById('typewriterText').classList.remove('typewriterEffect')
+            document.getElementById('typewriterText').classList.add('hidden')
+            onClose()
+            } }>
+            <FontAwesomeIcon icon='bed' style={{fontSize:'40px'}}/>
+          </div>
+          <p>Power Nap</p> */}
+        </div>
         <div className='thirdRest' style={{display: 'flex', justifyContent:'space-around', alignItems:'center', width: '100%', height:'20%'}}>
-          <FontAwesomeIcon icon='bed' style={{fontSize:'40px'}}/>
-          <p>Hibernate</p>
+          {/* <FontAwesomeIcon icon='bed' style={{fontSize:'40px'}}/>
+          <p>Hibernate</p> */}
         </div>
       </div>
     </div>

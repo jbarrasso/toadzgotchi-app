@@ -213,7 +213,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
         if (selectedToad[0].vibing != true) {
             const update = await prisma.toadz.update({
                 where: { toadId : selectedToad[0].toadId },
-                data: { vibing : true }
+                data: { vibing : true, 
+                        level: 1 }
             })
             startDecay(selectedToad[0].toadId)
         } else {
