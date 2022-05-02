@@ -175,12 +175,12 @@ function Home({toadData, ownerData}) {
   function getTime() {
     //const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     //console.log(timezone)
-    if ((new Date().getHours() >= 18) || (new Date().getHours() < 6)) {
+    if ((new Date().getHours() >= 18) || (new Date().getHours() > 6)) {
       //query last location, set it here
       dynamicBG = '/img/nightswamp.gif'
     } else if (new Date().getHours() == 6 ) {
       dynamicBG = '/img/dawnswamp.gif'
-    } else if (new Date().getHours() == 17) {
+    } else if (new Date().getHours() == 0) {
       dynamicBG = '/img/duskswamp.gif'
     } else {
       dynamicBG = '/img/dayswamp.gif'
@@ -193,10 +193,8 @@ function Home({toadData, ownerData}) {
     console.log(Math.round(((toadData[3859].fed + 
       toadData[3859].energy +
       toadData[3859].happiness +
-      toadData[3859].health +
-      toadData[3859].spirit) / 5)))
-      console.log(toadData[3859].fed)
-      console.log(toadData[5002].overall)
+      toadData[3859].health) / 4)))
+      console.log(toadData[3859].overall)
     triggerRefresh()
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
     //Below has no effect because ethereum() and network are not set yet
@@ -303,10 +301,10 @@ function Home({toadData, ownerData}) {
       let animation = data[animationKey]
       refreshData()
       if (animation != '') {
-        setToadDisplayState('/img/' + toadId + animation)
+        setToadDisplayState('/img/' + toadId + '-' + animation + '.gif')
         setTimeout(() => {
         //make button unclickable until after animation is done running
-        setToadDisplayState('/img/' + toadId + '.png')
+        setToadDisplayState('/img/' + toadId + '.gif')
         }, 3700);
       }
       //to check if toad is sick, toadData wont update until next state action, so have toadAction be a state variable and run useeffect
@@ -331,13 +329,15 @@ function Home({toadData, ownerData}) {
           }
           updateOwner(account)
           //set states below in updateOwner
-          setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '.png')
+          setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '.gif')
+          setToadId(arrayOfToadIds[0].toString())
           setOwnsToadz(true)
           setToadIdsOwned(arrayOfToadIds)
         } else {
           setIsLoading(false)
           setToadDisplayState('/img/bruce.png')
           setOwnsToadz(false)
+          setToadId('')
           setToadIdsOwned([])
         }
       } catch(err) {

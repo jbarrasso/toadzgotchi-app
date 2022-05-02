@@ -3,19 +3,74 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { useState } from 'react'
 
 function startDecay(toadid: number) {
-    setInterval(function() {decayStats(toadid)}, 1000*60*60*4)
+    setInterval(function() {decayStats(toadid)}, 1000*60)
 }
 
 async function decayStats(toadid: number) {
     const allToadz = await prisma.toadz.findMany()
+    let fedValue: number
+    let energyValue: number
+    let happinessValue: number
+    let healthValue: number
 
-    await prisma.toadz.update({
-        where: { toadId: allToadz[toadid-1].toadId },
-        data: { fed: allToadz[toadid-1].fed - 1,
-                energy: allToadz[toadid-1].energy - 1,
-                happiness: allToadz[toadid-1].happiness - 1,
-                health: allToadz[toadid-1].health - 1 }
-                
+    return await prisma.$transaction(async (prisma) => {
+        if ( (allToadz[toadid-1].fed == 0) || (allToadz[toadid-1].energy == 0) || (allToadz[toadid-1].happiness == 0) || (allToadz[toadid-1].health == 0) ) {
+            if (allToadz[toadid-1].fed == 0) {
+                fedValue = 0
+            } else {
+                await prisma.toadz.update({
+                    where: { toadId : allToadz[toadid-1].toadId },
+                    data: { fed: allToadz[toadid-1].fed - 1 }
+                })
+                fedValue = allToadz[toadid-1].fed - 1
+            }
+            if (allToadz[toadid-1].energy == 0) {
+                energyValue = 0
+            } else { 
+                await prisma.toadz.update({
+                    where: { toadId : allToadz[toadid-1].toadId },
+                    data: { energy: allToadz[toadid-1].energy - 1 }
+                })
+                energyValue = allToadz[toadid-1].energy - 1
+            }
+            if (allToadz[toadid-1].happiness == 0) {
+                happinessValue = 0
+            } else {
+                await prisma.toadz.update({
+                    where: { toadId : allToadz[toadid-1].toadId },
+                    data: { happiness: allToadz[toadid-1].happiness - 1 }
+                })
+                happinessValue = allToadz[toadid-1].happiness - 1
+            }
+            if (allToadz[toadid-1].health == 0) {
+                healthValue = 0
+            } else {
+                await prisma.toadz.update({
+                    where: { toadId : allToadz[toadid-1].toadId },
+                    data: { health: allToadz[toadid-1].health - 1 }
+                })
+                healthValue = allToadz[toadid-1].health - 1
+            }
+        } else {
+            await prisma.toadz.update({
+                where: { toadId : allToadz[toadid-1].toadId },
+                data: { fed: allToadz[toadid-1].fed - 1,
+                        energy: allToadz[toadid-1].energy - 1,
+                        happiness: allToadz[toadid-1].happiness - 1,
+                        health: allToadz[toadid-1].health - 1 }
+            })
+            fedValue = allToadz[toadid-1].fed - 1
+            energyValue = allToadz[toadid-1].energy - 1
+            happinessValue = allToadz[toadid-1].happiness - 1
+            healthValue = allToadz[toadid-1].health - 1
+        }
+           
+        const newOverall = Math.round(((fedValue + energyValue + happinessValue + healthValue) / 4))
+
+        await prisma.toadz.update({
+            where: { toadId : allToadz[toadid-1].toadId },
+            data: { overall: newOverall }
+        })
     })
 }
 

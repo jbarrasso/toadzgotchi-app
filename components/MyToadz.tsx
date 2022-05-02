@@ -81,7 +81,7 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
                 cursor= 'pointer'
                 onClick={() => {
                   SetToadId(previewToadId)
-                  SetToadDisplayState('/img/' + previewToadId + '.png')
+                  SetToadDisplayState('/img/' + previewToadId + '.gif')
                   onClose() }}/>
             </div>
             :
@@ -110,7 +110,7 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
               onClick={() => {
                 UpdateStats(['vibe', Account], previewToadId)
                 SetToadId(previewToadId)
-                SetToadDisplayState('/img/' + previewToadId + '.png')
+                SetToadDisplayState('/img/' + previewToadId + '.gif')
                 onClose() }}/>
             }
       </div>)}
