@@ -6,6 +6,7 @@ function startDecay(toadid: number) {
     setInterval(function() {decayStats(toadid)}, 1000*60)
 }
 
+
 async function decayStats(toadid: number) {
     const allToadz = await prisma.toadz.findMany()
     let fedValue: number
@@ -79,6 +80,54 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
     const allToadz = await prisma.toadz.findMany()
     const selectedToad = allToadz.filter((data) => (data.toadId).toString() === req.query.id)
 
+    async function checkValues() {
+        //need to put local vals in here
+        if (selectedToad[0].fed < 0) {
+            await prisma.toadz.update({
+                where: { toadId : selectedToad[0].toadId },
+                data: { fed : 0}
+            })
+        } else if (selectedToad[0].fed > 10) {
+            await prisma.toadz.update({
+                where: { toadId : selectedToad[0].toadId },
+                data: { fed : 10}
+            })
+        }
+        if (selectedToad[0].energy < 0) {
+            await prisma.toadz.update({
+                where: { toadId : selectedToad[0].toadId },
+                data: { energy : 0}
+            })
+        } else if (selectedToad[0].energy > 10) {
+            await prisma.toadz.update({
+                where: { toadId : selectedToad[0].toadId },
+                data: { energy : 10}
+            })
+        }
+        if (selectedToad[0].happiness < 0) {
+            await prisma.toadz.update({
+                where: { toadId : selectedToad[0].toadId },
+                data: { happiness : 0}
+            })
+        } else if (selectedToad[0].happiness > 10) {
+            await prisma.toadz.update({
+                where: { toadId : selectedToad[0].toadId },
+                data: { happiness : 10}
+            })
+        }
+        if (selectedToad[0].health < 0) {
+            await prisma.toadz.update({
+                where: { toadId : selectedToad[0].toadId },
+                data: { health : 0}
+            })
+        } else if (selectedToad[0].health > 10) {
+            await prisma.toadz.update({
+                where: { toadId : selectedToad[0].toadId },
+                data: { health : 10}
+            })
+        }
+    }
+
     const canFeed = () => {
         if (selectedToad[0].fed < 10) {
             if (selectedToad[0].health > 0) {
@@ -91,7 +140,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
         }
     }
 
-    const canRest = () => {
+    const canSleep = () => {
         if (selectedToad[0].energy < 10) {
             if (selectedToad[0].fed > 0) {
                 return true
@@ -105,50 +154,22 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
 
     const canPlay = () => {
         if (selectedToad[0].energy > 0) {
-            if (selectedToad[0].health > 0) {
+            // if (selectedToad[0].health > 0) {
                 return true
             } else {
-                res.status(500).json({message: `Toad is not feeling well at the moment, it can't play`})
+                res.status(500).json({message: `Toad is exhausted, it can't play right now...`})
             }
-        } else {
-        res.status(500).json({message: `Toad is exhausted, it can't play right now`})
         }
-    }
-
+        // else {
+        // res.status(500).json({message: `Toad is exhausted, it can't play right now`})
+        // }
+    // }
+        
     const eatFlies = async() => {
         if (canFeed()) {
             const update = await prisma.toadz.update({
                 where: { toadId : selectedToad[0].toadId },
                 data: { fed : selectedToad[0].fed + 1 }
-            })
-        }
-    }
-    
-    const eatPizza = async() => {
-        if (canFeed()) {
-            return await prisma.$transaction(async (prisma) => {
-                if (selectedToad[0].fed >= 9) {
-                    await prisma.toadz.update({
-                        where: { toadId : selectedToad[0].toadId },
-                        data: { fed : 10,
-                                health: selectedToad[0].health - 1 }
-                    })
-                } else {
-                    await prisma.toadz.update({
-                        where: { toadId : selectedToad[0].toadId },
-                        data: { fed : selectedToad[0].fed + 2,
-                                health: selectedToad[0].health - 1 }
-                    })
-                }
-                const newOverall = Math.round(((selectedToad[0].fed + 
-                                                selectedToad[0].energy +
-                                                selectedToad[0].happiness +
-                                                selectedToad[0].health) / 4))
-
-                const update = await prisma.toadz.update({
-                    where: { toadId : selectedToad[0].toadId },
-                    data: { overall: newOverall }
-                })
             })
         }
     }
@@ -183,7 +204,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
     }
 
     const takeNap = async() => {
-        if (canRest()) {
+        if (canSleep()) {
             const update = await prisma.toadz.update({
                 where: { toadId : selectedToad[0].toadId },
                 data: { energy : selectedToad[0].energy + 2,
@@ -192,28 +213,54 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
         }
     }
 
-    const goToSleep = async() => {
-        if (canRest()) {
-            return await prisma.$transaction(async (prisma) => {
-                if (selectedToad[0].energy >= 9) {
-                    await prisma.toadz.update({
-                        where: { toadId : selectedToad[0].toadId },
-                        data: { energy : 10,
-                                health: selectedToad[0].health + 1 }
-                    })
-                } else {
-                    await prisma.toadz.update({
-                        where: { toadId : selectedToad[0].toadId },
-                        data: { energy : selectedToad[0].energy + 2,
-                                health: selectedToad[0].health + 1 }
-                    })
-                }
-                const newOverall = Math.round(((selectedToad[0].fed + 
-                                                selectedToad[0].energy +
-                                                selectedToad[0].happiness +
-                                                selectedToad[0].health) / 4))
+    const eatPizza = async() => {
+        let fedValue: number
+        let happinessValue: number
+        let healthValue: number
 
-                const update = await prisma.toadz.update({
+        if (canFeed()) {
+            return await prisma.$transaction(async (prisma) => {
+                await prisma.toadz.update({
+                    where: { toadId : selectedToad[0].toadId },
+                    data: { fed : selectedToad[0].fed + 3,
+                            happiness: selectedToad[0].happiness + 1,
+                            health: selectedToad[0].health + 1 }
+                })
+                fedValue = selectedToad[0].fed + 3
+                happinessValue = selectedToad[0].happiness + 1
+                healthValue = selectedToad[0].health + 1
+                
+                checkValues()
+
+                const newOverall = Math.round(((fedValue + selectedToad[0].energy + happinessValue + healthValue) / 4))
+
+                await prisma.toadz.update({
+                    where: { toadId : selectedToad[0].toadId },
+                    data: { overall: newOverall }
+                })
+            })
+        }
+    }
+
+    const goToSleep = async() => {
+        let energyValue: number
+        let healthValue: number
+
+        if (canSleep()) {
+            return await prisma.$transaction(async (prisma) => {
+                await prisma.toadz.update({
+                    where: { toadId : selectedToad[0].toadId },
+                    data: { energy : selectedToad[0].energy + 2,
+                            health: selectedToad[0].health + 1 }
+                })
+                energyValue = selectedToad[0].energy + 2
+                healthValue = selectedToad[0].health + 1
+            
+                checkValues()
+
+                const newOverall = Math.round(((selectedToad[0].fed + energyValue + selectedToad[0].happiness + healthValue) / 4))
+
+                await prisma.toadz.update({
                     where: { toadId : selectedToad[0].toadId },
                     data: { overall: newOverall }
                 })
@@ -222,29 +269,26 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
     }
 
     const playGameboy = async() => {
+        let fedValue: number
+        let energyValue: number
+        let happinessValue: number
+        
         if (canPlay()) {
             return await prisma.$transaction(async (prisma) => {
-                if (selectedToad[0].happiness >= 9) {
-                    await prisma.toadz.update({
-                        where: { toadId : selectedToad[0].toadId },
-                        data: { happiness : 10,
-                                fed: selectedToad[0].fed - 1,
-                                energy: selectedToad[0].energy - 1 }
-                    })
-                } else {
-                    await prisma.toadz.update({
-                        where: { toadId : selectedToad[0].toadId },
-                        data: { happiness : selectedToad[0].happiness + 2,
-                                fed: selectedToad[0].fed - 1,
-                                energy: selectedToad[0].energy - 1 }
-                    })
-                }
-                const newOverall = Math.round(((selectedToad[0].fed + 
-                                                selectedToad[0].energy +
-                                                selectedToad[0].happiness +
-                                                selectedToad[0].health) / 4))
+                await prisma.toadz.update({
+                    where: { toadId : selectedToad[0].toadId },
+                    data: { happiness : selectedToad[0].happiness + 3,
+                            fed: selectedToad[0].fed - 1,
+                            energy: selectedToad[0].energy - 1 }
+                })
+                happinessValue = selectedToad[0].happiness + 3
+                fedValue = selectedToad[0].fed - 1
+                energyValue = selectedToad[0].energy - 1
 
-                const update = await prisma.toadz.update({
+                checkValues()
+                const newOverall = Math.round(((fedValue + energyValue + happinessValue + selectedToad[0].health) / 4))
+
+                await prisma.toadz.update({
                     where: { toadId : selectedToad[0].toadId },
                     data: { overall: newOverall }
                 })
@@ -281,7 +325,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
         if (account === selectedToad[0].userId) {
             if (action == 'vibe') {
                 vibe()
-                res.status(200).json({message:'Toad is ~vibing~', animation: 'vibe'})
+                res.status(200).json({message:'Toad is ~vibing~', animation: ''})
             } else if (action === 'flies') {
                 eatFlies()
                 res.status(200).json({message:'You fed toad some flies.', animation: ''})

@@ -175,12 +175,12 @@ function Home({toadData, ownerData}) {
   function getTime() {
     //const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     //console.log(timezone)
-    if ((new Date().getHours() >= 18) || (new Date().getHours() > 6)) {
+    if ((new Date().getHours() >= 18) || (new Date().getHours() < 6)) {
       //query last location, set it here
       dynamicBG = '/img/nightswamp.gif'
     } else if (new Date().getHours() == 6 ) {
       dynamicBG = '/img/dawnswamp.gif'
-    } else if (new Date().getHours() == 0) {
+    } else if (new Date().getHours() == 17) {
       dynamicBG = '/img/duskswamp.gif'
     } else {
       dynamicBG = '/img/dayswamp.gif'
