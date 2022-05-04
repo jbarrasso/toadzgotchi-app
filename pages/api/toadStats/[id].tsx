@@ -6,7 +6,6 @@ function startDecay(toadid: number) {
     setInterval(function() {decayStats(toadid)}, 1000*60)
 }
 
-
 async function decayStats(toadid: number) {
     const allToadz = await prisma.toadz.findMany()
     let fedValue: number
@@ -80,52 +79,65 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
     const allToadz = await prisma.toadz.findMany()
     const selectedToad = allToadz.filter((data) => (data.toadId).toString() === req.query.id)
 
-    async function checkValues() {
-        //need to put local vals in here
-        if (selectedToad[0].fed < 0) {
+    async function updateOverallStats(fedValue: number, energyValue: number, happinessValue: number, healthValue: number) {
+        if (fedValue < 0) {
             await prisma.toadz.update({
                 where: { toadId : selectedToad[0].toadId },
                 data: { fed : 0}
             })
-        } else if (selectedToad[0].fed > 10) {
+            fedValue = 0
+        } else if (fedValue > 10) {
             await prisma.toadz.update({
                 where: { toadId : selectedToad[0].toadId },
                 data: { fed : 10}
             })
+            fedValue = 10
         }
-        if (selectedToad[0].energy < 0) {
+        if (energyValue < 0) {
             await prisma.toadz.update({
                 where: { toadId : selectedToad[0].toadId },
                 data: { energy : 0}
             })
-        } else if (selectedToad[0].energy > 10) {
+            energyValue = 0
+        } else if (energyValue > 10) {
             await prisma.toadz.update({
                 where: { toadId : selectedToad[0].toadId },
                 data: { energy : 10}
             })
+            energyValue = 10
         }
-        if (selectedToad[0].happiness < 0) {
+        if (happinessValue < 0) {
             await prisma.toadz.update({
                 where: { toadId : selectedToad[0].toadId },
                 data: { happiness : 0}
             })
-        } else if (selectedToad[0].happiness > 10) {
+            happinessValue = 0
+        } else if (happinessValue > 10) {
             await prisma.toadz.update({
                 where: { toadId : selectedToad[0].toadId },
                 data: { happiness : 10}
             })
+            happinessValue = 10
         }
-        if (selectedToad[0].health < 0) {
+        if (healthValue < 0) {
             await prisma.toadz.update({
                 where: { toadId : selectedToad[0].toadId },
                 data: { health : 0}
             })
-        } else if (selectedToad[0].health > 10) {
+            healthValue = 0
+        } else if (healthValue > 10) {
             await prisma.toadz.update({
                 where: { toadId : selectedToad[0].toadId },
                 data: { health : 10}
             })
+            healthValue = 10
         }
+
+        const newOverall = Math.round(((fedValue + energyValue + happinessValue + healthValue) / 4))
+        await prisma.toadz.update({
+            where: { toadId : selectedToad[0].toadId },
+            data: { overall: newOverall}
+        })
     }
 
     const canFeed = () => {
@@ -213,8 +225,9 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
         }
     }
 
-    const eatPizza = async() => {
+    const eat = async() => {
         let fedValue: number
+        let energyValue: number
         let happinessValue: number
         let healthValue: number
 
@@ -227,23 +240,19 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                             health: selectedToad[0].health + 1 }
                 })
                 fedValue = selectedToad[0].fed + 3
+                energyValue = selectedToad[0].energy
                 happinessValue = selectedToad[0].happiness + 1
                 healthValue = selectedToad[0].health + 1
                 
-                checkValues()
-
-                const newOverall = Math.round(((fedValue + selectedToad[0].energy + happinessValue + healthValue) / 4))
-
-                await prisma.toadz.update({
-                    where: { toadId : selectedToad[0].toadId },
-                    data: { overall: newOverall }
-                })
+                updateOverallStats(fedValue, energyValue, happinessValue, healthValue)
             })
         }
     }
 
-    const goToSleep = async() => {
+    const sleep = async() => {
+        let fedValue: number
         let energyValue: number
+        let happinessValue: number
         let healthValue: number
 
         if (canSleep()) {
@@ -253,25 +262,21 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                     data: { energy : selectedToad[0].energy + 2,
                             health: selectedToad[0].health + 1 }
                 })
+                fedValue = selectedToad[0].fed
                 energyValue = selectedToad[0].energy + 2
+                happinessValue = selectedToad[0].happiness
                 healthValue = selectedToad[0].health + 1
             
-                checkValues()
-
-                const newOverall = Math.round(((selectedToad[0].fed + energyValue + selectedToad[0].happiness + healthValue) / 4))
-
-                await prisma.toadz.update({
-                    where: { toadId : selectedToad[0].toadId },
-                    data: { overall: newOverall }
-                })
+                updateOverallStats(fedValue, energyValue, happinessValue, healthValue)
             })
         }
     }
 
-    const playGameboy = async() => {
+    const play = async() => {
         let fedValue: number
         let energyValue: number
         let happinessValue: number
+        let healthValue: number
         
         if (canPlay()) {
             return await prisma.$transaction(async (prisma) => {
@@ -281,17 +286,12 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                             fed: selectedToad[0].fed - 1,
                             energy: selectedToad[0].energy - 1 }
                 })
-                happinessValue = selectedToad[0].happiness + 3
                 fedValue = selectedToad[0].fed - 1
                 energyValue = selectedToad[0].energy - 1
+                happinessValue = selectedToad[0].happiness + 3
+                healthValue = selectedToad[0].health
 
-                checkValues()
-                const newOverall = Math.round(((fedValue + energyValue + happinessValue + selectedToad[0].health) / 4))
-
-                await prisma.toadz.update({
-                    where: { toadId : selectedToad[0].toadId },
-                    data: { overall: newOverall }
-                })
+                updateOverallStats(fedValue, energyValue, happinessValue, healthValue)
             })
         }
     }
@@ -326,30 +326,15 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
             if (action == 'vibe') {
                 vibe()
                 res.status(200).json({message:'Toad is ~vibing~', animation: ''})
-            } else if (action === 'flies') {
-                eatFlies()
-                res.status(200).json({message:'You fed toad some flies.', animation: ''})
-            } else if (action === 'pizza') {
-                eatPizza()
-                res.status(200).json({message:'You fed toad some pizza.', animation: 'pizza'})
-            } else if (action === 'icecream') {
-                eatIceCream()
-                res.status(200).json({message:`Youd fed toad some ice cream.`, animation: ''})
-            } else if (action === 'veggies') {
-                eatVeggies()
-                res.status(200).json({message:`You fed toad some veggies.`, animation: ''})
-            } else if (action === 'nap') {
-                goToSleep()
-                res.status(200).json({message:`Toad is taking a quick power nap...`, animation: 'sleep'})
+            } else if (action === 'eat') {
+                eat()
+                res.status(200).json({message:'You fed toad some pizza... Delicious!', animation: 'pizza'})
             } else if (action === 'sleep') {
-                goToSleep()
+                sleep()
                 res.status(200).json({message:`ZZZ..ZZzzz....`, animation: 'sleep'})
             } else if (action === 'gameboy') {
-                playGameboy()
+                play()
                 res.status(200).json({message:`*Turns on Gameboy*`, animation: 'gameboy'})
-            } else if (action === 'ball') {
-                playBall()
-                res.status(200).json({message:`boing boing boing`, animation: 'ball'})
             } else {
                 res.status(404).json({message: 'Not a valid action.'})
             }

@@ -30,11 +30,9 @@ export let account: string;
 export let dynamicBG: string;
 export let currentToad: string;
 export let songPlaylist = ['/img/a-fly.mp3','/img/no-worries.mp3','/img/city-over-clouds.mp3','/img/big-helmet.mp3','/img/ninja-toad.mp3']
-export let welcomeMessages = ['We kept the log warm for you.',
-                              'Welcome back to the swamp!',
+export let welcomeMessages = ['Welcome back to the swamp!',
                               'Sit a while and relax...',
                               'Toad is happy to see you again...',
-                              'A cool breeze rolls in...',
                               '*Croak* ... *Ribbit*...']
 
 //Runs on the server, not client
@@ -189,12 +187,12 @@ function Home({toadData, ownerData}) {
   getTime()
 
   useEffect(() => {
-    console.log(new Date().getHours())
-    console.log(Math.round(((toadData[3859].fed + 
-      toadData[3859].energy +
-      toadData[3859].happiness +
-      toadData[3859].health) / 4)))
-      console.log(toadData[3859].overall)
+    // console.log(new Date().getHours())
+    // console.log(Math.round(((toadData[3859].fed + 
+    //   toadData[3859].energy +
+    //   toadData[3859].happiness +
+    //   toadData[3859].health) / 4)))
+    //   console.log(toadData[3859].overall)
     triggerRefresh()
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
     //Below has no effect because ethereum() and network are not set yet
@@ -305,7 +303,7 @@ function Home({toadData, ownerData}) {
         setTimeout(() => {
         //make button unclickable until after animation is done running
         setToadDisplayState('/img/' + toadId + '.gif')
-        }, 3700);
+        }, 3500);
       }
       //to check if toad is sick, toadData wont update until next state action, so have toadAction be a state variable and run useeffect
     }
@@ -346,14 +344,14 @@ function Home({toadData, ownerData}) {
     }
   }
 
-  async function getToadData(toadIdsOwned) {
-    let j=1
-    for (let i=0; i<toadIdsOwned.length; i++) {
-      if (toadIdsOwned[i] > 6968) {
-      }
-      console.log(toadData[toadIdsOwned[i]-1].toad_id)
-    }
-  }
+  // async function getToadData(toadIdsOwned) {
+  //   let j=1
+  //   for (let i=0; i<toadIdsOwned.length; i++) {
+  //     if (toadIdsOwned[i] > 6968) {
+  //     }
+  //     console.log(toadData[toadIdsOwned[i]-1].toad_id)
+  //   }
+  // }
 
   function togglePlaySong(setSongStatus) {
     if (songStatus == 'PLAYING') {
@@ -397,7 +395,7 @@ function Home({toadData, ownerData}) {
       />
       <img className='case' src={'/img/common1.png'}/>
       <div className='game'>
-        <img className='gameScene' src={dynamicBG} style={{border: '5px solid black'}}/>
+        <img className='gameScene' src={dynamicBG} style={{border: '3px solid black'}}/>
         {isLoading ? (<img className='loadingScreen' src={'/img/loadingScreen.gif'} style={{border: '5px solid black'}}/>) : 
         (isNewPlayer == true &&
         <div>
@@ -435,34 +433,54 @@ function Home({toadData, ownerData}) {
               }, 1100);
             }}/>
           <img id='welcomeScreen' src={'/img/intro2.gif'} style={{}}/>
- 
-
         </div>)
         }
         {/* FOR TOADDISPLAYSTATE PATH... PULL TOAD STATE FROM TOADDATA (GETSERVERSIDEPROPS) TO POINT TO PATH */}
         <img src={toadDisplayState} style={{display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'40%', width:'30%', zIndex:1, position:'absolute', top:'32%', right:'37%'}}/>
         <div className='topActionBar'>
-          <FontAwesomeIcon icon='store-alt'/>
-          <FontAwesomeIcon icon='heartbeat'/>
-          <div id='test' onClick={() => { showLeaderboard ? setShowLeaderboard(false) : closeAllOtherMenus(setShowLeaderboard) }}>
-            <FontAwesomeIcon icon='crown'/>
+          <div id='test' onClick={() => { 
+            if (document.getElementById('globalMessageContainer').classList.contains('hidden')) {
+              document.getElementById('globalMessageContainer').classList.remove('hidden')
+            } else {
+              document.getElementById('globalMessageContainer').classList.add('hidden')
+            }
+            }}>
+            <img src='/img/messageIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div>
-          <FontAwesomeIcon icon='cog'/>
+          <div id='test' onClick={() => { showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood) } }>
+            <img src='/img/meterIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
+          </div>
+          <div id='test' onClick={() => { showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood) } }>
+            <img src='/img/settingsIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
+          </div>
         </div>
         <div className='bottomActionBar'>
           <div id='test' onClick={() => {
-            document.getElementById('globalMessageContainer').classList.remove('hidden') }}>
-            <FontAwesomeIcon icon='comment-dots'/>
+            {/*//check if toad transferred checkownstoadzg*/}
+            updateStats(['eat', account], toadId)
+            setGlobalMessage('')
+            document.getElementById('typewriterText').classList.remove('typewriterEffect')
+            document.getElementById('typewriterText').classList.add('hidden')
+            }}>
+            <img src='/img/utensilsIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div>
-          <div id='test' onClick={() => { showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood) } }>
-                            {/*//check if toad transferred checkownstoadzg*/}
-            <FontAwesomeIcon icon='hamburger'/>
+          <div id='test' onClick={() => {
+            {/*//check if toad transferred checkownstoadzg*/}
+            updateStats(['sleep', account], toadId)
+            setGlobalMessage('')
+            document.getElementById('typewriterText').classList.remove('typewriterEffect')
+            document.getElementById('typewriterText').classList.add('hidden')
+            }}>
+          <img src='/img/bedIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div>
-          <div id='test' onClick={() => { showRest ? setShowRest(false) : closeAllOtherMenus(setShowRest) }}>
-            <FontAwesomeIcon icon='bed'/>
-          </div>
-          <div id='test' onClick={() => { showPlay ? setShowPlay(false) : closeAllOtherMenus(setShowPlay) }}>
-            <FontAwesomeIcon icon='laugh-wink'/>
+          <div id='test' onClick={() => {
+            {/*//check if toad transferred checkownstoadzg*/}
+            updateStats(['gameboy', account], toadId)
+            setGlobalMessage('')
+            document.getElementById('typewriterText').classList.remove('typewriterEffect')
+            document.getElementById('typewriterText').classList.add('hidden')
+            }}>
+          <img src='/img/joystickIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div>
         </div>
         {/*Place roots as direct children of game screen*/}
@@ -534,7 +552,7 @@ function Home({toadData, ownerData}) {
           </div>
         </div>
       </div>
-      <div style={{border:'', position:'absolute', top:'80%', left:'35%', width:'30vw',display:'flex', justifyContent:'space-between', textAlign:'center'}}>
+      <div style={{border:'2px solid red', position:'absolute', top:'80%', left:'35%', width:'30vw',display:'flex', justifyContent:'space-between', textAlign:'center'}}>
         <div style={{display:'flex', flexDirection:'column'}}>
           <Button
             text=''
@@ -546,19 +564,20 @@ function Home({toadData, ownerData}) {
             backgroundColor=''
             fontfamily='Pixeled'
             top='0%'
-            left='38%'
-            height='100px'
-            width='100px'
+            left='0%'
+            height='100%'
+            width='100%'
             margin='0px'
             padding='0px'
-            border=''
+            border='2px solid purple'
             borderRadius=''
             cursor= 'pointer'
             onClick={!isWeb3Injected ? 
             (() => { window.open('https://metamask.io/download','_blank') }) : 
             (!isWalletConnected ? requestAccount : null)}
           />
-          <div style={{border:'', fontFamily:'Pixeled', cursor:'default'}}>
+          <img style={{position: 'absolute', height: '50%', width: '50%', left: '0%'}}/>
+          <div style={{border:'2px solid green', fontFamily:'Pixeled', cursor:'default'}}>
             Connect
           </div>
         </div>
@@ -573,7 +592,7 @@ function Home({toadData, ownerData}) {
             backgroundColor=''
             fontfamily='Pixeled'
             top='0%'
-            left='47%'
+            left='0%'
             height='100px'
             width='100px'
             margin='0px'
@@ -632,6 +651,7 @@ function Home({toadData, ownerData}) {
           #test{
             display: flex;
             align-items: center;
+            height: 100%;
           }
           .closeMessageButton {
             position: absolute;

@@ -36,7 +36,7 @@ const FoodMenu = ({ show, ToadId, ToadData, UpdateStats, Account, SetGlobalMessa
       <div className='foodSelection' style={{position: 'absolute', top: '12%',display:'flex', flexDirection: 'column',height:'86%', width:'95%',marginLeft:'2.5%'}}>
         <div className='firstFood' style={{ display: 'flex', justifyContent:'space-around', alignItems:'center', width: '100%', height:'20%'}}>
           <div style={{display: 'flex', alignItems:'center'}} onClick={()=>{
-            UpdateStats(['pizza', Account], ToadId)
+            UpdateStats(['eat', Account], ToadId)
             SetGlobalMessage('')
             document.getElementById('typewriterText').classList.remove('typewriterEffect')
             document.getElementById('typewriterText').classList.add('hidden')

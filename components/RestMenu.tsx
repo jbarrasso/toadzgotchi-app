@@ -42,7 +42,7 @@ const RestMenu = ({ show, ToadId, ToadData, UpdateStats, Account, SetGlobalMessa
             document.getElementById('typewriterText').classList.add('hidden')
             onClose()
             } }>
-            <FontAwesomeIcon icon='bed' style={{fontSize:'40px'}}/>
+            <img src='/img/bedicon.png' style={{fontSize:'40px'}}/>
           </div>
           <p>Sleep</p>
           <p></p>

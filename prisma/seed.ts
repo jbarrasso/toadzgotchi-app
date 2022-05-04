@@ -1,6 +1,5 @@
-import { PrismaClient } from "@prisma/client"
+import { prisma } from '../lib/prisma'
 
-const prisma = new PrismaClient()
 let data: { toadId: number,
             toadName: string,
             vibing: boolean, 
