@@ -23,13 +23,14 @@ type Props = {
     onClick: (event: React.MouseEvent<HTMLElement>) => void
 };
 
-const Button = ({ text, img, position, display, alignItems, flex, color, backgroundColor, fontfamily, top, left, height, width, zIndex, marginLeft, marginRight, margin, padding, border, borderRadius, cursor, onClick }: Props) => {
+const Button = ({ text, cName, img, position, display, alignItems, flex, color, backgroundColor, fontfamily, top, left, height, width, zIndex, marginLeft, marginRight, margin, padding, border, borderRadius, cursor, onClick }: Props) => {
     // if (text=keyword) {
     //call hook to execute keyword logic (each keyword has diff logic)
     //return value for ProgressBar component
     //}
     return (
-        <div style={{
+        <div
+            style={{
             color: color,
             display: display,
             alignItems: alignItems,
@@ -49,11 +50,19 @@ const Button = ({ text, img, position, display, alignItems, flex, color, backgro
             border: border,
             borderRadius: borderRadius,
             cursor: cursor }}
+
+
             onClick={onClick}>
             
-            {img != '' && <img src={img} style={{position:'absolute', border: '', top:'0', left:'0', width:'100%', height:'100%'}}/> }
+            {img != '' && <img src={img} className='image' style={{position:'absolute', top:'0', left:'0', width:'100%', height:'100%'}}/> }
             {text}
+            <style jsx>{`
+            .image:active {
+                margin-top: 4px
+            }
+            `}</style>
         </div>
+
     );
 };
 
