@@ -141,41 +141,52 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
     }
 
     const canFeed = () => {
-        if (selectedToad[0].fed < 10) {
-            if (selectedToad[0].health > 0) {
-                return true
+        if (selectedToad[0].vibing == true) {
+            if (selectedToad[0].fed < 10) {
+                if (selectedToad[0].health > 0) {
+                    return true
+                } else {
+                    res.status(500).json({message: `Toad is not feeling well, it can't eat right now.`})
+                }
             } else {
-                res.status(500).json({message: `Toad is not feeling well, it can't eat right now.`})
+            res.status(500).json({message: 'It looks like toad is already full!'})
             }
         } else {
-        res.status(500).json({message: 'It looks like toad is already full!'})
+            res.status(500).json({message: `Toad must be vibing before it can eat`})
         }
     }
 
     const canSleep = () => {
-        if (selectedToad[0].energy < 10) {
-            if (selectedToad[0].fed > 0) {
-                return true
+        if (selectedToad[0].vibing == true) {
+            if (selectedToad[0].energy < 10) {
+                if (selectedToad[0].fed > 0) {
+                    return true
+                } else {
+                    res.status(500).json({message: `Toad can't sleep while starving!`})
+                }
             } else {
-                res.status(500).json({message: `Toad can't sleep while starving!`})
+            res.status(500).json({message: `Toad is already well rested, it can't sleep!`})
             }
         } else {
-        res.status(500).json({message: `Toad is already well rested, it can't sleep!`})
+            res.status(500).json({message: `Toad must be vibing in order to sleep`})
         }
     }
 
     const canPlay = () => {
-        if (selectedToad[0].energy > 0) {
-            // if (selectedToad[0].health > 0) {
-                return true
+        if (selectedToad[0].vibing == true) {
+            if (selectedToad[0].happiness < 10) {
+                 if (selectedToad[0].energy > 0) {
+                    return true
+                } else {
+                    res.status(500).json({message: `Toad is exhausted, it can't play right now...`})
+                }
             } else {
-                res.status(500).json({message: `Toad is exhausted, it can't play right now...`})
+                res.status(500).json({message: `Toad needs a break from playing...`})
             }
+        } else {
+            res.status(500).json({message: `Toad must be vibing in order to play`})
         }
-        // else {
-        // res.status(500).json({message: `Toad is exhausted, it can't play right now`})
-        // }
-    // }
+    }
         
     const eatFlies = async() => {
         if (canFeed()) {

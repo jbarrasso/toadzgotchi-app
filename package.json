@@ -49,6 +49,7 @@
     "react-sound": "^1.2.0",
     "react-typeform-embed": "^1.0.7",
     "rfc6902": "^5.0.1",
+    "serverless-mysql": "^1.5.4",
     "solidity-coverage": "^0.7.17",
     "swr": "^1.0.1",
     "web3": "^1.7.1",

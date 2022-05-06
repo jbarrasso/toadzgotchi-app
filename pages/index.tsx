@@ -187,7 +187,8 @@ function Home({toadData, ownerData}) {
   getTime()
 
   useEffect(() => {
-    // console.log(new Date().getHours())
+    console.log(toadId)
+    console.log(toadData[3859].vibing)
     // console.log(Math.round(((toadData[3859].fed + 
     //   toadData[3859].energy +
     //   toadData[3859].happiness +
@@ -271,6 +272,7 @@ function Home({toadData, ownerData}) {
           document.getElementById('typewriterText').classList.remove('hidden')
       }, 100);
     }
+
     setIsLoading(false)
   }
 
@@ -303,9 +305,26 @@ function Home({toadData, ownerData}) {
         setTimeout(() => {
         //make button unclickable until after animation is done running
         setToadDisplayState('/img/' + toadId + '.gif')
-        }, 3500);
+        let elems = document.querySelectorAll("#test");
+        let index = 0
+        let length = elems.length;
+        for ( ; index < length; index++) {
+            elems[index].classList.remove('disabled')
+        }
+        document.getElementById('globalMessageContainer').classList.add('hidden')
+        }, 3300);
       }
       //to check if toad is sick, toadData wont update until next state action, so have toadAction be a state variable and run useeffect
+    } else {
+      setTimeout(() => {
+        let elems = document.querySelectorAll("#test");
+        let index = 0
+        let length = elems.length;
+        for ( ; index < length; index++) {
+            elems[index].classList.remove('disabled')
+        }
+        document.getElementById('globalMessageContainer').classList.add('hidden')
+      }, 2500);
     }
   }
 
@@ -444,7 +463,7 @@ function Home({toadData, ownerData}) {
             } else {
               document.getElementById('globalMessageContainer').classList.add('hidden')
             }
-            }}>
+          }}>
             <img src='/img/messageIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div>
           <div id='test' onClick={() => { showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood) } }>
@@ -457,30 +476,84 @@ function Home({toadData, ownerData}) {
         <div className='bottomActionBar'>
           <div id='test' onClick={() => {
             {/*//check if toad transferred checkownstoadzg*/}
-            updateStats(['eat', account], toadId)
-            setGlobalMessage('')
-            document.getElementById('typewriterText').classList.remove('typewriterEffect')
-            document.getElementById('typewriterText').classList.add('hidden')
-            }}>
-            <img src='/img/utensilsIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
+              if (toadData[toadId-1].vibing) {
+                updateStats(['eat', account], toadId)
+                let elems = document.querySelectorAll("#test");
+                let index = 0
+                let length = elems.length;
+                for ( ; index < length; index++) {
+                    elems[index].classList.add('disabled')
+                }
+                setGlobalMessage('')
+                document.getElementById('typewriterText').classList.remove('typewriterEffect')
+                document.getElementById('typewriterText').classList.add('hidden')
+              } else {
+                setGlobalMessage('')
+                document.getElementById('typewriterText').classList.remove('typewriterEffect')
+                document.getElementById('typewriterText').classList.add('hidden')
+                setTimeout(() => {
+                  setGlobalMessage(`Click on 'My NFTs' below to begin vibing first!`)
+                    document.getElementById('globalMessageContainer').classList.remove('hidden')
+                    document.getElementById('typewriterText').classList.add('typewriterEffect')
+                    document.getElementById('typewriterText').classList.remove('hidden')
+                }, 100);
+              }
+          }}>
+            <img src='/img/utensilsIcon.png' className='icon' style={{cursor: 'pointer', height: '75%'}}/>
           </div>
           <div id='test' onClick={() => {
             {/*//check if toad transferred checkownstoadzg*/}
-            updateStats(['sleep', account], toadId)
-            setGlobalMessage('')
-            document.getElementById('typewriterText').classList.remove('typewriterEffect')
-            document.getElementById('typewriterText').classList.add('hidden')
-            }}>
-          <img src='/img/bedIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
+            if (toadData[toadId-1].vibing) {
+              updateStats(['sleep', account], toadId)
+              let elems = document.querySelectorAll("#test");
+              let index = 0
+              let length = elems.length;
+              for ( ; index < length; index++) {
+                  elems[index].classList.add('disabled')
+              }
+              setGlobalMessage('')
+              document.getElementById('typewriterText').classList.remove('typewriterEffect')
+              document.getElementById('typewriterText').classList.add('hidden')
+            } else {
+                setGlobalMessage('')
+                document.getElementById('typewriterText').classList.remove('typewriterEffect')
+                document.getElementById('typewriterText').classList.add('hidden')
+                setTimeout(() => {
+                  setGlobalMessage(`Click on 'My NFTs' below to begin vibing first!`)
+                    document.getElementById('globalMessageContainer').classList.remove('hidden')
+                    document.getElementById('typewriterText').classList.add('typewriterEffect')
+                    document.getElementById('typewriterText').classList.remove('hidden')
+                }, 100);
+            }
+          }}>
+            <img src='/img/bedIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div>
           <div id='test' onClick={() => {
             {/*//check if toad transferred checkownstoadzg*/}
-            updateStats(['gameboy', account], toadId)
-            setGlobalMessage('')
-            document.getElementById('typewriterText').classList.remove('typewriterEffect')
-            document.getElementById('typewriterText').classList.add('hidden')
-            }}>
-          <img src='/img/joystickIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
+            if (toadData[toadId-1].vibing) {
+              updateStats(['gameboy', account], toadId)
+              let elems = document.querySelectorAll("#test");
+              let index = 0
+              let length = elems.length;
+              for ( ; index < length; index++) {
+                  elems[index].classList.add('disabled')
+              }
+              setGlobalMessage('')
+              document.getElementById('typewriterText').classList.remove('typewriterEffect')
+              document.getElementById('typewriterText').classList.add('hidden')
+            } else {
+                setGlobalMessage('')
+                document.getElementById('typewriterText').classList.remove('typewriterEffect')
+                document.getElementById('typewriterText').classList.add('hidden')
+                setTimeout(() => {
+                  setGlobalMessage(`Click on 'My NFTs' below to begin vibing first!`)
+                    document.getElementById('globalMessageContainer').classList.remove('hidden')
+                    document.getElementById('typewriterText').classList.add('typewriterEffect')
+                    document.getElementById('typewriterText').classList.remove('hidden')
+                }, 100);
+            }
+          }}>
+            <img src='/img/joystickIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div>
         </div>
         {/*Place roots as direct children of game screen*/}
@@ -576,7 +649,9 @@ function Home({toadData, ownerData}) {
             (() => { window.open('https://metamask.io/download','_blank') }) : 
             (!isWalletConnected ? requestAccount : null)}
           />
-          <img src='/img/connect.png' style={{position: 'relative', height: '50%', width: '100%', left: '0%', paddingTop: '1.5vh'}}/>
+          <img 
+            src={isWalletConnected? '/img/connected.png' : '/img/connect.png'}
+            style={{position: 'relative', height: '50%', width: '100%', left: '0%', paddingTop: '1.5vh'}}/>
           <img src='/img/buttonShadow.png' style={{zIndex:-10, position: 'absolute', height: '67%', width: '12%', left: '6%', top:'0%'}}/>
         </div>
         <div style={{display:'flex', flexDirection:'column', alignItems: 'center', width: '24%'}}>
@@ -623,9 +698,7 @@ function Home({toadData, ownerData}) {
             border=''
             borderRadius=''
             cursor= 'pointer'
-            onClick={!isWeb3Injected ? 
-            (() => { window.open('https://metamask.io/download','_blank') }) : 
-            (!isWalletConnected ? requestAccount : null)}
+            onClick={() => {window.open('https://discord.com/invite/zkgtxQvF3j','_blank')}}
           />
           <img src='/img/discord.png' style={{position: '', height: '50%', width: '100%', left: '0%', paddingTop: '1.5vh'}}/>
           <img src='/img/buttonShadow.png' style={{zIndex:-10, position: 'absolute', height: '67%', width: '12%', left: '82%', top:'0%'}}/>
@@ -727,6 +800,9 @@ function Home({toadData, ownerData}) {
             overflow: hidden;
             z-index: -10;
             visibility: hidden;
+          }
+          .disabled {
+            pointer-events: none;
           }
           #modal-root {
             z-index: 10;
