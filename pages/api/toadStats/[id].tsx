@@ -1,6 +1,7 @@
 import { prisma } from '../../../lib/prisma'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { useState } from 'react'
+import { currentToad } from '../..'
 
 function startDecay(toadid: number) {
     setInterval(function() {decayStats(toadid)}, 1000*60)
@@ -134,10 +135,33 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
         }
 
         const newOverall = Math.round(((fedValue + energyValue + happinessValue + healthValue) / 4))
+
         await prisma.toadz.update({
             where: { toadId : selectedToad[0].toadId },
             data: { overall: newOverall}
         })
+    }
+
+    async function grantXp(actionXp: number) {
+        //add exponential feature
+        let currentXp = selectedToad[0].xp
+
+        if ((currentXp + actionXp) >= 100) {
+            let leftoverXp = (currentXp + actionXp) - 100
+            
+            await prisma.toadz.update({
+                where: { toadId : selectedToad[0].toadId },
+                data: { xp : leftoverXp,
+                        level: selectedToad[0].level + 1 }
+            })
+
+        } else {
+
+            await prisma.toadz.update({
+                where: { toadId : selectedToad[0].toadId },
+                data: { xp : currentXp + actionXp }
+            })
+        }
     }
 
     const canFeed = () => {
@@ -256,6 +280,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                 healthValue = selectedToad[0].health + 1
                 
                 updateOverallStats(fedValue, energyValue, happinessValue, healthValue)
+
+                grantXp(40)
             })
         }
     }
@@ -279,6 +305,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                 healthValue = selectedToad[0].health + 1
             
                 updateOverallStats(fedValue, energyValue, happinessValue, healthValue)
+
+                grantXp(20)
             })
         }
     }
@@ -303,6 +331,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                 healthValue = selectedToad[0].health
 
                 updateOverallStats(fedValue, energyValue, happinessValue, healthValue)
+
+                grantXp(60)
             })
         }
     }
