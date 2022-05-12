@@ -78,9 +78,9 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
       signer = trySigner
       const tryAccount = await trySigner.getAddress()
       //ask for a sign here?
-      account = tryAccount
+      //account = tryAccount
       //account = '0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8'
-      //account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
+      account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
       setIsWalletConnected(true)
       console.log('Wallect is connected')
       console.log(account)
@@ -324,7 +324,7 @@ function Home({toadData, ownerData}) {
             elems[index].classList.remove('disabled')
         }
         document.getElementById('globalMessageContainer').classList.add('hidden')
-      }, 2500);
+      }, 2000);
     }
   }
 
@@ -347,6 +347,7 @@ function Home({toadData, ownerData}) {
           updateOwner(account)
           //set states below in updateOwner
           setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '.gif')
+          console.log(arrayOfToadIds)
           setToadId(arrayOfToadIds[0].toString())
           setOwnsToadz(true)
           setToadIdsOwned(arrayOfToadIds)

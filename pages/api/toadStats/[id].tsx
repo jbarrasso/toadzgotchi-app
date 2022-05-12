@@ -148,15 +148,12 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
 
         if ((currentXp + actionXp) >= 100) {
             let leftoverXp = (currentXp + actionXp) - 100
-            
             await prisma.toadz.update({
                 where: { toadId : selectedToad[0].toadId },
                 data: { xp : leftoverXp,
                         level: selectedToad[0].level + 1 }
             })
-
         } else {
-
             await prisma.toadz.update({
                 where: { toadId : selectedToad[0].toadId },
                 data: { xp : currentXp + actionXp }
