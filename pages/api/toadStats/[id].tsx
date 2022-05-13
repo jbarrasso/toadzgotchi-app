@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { currentToad } from '../..'
 
 function startDecay(toadid: number) {
-    setInterval(function() {decayStats(toadid)}, 1000*60)
+    setInterval(function() {decayStats(toadid)}, 1000*60*60*4)
 }
 
 async function decayStats(toadid: number) {

@@ -19,10 +19,10 @@ let j = 1;
 //make sure data and type declarations are consistent with prisma schema 
 for (let i=3000; i<7025; i++) {
     if (i > 6968) {
-        data[i]={toadId:j *1000000, toadName:'', vibing: false, level: 0, xp: 0, overall: 10, fed: 10, energy: 10, happiness: 10, health: 10, vibeStart: '', lastDecay: ''}
+        data[i]={toadId:j *1000000, toadName:'', vibing: false, level: 0, xp: 0, overall: 5, fed: 5, energy: 5, happiness: 5, health: 5, vibeStart: '', lastDecay: ''}
         j++
     } else {
-        data[i]={toadId: i+1, toadName:'', vibing: false, level: 0, xp: 0, overall: 10, fed: 10, energy: 10, happiness: 10, health: 10, vibeStart: '', lastDecay: ''}
+        data[i]={toadId: i+1, toadName:'', vibing: false, level: 0, xp: 0, overall: 5, fed: 5, energy: 5, happiness: 5, health: 5, vibeStart: '', lastDecay: ''}
     }
 }
 
@@ -31,24 +31,24 @@ async function main() {
     // await prisma.toadz.deleteMany({})
     // console.log('deleted toad records')
 
-    await prisma.user.deleteMany({})
-    console.log('deleted user records')
+    // await prisma.user.deleteMany({})
+    // console.log('deleted user records')
     
     // await prisma.toadz.createMany({
     //     data 
     // })
     // console.log('created toad ids')
 
-    // await prisma.toadz.updateMany({
-    //     data : {
-    //         vibing: false,
-    //         overall: 5,
-    //         fed: 5,
-    //         energy: 5,
-    //         happiness: 5,
-    //         health: 5
-    //     }
-    // })
+    await prisma.toadz.updateMany({
+        data : {
+            vibing: false,
+            overall: 5,
+            fed: 5,
+            energy: 5,
+            happiness: 5,
+            health: 5
+        }
+    })
 
     // await prisma.toadz.updateMany({
     //     data : {
