@@ -70,7 +70,8 @@ async function decayStats(toadid: number) {
 
         await prisma.toadz.update({
             where: { toadId : allToadz[toadid-1].toadId },
-            data: { overall: newOverall }
+            data: { overall: newOverall,
+                    lastDecay: new Date().toLocaleTimeString().toString() }
         })
     })
 }
@@ -351,7 +352,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
             const update = await prisma.toadz.update({
                 where: { toadId : selectedToad[0].toadId },
                 data: { vibing : true, 
-                        level: 1 }
+                        level: 1,
+                        vibeStart: new Date().toISOString() }
             })
             startDecay(selectedToad[0].toadId)
         } else {

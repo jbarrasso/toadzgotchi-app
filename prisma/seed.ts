@@ -9,18 +9,20 @@ let data: { toadId: number,
             fed: number, 
             energy: number, 
             happiness: number, 
-            health: number
+            health: number,
+            vibeStart: string,
+            lastDecay: string
         }[] = []
 let j = 1;
 
 //use this with createMany instead of updateMany if creating rows, not updating.
 //make sure data and type declarations are consistent with prisma schema 
-for (let i=1000; i<1001; i++) {
+for (let i=3000; i<7025; i++) {
     if (i > 6968) {
-        data[i]={toadId:j *1000000, toadName:'', vibing: false, level: 0, xp: 0, overall: 10, fed: 10, energy: 10, happiness: 10, health: 10}
+        data[i]={toadId:j *1000000, toadName:'', vibing: false, level: 0, xp: 0, overall: 10, fed: 10, energy: 10, happiness: 10, health: 10, vibeStart: '', lastDecay: ''}
         j++
     } else {
-        data[i]={toadId: i+1, toadName:'', vibing: false, level: 0, xp: 0, overall: 10, fed: 10, energy: 10, happiness: 10, health: 10}
+        data[i]={toadId: i+1, toadName:'', vibing: false, level: 0, xp: 0, overall: 10, fed: 10, energy: 10, happiness: 10, health: 10, vibeStart: '', lastDecay: ''}
     }
 }
 
@@ -29,32 +31,30 @@ async function main() {
     // await prisma.toadz.deleteMany({})
     // console.log('deleted toad records')
 
-    // await prisma.user.deleteMany({})
-    // console.log('deleted user records')
+    await prisma.user.deleteMany({})
+    console.log('deleted user records')
     
-    // await prisma.$queryRaw`ALTER TABLE Toadz AUTO_INCREMENT = 1`;
-    // console.log("reset toadz auto increment to 1");
-
-    // await prisma.$queryRaw`ALTER TABLE User AUTO_INCREMENT = 1`;
-    // console.log("reset user auto increment to 1");
-
     // await prisma.toadz.createMany({
     //     data 
     // })
     // console.log('created toad ids')
 
+    // await prisma.toadz.updateMany({
+    //     data : {
+    //         vibing: false,
+    //         overall: 5,
+    //         fed: 5,
+    //         energy: 5,
+    //         happiness: 5,
+    //         health: 5
+    //     }
+    // })
 
-
-    await prisma.toadz.updateMany({
-        data : {
-            vibing: false,
-            overall: 5,
-            fed: 5,
-            energy: 5,
-            happiness: 5,
-            health: 5
-        }
-    })
+    // await prisma.toadz.updateMany({
+    //     data : {
+    //         vibeStart: new Date().toLocaleTimeString().toString()
+    //     }
+    // })
 
     // await prisma.user.delete({
     //     where: {

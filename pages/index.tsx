@@ -78,9 +78,9 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
       signer = trySigner
       const tryAccount = await trySigner.getAddress()
       //ask for a sign here?
-      //account = tryAccount
+      account = tryAccount
       //account = '0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8'
-      account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
+      //account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
       setIsWalletConnected(true)
       console.log('Wallect is connected')
       console.log(account)
@@ -187,8 +187,9 @@ function Home({toadData, ownerData}) {
   getTime()
 
   useEffect(() => {
+    console.log(new Date())
     console.log(toadId)
-    console.log(toadData[3859].vibing)
+    //console.log(toadData[3859].vibing)
     // console.log(Math.round(((toadData[3859].fed + 
     //   toadData[3859].energy +
     //   toadData[3859].happiness +

@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider             = "mysql"
-  url                  = env("DATABASE_URL")
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
 }
 
 model Toadz {
@@ -21,6 +22,8 @@ model Toadz {
   energy    Int     @default(10)
   happiness Int     @default(10)
   health    Int     @default(10)
+  vibeStart String
+  lastDecay String
 
   @@index([userId])
 }
@@ -28,5 +31,6 @@ model Toadz {
 model User {
   address String  @id
   token   String?
+  points Int @default(0)
   toadz   Toadz[]
 }
