@@ -34,21 +34,21 @@ async function main() {
     // await prisma.user.deleteMany({})
     // console.log('deleted user records')
     
-    // await prisma.toadz.createMany({
-    //     data 
-    // })
+    await prisma.toadz.createMany({
+        data 
+    })
     // console.log('created toad ids')
 
-    await prisma.toadz.updateMany({
-        data : {
-            vibing: false,
-            overall: 5,
-            fed: 5,
-            energy: 5,
-            happiness: 5,
-            health: 5
-        }
-    })
+    // await prisma.toadz.updateMany({
+    //     data : {
+    //         vibing: false,
+    //         overall: 5,
+    //         fed: 5,
+    //         energy: 5,
+    //         happiness: 5,
+    //         health: 5
+    //     }
+    // })
 
     // await prisma.toadz.updateMany({
     //     data : {

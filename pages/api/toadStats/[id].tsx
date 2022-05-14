@@ -1,7 +1,7 @@
 import { prisma } from '../../../lib/prisma'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { useState } from 'react'
-import { currentToad } from '../..'
+import { currentToad } from '../../index'
 
 function startDecay(toadid: number) {
     setInterval(function() {decayStats(toadid)}, 1000*60*60*4)

@@ -1,7 +1,7 @@
 import { prisma } from '../../../lib/prisma'
 import { NextApiRequest, NextApiResponse } from 'next';
 import { ethers } from 'ethers';
-import { cryptoadzAddress } from '../..';
+import { cryptoadzAddress } from '../../index';
 import CrypToadz from '../../../artifacts/contracts/CrypToadz.sol/CrypToadz.json'
 
 async function queryToadContract(account: string) {
