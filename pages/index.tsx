@@ -225,6 +225,7 @@ function Home({toadData, ownerData}) {
   //   } else { return }
   // }, [toadIdsOwned])
   
+  //TRY AND REMOVE TO SEE
   const refreshData = () => {
     router.replace(router.asPath)
     console.log('refreshed db data, will reflect on next state action')
@@ -334,8 +335,8 @@ function Home({toadData, ownerData}) {
     if ((ethereum() != undefined || null) && (network == 1)) {
       try {
         const contract = new ethers.Contract(cryptoadzAddress, CrypToadz.abi, signer)
+        
         //Basic frontend check
-
         if (await contract.balanceOf(account) > 0) {
           setOwnsToadz(true)
           const numberOfToadzOwned = await contract.balanceOf(account)
