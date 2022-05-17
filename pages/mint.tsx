@@ -1,7 +1,7 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons'
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+// import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons'
 import Image from "next/image"
-import '@fortawesome/fontawesome-svg-core/styles.css'
+// import '@fortawesome/fontawesome-svg-core/styles.css'
 
 function Mint() {
     return (
@@ -20,7 +20,7 @@ function Mint() {
             <main>
                 <div className='card1'>
                     <div className='tooltip'>
-                        <FontAwesomeIcon icon="question-circle" style={{fontSize: '18px', position:'absolute', top:'6%', left: '86%'}}/>
+                        {/* <FontAwesomeIcon icon="question-circle" style={{fontSize: '18px', position:'absolute', top:'6%', left: '86%'}}/> */}
                         <span className="tooltiptext">
                             * 10,000 CASES TOTAL.<br></br><br></br>
                             * YOU DON'T NEED A CASE TO PLAY! HOWEVER, OWNING A CASE UNLOCKS ADDITIONAL IN-GAME ASSETS AND GAMEPLAY, AS WELL AS ELIGIBILITY FOR FUTURE PERKS.<br></br><br></br>
@@ -34,7 +34,7 @@ function Mint() {
                 </div>
                 <div className='card2'>
                     <div className='tooltip'>
-                        <FontAwesomeIcon icon="question-circle" style={{fontSize: '18px', position:'absolute', top:'6%', left: '86%'}}/>
+                        {/* <FontAwesomeIcon icon="question-circle" style={{fontSize: '18px', position:'absolute', top:'6%', left: '86%'}}/> */}
                         <span className="tooltiptext">
                             * YOU DON'T NEED TO OWN A CRYPTOAD TO PLAY. THOSE THAT DON'T OWN CRYPTOADZ WILL BE GIVEN A SPECIAL TOADZGOTCHI TOAD TO PLAY WITH!<br></br><br></br>
                             * SOME SPECIAL TOADZ SUCH AS THE 'MURDERED BY FRONKZ' AND 'LEGENDARY' SERIES WILL NOT BE EILIGIBLE FOR PLAY.<br></br><br></br>
@@ -48,7 +48,7 @@ function Mint() {
                 </div>
                 <div className='card3'>
                     <div className='tooltip'>
-                        <FontAwesomeIcon icon="question-circle" style={{fontSize: '18px', position:'absolute', top:'6%', left: '86%'}}/>
+                        {/* <FontAwesomeIcon icon="question-circle" style={{fontSize: '18px', position:'absolute', top:'6%', left: '86%'}}/> */}
                         <span className="tooltiptext">
                             * MIX AND MATCH YOUR CASES AND TOADZ HOWEVER YOU SEE FIT!<br></br><br></br>
                             * A CASE CAN BE ASSIGNED TO ONLY ONE TOAD AT A TIME.
