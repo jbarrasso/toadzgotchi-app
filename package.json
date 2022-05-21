@@ -26,9 +26,7 @@
     "react-sound": "^1.2.0",
     "react-typeform-embed": "^1.0.7",
     "serverless-mysql": "^1.5.4",
-    "swr": "^1.0.1",
-    "web3": "^1.7.1",
-    "web3modal": "^1.9.5"
+    "swr": "^1.0.1"
   },
   "devDependencies": {
     "@prisma/client": "^3.10.0",
