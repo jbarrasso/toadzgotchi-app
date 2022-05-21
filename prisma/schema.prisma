@@ -6,23 +6,24 @@ generator client {
 datasource db {
   provider             = "mysql"
   url                  = env("DATABASE_URL")
+  shadowDatabaseUrl    = env("SHADOW_DATABASE_URL")
+  referentialIntegrity = "prisma"
 }
 
 model Toadz {
   toadId    Int     @id
   toadName  String  @default("")
-  user      User?   @relation(fields: [userId], references: [address])
   userId    String?
   vibing    Boolean @default(false)
   level     Int     @default(0)
   xp        Int     @default(0)
-  overall   Int     @default(10)
-  fed       Int     @default(10)
-  energy    Int     @default(10)
-  happiness Int     @default(10)
-  health    Int     @default(10)
-  lastDecay String
+  overall   Int     @default(5)
+  fed       Int     @default(5)
+  energy    Int     @default(5)
+  happiness Int     @default(5)
+  health    Int     @default(5)
   vibeStart String
+  lastDecay String
 
   @@index([userId])
 }
@@ -31,5 +32,4 @@ model User {
   address String  @id
   token   String?
   points  Int     @default(0)
-  toadz   Toadz[]
 }
