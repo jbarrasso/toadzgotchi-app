@@ -1,18 +1,18 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["interactiveTransactions", "referentialIntegrity"]
+  previewFeatures = ["interactiveTransactions", "referentialIntegrity", "dataProxy"]
 }
 
 datasource db {
   provider             = "mysql"
   url                  = env("DATABASE_URL")
-  shadowDatabaseUrl    = env("SHADOW_DATABASE_URL")
   referentialIntegrity = "prisma"
 }
 
 model Toadz {
   toadId    Int     @id
   toadName  String  @default("")
+  user  User? @relation(fields:[userId], references: [address])
   userId    String?
   vibing    Boolean @default(false)
   level     Int     @default(0)
@@ -32,4 +32,5 @@ model User {
   address String  @id
   token   String?
   points  Int     @default(0)
+  toadz Toadz[]
 }
