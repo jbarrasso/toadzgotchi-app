@@ -245,6 +245,11 @@ function Home({toadData, ownerData}) {
   async function updateOwner(account: string) {
     const res = await fetch('/api/users/' + account, {
       method: 'PUT',
+      headers: {
+        'Content-Type' : 'application/json',
+        'Access-Control-Allow-Origin' : '*', 
+        'Access-Control-Allow-Credentials' : 'true'
+      },
       body: JSON.stringify(account)
     })
 
