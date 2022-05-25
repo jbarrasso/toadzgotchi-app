@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@web3-react/core": "^6.1.9",
     "dotenv": "^10.0.0",
     "git": "^0.1.5",
     "mysql": "^2.18.1",
