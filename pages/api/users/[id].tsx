@@ -24,7 +24,7 @@ async function queryToadContract(account: string) {
 export default async function getUserByAddress(req:NextApiRequest, res:NextApiResponse) {
     res.statusCode = 200;
     const account = req.body
-    res.json({message: account})
+    res.json({ property: 'value' })
     //Double check the requester (account) owns toadz or not
     const toadIdsOwned = await queryToadContract(account)
 
