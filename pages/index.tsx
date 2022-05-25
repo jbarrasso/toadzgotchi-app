@@ -37,7 +37,6 @@ export let welcomeMessages = ['Welcome back to the swamp!',
 
 //Runs on the server, not client
 export async function getServerSideProps(context) {
-  context.res.setHeader('Content-Type', ['application/json', 'charset=utf-8'])
   context.res.setHeader("Access-Control-Allow-Origin", "*")
   context.res.setHeader("Access-Control-Allow-Credentials", true)
 
