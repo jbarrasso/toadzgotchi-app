@@ -38,7 +38,7 @@ export let welcomeMessages = ['Welcome back to the swamp!',
 //Runs on the server, not client
 export async function getServerSideProps(context) {
   context.res.setHeader("Access-Control-Allow-Origin", "*")
-  context.res.setHeader("Access-Control-Allow-Credentials", true)
+  context.res.setHeader("Access-Control-Allow-Credentials", 'true')
 
   const allToadz = await prisma.toadz.findMany()
   const allOwners = await prisma.user.findMany()
