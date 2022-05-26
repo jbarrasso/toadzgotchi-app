@@ -21,16 +21,16 @@ async function queryToadContract(account: string) {
     return (arrayOfToadIds)
 }
 
-export default async function getUserByAddress(req:NextApiRequest, res:NextApiResponse) {
-    res.statusCode = 200;
-    const account = req.body
-    res.json({message:'hi'})
+export default async function getUserByAddress(request, response) {
+    response.statusCode = 200;
+    const account = request.body
+    response.json({message:'hi'})
     //Double check the requester (account) owns toadz or not
     const toadIdsOwned = await queryToadContract(account)
 
     if (toadIdsOwned.length == 0) {
         //Respond with error if requester doesn't own toadz (toadIdsOwned = [])
-        res.status(500).json({message: "This account doesn't own toadz"})
+        response.status(500).json({message: "This account doesn't own toadz"})
     } else {
         const array = [{}]
         for (let i=0; i<toadIdsOwned.length; i++) {
@@ -38,7 +38,7 @@ export default async function getUserByAddress(req:NextApiRequest, res:NextApiRe
         }
         //If requester does own toadz, check if they are in the db already or not
         const thisOwner = await prisma.user.findUnique({
-            where: {address: req.query.id}
+            where: {address: request.query.id}
         })
         //If requester does own toadz AND is not in the db, create an entry and connect their toad IDs owned
         if (thisOwner == null) {
@@ -50,7 +50,7 @@ export default async function getUserByAddress(req:NextApiRequest, res:NextApiRe
                     }
                 }    
             })
-            res.status(200).json({message:`New user ${account} created. The account owns the following toads: ${toadIdsOwned}`, newPlayer: true, firstToad: toadIdsOwned[0]})
+            response.status(200).json({message:`New user ${account} created. The account owns the following toads: ${toadIdsOwned}`, newPlayer: true, firstToad: toadIdsOwned[0]})
         } else {
         //If requester does own toadz AND they are in the db, update their toad IDs owned (will still run even if IDs owned haven't changed)
             await prisma.user.update({
@@ -61,7 +61,7 @@ export default async function getUserByAddress(req:NextApiRequest, res:NextApiRe
                     }
                 }
             }) 
-            res.status(200).json({message:`User ${account} already exists. The account owns the following toads: ${toadIdsOwned}`, newPlayer: false, firstToad: toadIdsOwned[0]})
+            response.status(200).json({message:`User ${account} already exists. The account owns the following toads: ${toadIdsOwned}`, newPlayer: false, firstToad: toadIdsOwned[0]})
         }
     }
 }
