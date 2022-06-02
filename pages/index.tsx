@@ -242,10 +242,12 @@ function Home({toadData, ownerData}) {
 
   async function updateOwner(account: string) {
     const res = await fetch(`/api/users/` + account, {
-      method: 'GET'
-     })
+      method: 'PUT',
+      body: JSON.stringify(account)
+    })
 
     let data = await res.json()
+    console.log(data)
     let messageKey = Object.keys(data)[0]
     let message = data[messageKey]
 
