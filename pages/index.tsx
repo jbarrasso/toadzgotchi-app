@@ -241,7 +241,7 @@ function Home({toadData, ownerData}) {
   }
 
   async function updateOwner(account: string) {
-    const res = await fetch(`https://${process.env.VERCEL_URL}/api/users/` + account, {
+    const res = await fetch(`https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/users/` + account, {
       method: 'PUT',
       body: JSON.stringify(account)
     })
