@@ -22,7 +22,14 @@ async function queryToadContract(account: string) {
 }
 
 export default async function getUserByAddress(request, response) {
-    response.statusCode = 200;
+    response.setHeader('Access-Control-Allow-Credentials', true)
+    response.setHeader('Access-Control-Allow-Origin', '*')
+    response.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
+    response.setHeader(
+      'Access-Control-Allow-Headers',
+      'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+    )
+    response.setHeader('Content-Type', 'application/json')
     const account = request.body
     response.json({message:'hi'})
     //Double check the requester (account) owns toadz or not
