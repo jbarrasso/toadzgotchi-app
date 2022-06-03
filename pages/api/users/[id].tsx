@@ -1,8 +1,8 @@
-import { prisma } from '../../../lib/prisma'
+// import { prisma } from '../../../lib/prisma'
 import { NextApiRequest, NextApiResponse } from 'next';
-import { ethers } from 'ethers';
-import { cryptoadzAddress } from '../../index';
-import CrypToadz from '../../../artifacts/contracts/CrypToadz.sol/CrypToadz.json'
+// import { ethers } from 'ethers';
+// import { cryptoadzAddress } from '../../index';
+// import CrypToadz from '../../../artifacts/contracts/CrypToadz.sol/CrypToadz.json'
 
 // async function queryToadContract(account: string) {
 //     //const defProvider = ethers.getDefaultProvider() rate-limited
@@ -22,10 +22,10 @@ import CrypToadz from '../../../artifacts/contracts/CrypToadz.sol/CrypToadz.json
 // }
 
 export default async function getUserByAddress(request:NextApiRequest, response:NextApiResponse) {
-    const {method} = request
+    // const {method} = request
     
-    const account = JSON.parse(request.body)
-    response.json({message: account})
+    // const account = JSON.parse(request.body)
+    response.json({message: 'hi'})
 
 
     // if (method === "PUT") {
