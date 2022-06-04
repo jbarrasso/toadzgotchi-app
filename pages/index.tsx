@@ -277,9 +277,9 @@ function Home({toadData, ownerData}) {
             document.getElementById('typewriterText').classList.remove('hidden')
         }, 100);
       }
-    })
 
-    setIsLoading(false)
+      setIsLoading(false)
+    })
   }
 
   async function updateStats(properties: string[], id: string) {
