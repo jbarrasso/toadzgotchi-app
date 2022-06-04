@@ -242,7 +242,7 @@ function Home({toadData, ownerData}) {
   }
 
   async function updateOwner(account: string) {
-    const res = await fetch(`/api/users/${account}`, {
+    const res = await fetch(`/api/users`, {
       method: 'PUT',
       body: JSON.stringify(account)
     })

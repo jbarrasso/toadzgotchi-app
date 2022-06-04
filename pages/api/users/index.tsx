@@ -22,19 +22,15 @@ async function queryToadContract(account: string) {
 }
 
 export default async function getUserByAddress(request:NextApiRequest, response:NextApiResponse) {
-    // const {method} = request
-    
-    // const account = JSON.parse(request.body)
-    response.json({message: 'hi'})
-    
+    const {method} = request
+    const account = JSON.parse(request.body)
+
     if (method === "PUT") {
         // const {id} = request.query
         response.statusCode = 200
-        // response.json({message: '0xb75f87261a1fac3a86f8a48d55597a622ba3cc48'})
         const account = JSON.parse(request.body)
         console.log(account)
-        // response.json({message: account})
-        // response.json({message:'hi'})
+
         //Double check the requester (account) owns toadz or not
         const toadIdsOwned = await queryToadContract(account)
     
@@ -48,7 +44,7 @@ export default async function getUserByAddress(request:NextApiRequest, response:
             }
             //If requester does own toadz, check if they are in the db already or not
             const thisOwner = await prisma.user.findUnique({
-                where: {address: request.query.id}
+                where: {address: account}
             })
             //If requester does own toadz AND is not in the db, create an entry and connect their toad IDs owned
             if (thisOwner == null) {
@@ -77,14 +73,4 @@ export default async function getUserByAddress(request:NextApiRequest, response:
     } else {
         response.json({message: 'error'})
     }
-
-    // response.setHeader('Access-Control-Allow-Credentials', true)
-    // response.setHeader('Access-Control-Allow-Origin', '*')
-    // response.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
-    // response.setHeader(
-    //   'Access-Control-Allow-Headers',
-    //   'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-    // )
-    // response.setHeader('Content-Type', 'application/json')
-
 }
