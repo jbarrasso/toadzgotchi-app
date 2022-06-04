@@ -1,4 +1,4 @@
-import useENSName from "../hooks/useENSName";
+// import useENSName from "../hooks/useENSName";
 import { formatEtherscanLink, shortenHex } from "../util";
 import { account, requestAccount } from "../pages/index"
 
@@ -12,7 +12,7 @@ type Props = {
 };
 
 const Account = ({isWalletConnected, isWeb3Injected, color, padding, borderRadius, fontFamily }: Props) => {
-  const ENSName = useENSName(account);
+  // const ENSName = useENSName(account);
 
   if (!isWeb3Injected) {
     return null;
@@ -35,7 +35,7 @@ const Account = ({isWalletConnected, isWeb3Injected, color, padding, borderRadiu
         target: "_blank",
         rel: "noopener noreferrer",
         }}>
-        {ENSName || `${shortenHex(account, 4)}`}
+        {/* {ENSName || `${shortenHex(account, 4)}`} */}
       </a>
     );
   }

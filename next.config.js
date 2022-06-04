@@ -3,4 +3,12 @@ module.exports = {
     domains: ['ipfs.io'],
   },
   reactStrictMode: true,
+  // async rewrites() {
+  //   return [
+  //     {
+  //       source: '/(.*)',
+  //       destination: '/',
+  //     },
+  //   ]
+  // },
 };

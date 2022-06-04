@@ -26,6 +26,7 @@ export default async function getUserByAddress(request:NextApiRequest, response:
     
     // const account = JSON.parse(request.body)
     response.json({message: 'hi'})
+    
 
 
     // if (method === "PUT") {

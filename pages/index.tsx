@@ -191,6 +191,7 @@ function Home({toadData, ownerData}) {
   useEffect(() => {
     console.log(new Date())
     console.log(toadId)
+    console.log(toadData)
     //console.log(toadData[3859].vibing)
     // console.log(Math.round(((toadData[3859].fed + 
     //   toadData[3859].energy +
