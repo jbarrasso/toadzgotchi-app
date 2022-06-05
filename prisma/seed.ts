@@ -34,10 +34,10 @@ async function main() {
     // await prisma.user.deleteMany({})
     // console.log('deleted user records')
     
-    await prisma.toadz.createMany({
-        data 
-    })
-    console.log('created toad ids')
+    // await prisma.toadz.createMany({
+    //     data 
+    // })
+    // console.log('created toad ids')
 
     // await prisma.toadz.updateMany({
     //     data : {
@@ -60,11 +60,11 @@ async function main() {
     //     }
     // })
 
-    // await prisma.user.delete({
-    //     where: {
-    //         address: '0xb75F87261a1FAC3a86f8A48d55597A622BA3CC48'
-    //     }
-    // })
+    await prisma.user.delete({
+        where: {
+            address: '0xb75F87261a1FAC3a86f8A48d55597A622BA3CC48'
+        }
+    })
 }
 
 main()

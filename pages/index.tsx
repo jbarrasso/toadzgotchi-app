@@ -192,13 +192,7 @@ function Home({toadData, ownerData}) {
     console.log(new Date())
     console.log(toadId)
     console.log(toadData)
-    //console.log(toadData[3859].vibing)
-    // console.log(Math.round(((toadData[3859].fed + 
-    //   toadData[3859].energy +
-    //   toadData[3859].happiness +
-    //   toadData[3859].health) / 4)))
-    //   console.log(toadData[3859].overall)
-    triggerRefresh()
+    // triggerRefresh()
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
     //Below has no effect because ethereum() and network are not set yet
     // .then(() => {
