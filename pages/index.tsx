@@ -192,7 +192,13 @@ function Home({toadData, ownerData}) {
     console.log(new Date())
     console.log(toadId)
     console.log(toadData)
-    // triggerRefresh()
+    //console.log(toadData[3859].vibing)
+    // console.log(Math.round(((toadData[3859].fed + 
+    //   toadData[3859].energy +
+    //   toadData[3859].happiness +
+    //   toadData[3859].health) / 4)))
+    //   console.log(toadData[3859].overall)
+    triggerRefresh()
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
     //Below has no effect because ethereum() and network are not set yet
     // .then(() => {
@@ -240,36 +246,42 @@ function Home({toadData, ownerData}) {
       method: 'PUT',
       body: JSON.stringify(account)
     })
-    let data = await res.json()
-    let messageKey = Object.keys(data)[0]
-    let message = data[messageKey]
+    .then(async(response) => {
+      let data = await response.json()
+      console.log(data)
+    })
 
-    if (res.status < 300) {
-      let newPlayerKey = Object.keys(data)[1]
-      let isNewPlayer = data[newPlayerKey]
-      let firstToadKey = Object.keys(data)[2]
-      let firstToad = data[firstToadKey]
+    // let data = await res.json()
+    // console.log(data)
+    // let messageKey = Object.keys(data)[0]
+    // let message = data[messageKey]
 
-      refreshData()
-      setIsNewPlayer(isNewPlayer)
-      setToadId(firstToad)
-      setTimeout(() => {
-        let rand = Math.floor(Math.random() * welcomeMessages.length);
-        setGlobalMessage(welcomeMessages[rand])
-        document.getElementById('globalMessageContainer').classList.remove('hidden')
-        document.getElementById('typewriterText').classList.remove('hidden')
-        document.getElementById('typewriterText').classList.add('typewriterEffect')
-      }, 1100);
-    }
+    // if (res.status < 300) {
+    //   let newPlayerKey = Object.keys(data)[1]
+    //   let isNewPlayer = data[newPlayerKey]
+    //   let firstToadKey = Object.keys(data)[2]
+    //   let firstToad = data[firstToadKey]
 
-    if (res.status == 500) {
-      setTimeout(() => {
-        setGlobalMessage(`${message}`)
-          document.getElementById('globalMessageContainer').classList.remove('hidden')
-          document.getElementById('typewriterText').classList.add('typewriterEffect')
-          document.getElementById('typewriterText').classList.remove('hidden')
-      }, 100);
-    }
+    //   refreshData()
+    //   setIsNewPlayer(isNewPlayer)
+    //   setToadId(firstToad)
+    //   setTimeout(() => {
+    //     let rand = Math.floor(Math.random() * welcomeMessages.length);
+    //     setGlobalMessage(welcomeMessages[rand])
+    //     document.getElementById('globalMessageContainer').classList.remove('hidden')
+    //     document.getElementById('typewriterText').classList.remove('hidden')
+    //     document.getElementById('typewriterText').classList.add('typewriterEffect')
+    //   }, 1100);
+    // }
+
+    // if (res.status == 500) {
+    //   setTimeout(() => {
+    //     setGlobalMessage(`${message}`)
+    //       document.getElementById('globalMessageContainer').classList.remove('hidden')
+    //       document.getElementById('typewriterText').classList.add('typewriterEffect')
+    //       document.getElementById('typewriterText').classList.remove('hidden')
+    //   }, 100);
+    // }
 
     setIsLoading(false)
   }
