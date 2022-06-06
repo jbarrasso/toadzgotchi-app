@@ -259,8 +259,8 @@ function Home({toadData, ownerData}) {
       let firstToad = data[firstToadKey]
 
       // // refreshData()
-      // setIsNewPlayer(isNewPlayer)
-      // setToadId(firstToad)
+      setIsNewPlayer(isNewPlayer)
+      setToadId(firstToad)
       setTimeout(() => {
         let rand = Math.floor(Math.random() * welcomeMessages.length);
         setGlobalMessage(welcomeMessages[rand])
