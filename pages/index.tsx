@@ -309,7 +309,7 @@ function Home({toadData, ownerData}) {
     if (res.status < 300) {
       let animationKey = Object.keys(data)[1]
       let animation = data[animationKey]
-      refreshData()
+      // refreshData()
       if (animation != '') {
         setToadDisplayState('/img/' + toadId + '-' + animation + '.gif')
         setTimeout(() => {
