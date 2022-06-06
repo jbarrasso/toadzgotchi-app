@@ -24,7 +24,7 @@ async function queryToadContract(account: string) {
 export default async function getUserByAddress(request:NextApiRequest, response:NextApiResponse) {
     const {method} = request
     const account = JSON.parse(request.body)
-
+    //
     if (method === "PUT") {
         // const {id} = request.query
         response.statusCode = 200

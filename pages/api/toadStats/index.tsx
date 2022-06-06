@@ -76,7 +76,7 @@ async function decayStats(toadid: number) {
 
 export default async function getToadById( req:NextApiRequest, res:NextApiResponse) {
     const {method} = req
-
+    //
     if (req.method === 'GET') {
         res.status(200).json({message: "No toad id specified"})
 
