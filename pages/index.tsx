@@ -253,10 +253,10 @@ function Home({toadData, ownerData}) {
     let message = data[messageKey]
 
     if (res.status < 300) {
-      // let newPlayerKey = Object.keys(data)[1]
-      // let isNewPlayer = data[newPlayerKey]
-      // let firstToadKey = Object.keys(data)[2]
-      // let firstToad = data[firstToadKey]
+      let newPlayerKey = Object.keys(data)[1]
+      let isNewPlayer = data[newPlayerKey]
+      let firstToadKey = Object.keys(data)[2]
+      let firstToad = data[firstToadKey]
 
       // // refreshData()
       // setIsNewPlayer(isNewPlayer)
