@@ -108,7 +108,8 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
               borderRadius=''
               cursor= 'pointer'
               onClick={() => {
-                UpdateStats(['vibe', Account, previewToadId])
+                console.log(Account, previewToadId.toString())
+                UpdateStats(['vibe', Account, previewToadId.toString()])
                 SetToadId(previewToadId)
                 SetToadDisplayState('/img/' + previewToadId + '.gif')
                 onClose() }}/>
