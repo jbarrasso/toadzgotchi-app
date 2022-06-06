@@ -279,7 +279,7 @@ function Home({toadData, ownerData}) {
       //   }, 100);
       // }
   
-      // setIsLoading(false)
+      setIsLoading(false)
     })
   }
 
