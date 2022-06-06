@@ -254,13 +254,14 @@ function Home({toadData, ownerData}) {
 
     if (res.status < 300) {
       let newPlayerKey = Object.keys(data)[1]
-      let isNewPlayer = data[newPlayerKey]
+      let player = data[newPlayerKey]
       let firstToadKey = Object.keys(data)[2]
       let firstToad = data[firstToadKey]
 
-      // // refreshData()
-      setIsNewPlayer(isNewPlayer)
-      setToadId(firstToad)
+      // refreshData()
+      setToadId(firstToad.toString())
+      setIsNewPlayer(player)
+
       setTimeout(() => {
         let rand = Math.floor(Math.random() * welcomeMessages.length);
         setGlobalMessage(welcomeMessages[rand])
@@ -268,16 +269,16 @@ function Home({toadData, ownerData}) {
         document.getElementById('typewriterText').classList.remove('hidden')
         document.getElementById('typewriterText').classList.add('typewriterEffect')
       }, 1100);
-    }
 
-    // if (res.status == 500) {
-    //   setTimeout(() => {
-    //     setGlobalMessage(`${message}`)
-    //       document.getElementById('globalMessageContainer').classList.remove('hidden')
-    //       document.getElementById('typewriterText').classList.add('typewriterEffect')
-    //       document.getElementById('typewriterText').classList.remove('hidden')
-    //   }, 100);
-    // }
+    } else {
+      setTimeout(() => {
+        setGlobalMessage(`${message}`)
+          document.getElementById('globalMessageContainer').classList.remove('hidden')
+          document.getElementById('typewriterText').classList.add('typewriterEffect')
+          document.getElementById('typewriterText').classList.remove('hidden')
+      }, 100);
+
+    }
 
     setIsLoading(false)
   }
