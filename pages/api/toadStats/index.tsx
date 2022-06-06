@@ -86,9 +86,12 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
         if (data.length > 1) {
             let action: string = data[0]
             let account: string = data[1]
+            let toad: string = data[2]
 
             const allToadz = await prisma.toadz.findMany()
-            const selectedToad = allToadz.filter((data) => (data.toadId).toString() === data[2])
+            const selectedToad = allToadz.filter((data) => (data.toadId).toString() === toad)
+
+            // res.status(200).json({'action':action, 'account': account, 'selectedToad': toad})
 
             async function updateOverallStats(fedValue: number, energyValue: number, happinessValue: number, healthValue: number) {
                 if (fedValue < 0) {
