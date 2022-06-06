@@ -287,7 +287,7 @@ function Home({toadData, ownerData}) {
   }
 
   async function updateStats(properties: string[]) {
-    const res = await fetch('/api/toadstats', {
+    const res = await fetch('/api/toadStats', {
       method: 'PATCH',
       body: JSON.stringify(properties)
     })
