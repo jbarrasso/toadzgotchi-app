@@ -184,6 +184,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         }
                     } else {
                     res.status(500).json({message: 'It looks like toad is already full!'})
+                    return
                     }
                 } else {
                     res.status(500).json({message: `Toad must be vibing before it can eat`})
@@ -277,7 +278,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                 let healthValue: number
         
                 if (canFeed()) {
-                    return await prisma.$transaction(async (prisma) => {
+                    await prisma.$transaction(async (prisma) => {
                         await prisma.toadz.update({
                             where: { toadId : selectedToad[0].toadId },
                             data: { fed : selectedToad[0].fed + 3,
@@ -293,6 +294,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
         
                         grantXp(40)
                     })
+                    res.status(200).json({message:'You fed toad some pizza... Delicious!', animation: 'pizza'})
+
                 }
             }
         
@@ -303,7 +306,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                 let healthValue: number
         
                 if (canSleep()) {
-                    return await prisma.$transaction(async (prisma) => {
+                    await prisma.$transaction(async (prisma) => {
                         await prisma.toadz.update({
                             where: { toadId : selectedToad[0].toadId },
                             data: { energy : selectedToad[0].energy + 2,
@@ -318,6 +321,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
         
                         grantXp(20)
                     })
+                    res.status(200).json({message:`ZZZ..ZZzzz....`, animation: 'sleep'})
                 }
             }
         
@@ -328,7 +332,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                 let healthValue: number
                 
                 if (canPlay()) {
-                    return await prisma.$transaction(async (prisma) => {
+                    await prisma.$transaction(async (prisma) => {
                         await prisma.toadz.update({
                             where: { toadId : selectedToad[0].toadId },
                             data: { happiness : selectedToad[0].happiness + 3,
@@ -344,6 +348,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
         
                         grantXp(60)
                     })
+                    res.status(200).json({message:`*Turns on Gameboy*`, animation: 'gameboy'})
                 }
             }
         
@@ -380,13 +385,10 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         res.status(200).json({message:'Toad is ~vibing~', animation: ''})
                     } else if (action === 'eat') {
                         eat()
-                        res.status(200).json({message:'You fed toad some pizza... Delicious!', animation: 'pizza'})
                     } else if (action === 'sleep') {
                         sleep()
-                        res.status(200).json({message:`ZZZ..ZZzzz....`, animation: 'sleep'})
                     } else if (action === 'gameboy') {
                         play()
-                        res.status(200).json({message:`*Turns on Gameboy*`, animation: 'gameboy'})
                     } else {
                         res.status(404).json({message: 'Not a valid action.'})
                     }
@@ -394,6 +396,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                     res.status(404).json({message: 'You are not the owner of this toad.'})
                 }
             }
+
             gameLogic(action, account)
         } else {
             res.status(404).json({message: 'No data sent'})
