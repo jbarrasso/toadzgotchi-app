@@ -286,8 +286,8 @@ function Home({toadData, ownerData}) {
     setIsLoading(false)
   }
 
-  async function updateStats(properties: string[], id: string) {
-    const res = await fetch('/api/toadstats/' + id, {
+  async function updateStats(properties: string[]) {
+    const res = await fetch('/api/toadstats', {
       method: 'PATCH',
       body: JSON.stringify(properties)
     })
@@ -488,7 +488,7 @@ function Home({toadData, ownerData}) {
           <div id='test' onClick={() => {
             {/*//check if toad transferred checkownstoadzg*/}
               if (toadData[toadId-1].vibing) {
-                updateStats(['eat', account], toadId)
+                updateStats(['eat', account, toadId])
                 let elems = document.querySelectorAll("#test");
                 let index = 0
                 let length = elems.length;
@@ -515,7 +515,7 @@ function Home({toadData, ownerData}) {
           <div id='test' onClick={() => {
             {/*//check if toad transferred checkownstoadzg*/}
             if (toadData[toadId-1].vibing) {
-              updateStats(['sleep', account], toadId)
+              updateStats(['sleep', account, toadId])
               let elems = document.querySelectorAll("#test");
               let index = 0
               let length = elems.length;
@@ -542,7 +542,7 @@ function Home({toadData, ownerData}) {
           <div id='test' onClick={() => {
             {/*//check if toad transferred checkownstoadzg*/}
             if (toadData[toadId-1].vibing) {
-              updateStats(['gameboy', account], toadId)
+              updateStats(['gameboy', account, toadId])
               let elems = document.querySelectorAll("#test");
               let index = 0
               let length = elems.length;
