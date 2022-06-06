@@ -268,14 +268,17 @@ function Home({toadData, ownerData}) {
         document.getElementById('typewriterText').classList.remove('hidden')
         document.getElementById('typewriterText').classList.add('typewriterEffect')
       }, 1100);
-    } else {
-      setTimeout(() => {
-        setGlobalMessage(`${message}`)
-          document.getElementById('globalMessageContainer').classList.remove('hidden')
-          document.getElementById('typewriterText').classList.add('typewriterEffect')
-          document.getElementById('typewriterText').classList.remove('hidden')
-      }, 100);
     }
+
+    // if (res.status == 500) {
+    //   setTimeout(() => {
+    //     setGlobalMessage(`${message}`)
+    //       document.getElementById('globalMessageContainer').classList.remove('hidden')
+    //       document.getElementById('typewriterText').classList.add('typewriterEffect')
+    //       document.getElementById('typewriterText').classList.remove('hidden')
+    //   }, 100);
+    // }
+
     setIsLoading(false)
   }
 
