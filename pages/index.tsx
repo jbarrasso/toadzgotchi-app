@@ -280,17 +280,17 @@ function Home({toadData, ownerData}) {
         setToadDisplayState('/img/' + toadId + '-' + animation + '.gif')
       }
       setTimeout(() => {
+        document.getElementById('globalMessageContainer').classList.add('hidden')
+      }, 3000);
+      setTimeout(() => {
+        setToadDisplayState('/img/' + toadId + '.gif')
         let elems = document.querySelectorAll("#test");
         let index = 0
         let length = elems.length;
         for ( ; index < length; index++) {
             elems[index].classList.remove('disabled')
         }
-        document.getElementById('globalMessageContainer').classList.add('hidden')
-        }, 3000);
-        setTimeout(() => {
-          setToadDisplayState('/img/' + toadId + '.gif')
-        }, 4500);
+      }, 4500);
       //to check if toad is sick, toadData wont update until next state action, so have toadAction be a state variable and run useeffect
     } else {
       setTimeout(() => {
