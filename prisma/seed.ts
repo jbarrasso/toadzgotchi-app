@@ -53,6 +53,7 @@ async function main() {
             lastDecay: ''
         }
     })
+    // console.log('updated all toad stats')
 
     // await prisma.toadz.updateMany({
     //     data : {
@@ -65,6 +66,7 @@ async function main() {
     //         address: '0xb75F87261a1FAC3a86f8A48d55597A622BA3CC48'
     //     }
     // })
+    // console.log('deleted user')
 }
 
 main()

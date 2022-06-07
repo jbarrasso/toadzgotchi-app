@@ -11,10 +11,11 @@ type Props = {
   SetToadId: any;
   SetToadDisplayState: any;
   ToadIdsOwned: any;
+  SetIsVibing: any;
   onClose: () => void
 };
 
-const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplayState, ToadData, ToadIdsOwned, show, onClose }: Props) => {
+const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplayState, ToadData, ToadIdsOwned, SetIsVibing, show, onClose }: Props) => {
   const [isBrowser, setIsBrowser] = useState(false)
   const [previewToadId, setPreviewToadId] = useState(0)
 
@@ -110,8 +111,15 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
               onClick={() => {
                 console.log(Account, previewToadId.toString())
                 UpdateStats(['vibe', Account, previewToadId.toString()])
-                SetToadId(previewToadId)
+                let elems = document.querySelectorAll("#test");
+                let index = 0
+                let length = elems.length;
+                for ( ; index < length; index++) {
+                    elems[index].classList.add('disabled')
+                }
+                SetToadId(previewToadId.toString())
                 SetToadDisplayState('/img/' + previewToadId + '.gif')
+                SetIsVibing(true)
                 onClose() }}/>
             }
       </div>)}

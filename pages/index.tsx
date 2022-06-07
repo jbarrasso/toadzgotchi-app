@@ -1,20 +1,10 @@
 import CrypToadz from '../artifacts/contracts/CrypToadz.sol/CrypToadz.json'
-import Toadzgotchi from '../artifacts/contracts/Toadzgotchi.sol/Toadzgotchi.json'
-import ToadzgotchiNFT from '../artifacts/contracts/ToadzgotchiNFT.sol/ToadzgotchiNFT.json'
-import Head from "next/head"
-import Image from "next/image"
 import { useRouter } from "next/router"
 import Button from "../components/Button"
-import Account from "../components/Account"
 import Sound from "react-sound"
 import MyToadz from "../components/MyToadz"
-import ProgressBar from '../components/ProgressBar'
-// import { PopupButton } from '@typeform/embed-react'
 import { useState, useEffect, useRef } from 'react'
 import { ethers } from 'ethers'
-// import Web3Modal from 'web3modal'
-// import WalletConnectProvider from '@walletconnect/core'
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import FoodMenu from '../components/FoodMenu'
 import RestMenu from '../components/RestMenu'
 import PlayMenu from '../components/PlayMenu'
@@ -22,8 +12,6 @@ import Leaderboard from '../components/Leaderboard'
 import { prisma } from '../lib/prisma'
 
 export const cryptoadzAddress = '0x1CB1A5e65610AEFF2551A50f76a87a7d3fB649C6'
-const toadzgotchiAddress = '0x624754b1cDD431b6b92acf5bA5D9539DBE9b3707'
-const toadzgotchiNFTAddress = '0x5f5Cc7BC9BFe1e6319BDE9E30d883ECE36D00cAd'
 export let provider: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 export let account: string;
@@ -37,7 +25,6 @@ export let welcomeMessages = ['Welcome back to the swamp!',
 
 //Runs on the server, not client
 export async function getServerSideProps() {
-
   const allToadz = await prisma.toadz.findMany()
   const allOwners = await prisma.user.findMany()
   
@@ -48,14 +35,6 @@ export async function getServerSideProps() {
     }
   }
 }
-
-// export const providerOptions = {
-// }
-// export const web3Modal = new Web3Modal({
-//   network: "mainnet",
-//   cacheProvider: true,
-//   providerOptions
-// })
 
 //Anonymous function expression to return a global object of Ethereum injection.
 //provider, signer, address returns undefined unless called inside functions
@@ -82,7 +61,7 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
       //ask for a sign here?
       account = tryAccount
       //account = '0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8'
-      //account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
+      // account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
       setIsWalletConnected(true)
       console.log('Wallect is connected')
       console.log(account)
@@ -171,6 +150,8 @@ function Home({toadData, ownerData}) {
   const [network, setNetwork] = useState()
   const [toadId, setToadId] = useState('')
   const [toadDisplayState, setToadDisplayState] = useState('')
+  const [isVibing, setIsVibing] = useState(false)
+  const [points, setPoints] = useState()
 
   function getTime() {
     //const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -191,13 +172,6 @@ function Home({toadData, ownerData}) {
   useEffect(() => {
     console.log(new Date())
     console.log(toadId)
-    console.log(toadData)
-    //console.log(toadData[3859].vibing)
-    // console.log(Math.round(((toadData[3859].fed + 
-    //   toadData[3859].energy +
-    //   toadData[3859].happiness +
-    //   toadData[3859].health) / 4)))
-    //   console.log(toadData[3859].overall)
     triggerRefresh()
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
     //Below has no effect because ethereum() and network are not set yet
@@ -219,14 +193,6 @@ function Home({toadData, ownerData}) {
       checkOwnsToadz(setOwnsToadz, setToadIdsOwned)
     }
   }, [account])
-
-  // useEffect(() => {
-  //   if (toadIdsOwned.length > 0) {
-  //     console.log('toad ids loaded')
-  //     console.log(toadIdsOwned)
-  //     setIsLoading(false)
-  //   } else { return }
-  // }, [toadIdsOwned])
   
   //TRY AND REMOVE TO SEE
   const refreshData = () => {
@@ -254,13 +220,16 @@ function Home({toadData, ownerData}) {
 
     if (res.status < 300) {
       let newPlayerKey = Object.keys(data)[1]
-      let player = data[newPlayerKey]
+      let newPlayer = data[newPlayerKey]
       let firstToadKey = Object.keys(data)[2]
       let firstToad = data[firstToadKey]
+      let pointsKey = Object.keys(data)[3]
+      let points = data[pointsKey]
 
       // refreshData()
       setToadId(firstToad.toString())
-      setIsNewPlayer(player)
+      setIsNewPlayer(newPlayer)
+      setPoints(points)
 
       setTimeout(() => {
         let rand = Math.floor(Math.random() * welcomeMessages.length);
@@ -309,9 +278,8 @@ function Home({toadData, ownerData}) {
       // refreshData()
       if (animation != '') {
         setToadDisplayState('/img/' + toadId + '-' + animation + '.gif')
-        setTimeout(() => {
-        //make button unclickable until after animation is done running
-        setToadDisplayState('/img/' + toadId + '.gif')
+      }
+      setTimeout(() => {
         let elems = document.querySelectorAll("#test");
         let index = 0
         let length = elems.length;
@@ -319,8 +287,10 @@ function Home({toadData, ownerData}) {
             elems[index].classList.remove('disabled')
         }
         document.getElementById('globalMessageContainer').classList.add('hidden')
-        }, 3300);
-      }
+        }, 3000);
+        setTimeout(() => {
+          setToadDisplayState('/img/' + toadId + '.gif')
+        }, 4500);
       //to check if toad is sick, toadData wont update until next state action, so have toadAction be a state variable and run useeffect
     } else {
       setTimeout(() => {
@@ -356,6 +326,7 @@ function Home({toadData, ownerData}) {
           setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '.gif')
           console.log(arrayOfToadIds)
           setToadId(arrayOfToadIds[0].toString())
+          setIsVibing(toadData[arrayOfToadIds[0].toString()-1].vibing)
           setOwnsToadz(true)
           setToadIdsOwned(arrayOfToadIds)
         } else {
@@ -477,14 +448,18 @@ function Home({toadData, ownerData}) {
           <div id='test' onClick={() => { showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood) } }>
             <img src='/img/meterIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div>
-          <div id='test' onClick={() => { showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood) } }>
-            <img src='/img/settingsIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
+          <div id='test' style={{fontSize: '2vh'}}>
+            {(points == undefined) ?
+              <p>Loading... </p> :
+              <p>{points}</p>
+            }
+            <p style={{marginLeft:'10%'}}>Points</p>
           </div>
         </div>
         <div className='bottomActionBar'>
           <div id='test' onClick={() => {
             {/*//check if toad transferred checkownstoadzg*/}
-              if (toadData[toadId-1].vibing) {
+              if (isVibing) {
                 console.log(toadId)
                 updateStats(['eat', account, toadId])
                 let elems = document.querySelectorAll("#test");
@@ -512,7 +487,7 @@ function Home({toadData, ownerData}) {
           </div>
           <div id='test' onClick={() => {
             {/*//check if toad transferred checkownstoadzg*/}
-            if (toadData[toadId-1].vibing) {
+            if (isVibing) {
               updateStats(['sleep', account, toadId])
               let elems = document.querySelectorAll("#test");
               let index = 0
@@ -539,7 +514,7 @@ function Home({toadData, ownerData}) {
           </div>
           <div id='test' onClick={() => {
             {/*//check if toad transferred checkownstoadzg*/}
-            if (toadData[toadId-1].vibing) {
+            if (isVibing) {
               updateStats(['gameboy', account, toadId])
               let elems = document.querySelectorAll("#test");
               let index = 0
@@ -613,6 +588,7 @@ function Home({toadData, ownerData}) {
             OwnsToadz={ownsToadz}
             SetToadId={setToadId}
             ToadIdsOwned={toadIdsOwned}
+            SetIsVibing={setIsVibing}
             onClose={ () => { setShowMyToadz(false) } }>
           </MyToadz>
         </div>

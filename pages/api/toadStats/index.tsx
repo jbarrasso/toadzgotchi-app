@@ -295,7 +295,6 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         grantXp(40)
                     })
                     res.status(200).json({message:'You fed toad some pizza... Delicious!', animation: 'pizza'})
-
                 }
             }
         
@@ -373,6 +372,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                                 vibeStart: new Date().toISOString() }
                     })
                     startDecay(selectedToad[0].toadId)
+                    res.status(200).json({message:`Toad is now vibin'. Try some actions!`, animation: ''})
                 } else {
                     res.status(500).json({message: `Toad is already vibing`})
                 }
@@ -382,7 +382,6 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                 if (account === selectedToad[0].userId) {
                     if (action == 'vibe') {
                         vibe()
-                        res.status(200).json({message:'Toad is ~vibing~', animation: ''})
                     } else if (action === 'eat') {
                         eat()
                     } else if (action === 'sleep') {
