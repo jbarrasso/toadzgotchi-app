@@ -81,7 +81,7 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
                 borderRadius=''
                 cursor= 'pointer'
                 onClick={() => {
-                  SetToadId(previewToadId)
+                  SetToadId(previewToadId.toString())
                   SetToadDisplayState('/img/' + previewToadId + '.gif')
                   onClose() }}/>
             </div>

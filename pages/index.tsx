@@ -167,11 +167,12 @@ function Home({toadData, ownerData}) {
       dynamicBG = '/img/dayswamp.gif'
     }
   }
-  getTime()
 
   useEffect(() => {
+    getTime()
     console.log(new Date())
     console.log(toadId)
+    console.log(toadData[3859])
     triggerRefresh()
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
     //Below has no effect because ethereum() and network are not set yet
@@ -194,7 +195,6 @@ function Home({toadData, ownerData}) {
     }
   }, [account])
   
-  //TRY AND REMOVE TO SEE
   const refreshData = () => {
     router.replace(router.asPath)
     console.log('refreshed db data, will reflect on next state action')
@@ -223,13 +223,14 @@ function Home({toadData, ownerData}) {
       let newPlayer = data[newPlayerKey]
       let firstToadKey = Object.keys(data)[2]
       let firstToad = data[firstToadKey]
-      let pointsKey = Object.keys(data)[3]
-      let points = data[pointsKey]
+      // let pointsKey = Object.keys(data)[3]
+      // let points = data[pointsKey]
 
-      // refreshData()
+
+      refreshData()
       setToadId(firstToad.toString())
       setIsNewPlayer(newPlayer)
-      setPoints(points)
+      // setPoints(points)
 
       setTimeout(() => {
         let rand = Math.floor(Math.random() * welcomeMessages.length);
@@ -257,13 +258,12 @@ function Home({toadData, ownerData}) {
       method: 'PATCH',
       body: JSON.stringify(properties)
     })
+    refreshData()
 
     let data = await res.json()
     let messageKey = Object.keys(data)[0]
     let message = data[messageKey]
     console.log(data)
-    console.log(messageKey)
-    console.log(message)
 
     setTimeout(() => {
       setGlobalMessage(`${message}`)
@@ -275,7 +275,9 @@ function Home({toadData, ownerData}) {
     if (res.status < 300) {
       let animationKey = Object.keys(data)[1]
       let animation = data[animationKey]
-      // refreshData()
+      // let pointsKey = Object.keys(data)[3]
+      // let points = data[pointsKey]
+
       if (animation != '') {
         setToadDisplayState('/img/' + toadId + '-' + animation + '.gif')
       }
@@ -445,6 +447,8 @@ function Home({toadData, ownerData}) {
           }}>
             <img src='/img/messageIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div>
+          <progress max={10} value={ Math.round(((toadData[3859].fed + toadData[3859].energy + toadData[3859].happiness + toadData[3859].health) / 4))} style={{border: 'solid 2px black'}}></progress>
+
           <div id='test' onClick={() => { showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood) } }>
             <img src='/img/meterIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div>

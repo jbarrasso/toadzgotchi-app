@@ -41,7 +41,7 @@ async function main() {
 
     await prisma.toadz.updateMany({
         data : {
-            vibing: false,
+            vibing: true,
             level: 0,
             xp: 0,
             overall: 5,
