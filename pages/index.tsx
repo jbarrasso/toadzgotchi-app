@@ -223,14 +223,14 @@ function Home({toadData, ownerData}) {
       let newPlayer = data[newPlayerKey]
       let firstToadKey = Object.keys(data)[2]
       let firstToad = data[firstToadKey]
-      // let pointsKey = Object.keys(data)[3]
-      // let points = data[pointsKey]
+      let pointsKey = Object.keys(data)[3]
+      let points = data[pointsKey]
 
 
-      refreshData()
+      // refreshData()
       setToadId(firstToad.toString())
       setIsNewPlayer(newPlayer)
-      // setPoints(points)
+      setPoints(points)
 
       setTimeout(() => {
         let rand = Math.floor(Math.random() * welcomeMessages.length);
@@ -258,7 +258,7 @@ function Home({toadData, ownerData}) {
       method: 'PATCH',
       body: JSON.stringify(properties)
     })
-    refreshData()
+    // refreshData()
 
     let data = await res.json()
     let messageKey = Object.keys(data)[0]
@@ -275,8 +275,10 @@ function Home({toadData, ownerData}) {
     if (res.status < 300) {
       let animationKey = Object.keys(data)[1]
       let animation = data[animationKey]
-      // let pointsKey = Object.keys(data)[3]
-      // let points = data[pointsKey]
+      let pointsKey = Object.keys(data)[2]
+      let points = data[pointsKey]
+
+      setPoints(points)
 
       if (animation != '') {
         setToadDisplayState('/img/' + toadId + '-' + animation + '.gif')
@@ -447,11 +449,10 @@ function Home({toadData, ownerData}) {
           }}>
             <img src='/img/messageIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div>
-          <progress max={10} value={ Math.round(((toadData[3859].fed + toadData[3859].energy + toadData[3859].happiness + toadData[3859].health) / 4))} style={{border: 'solid 2px black'}}></progress>
-
-          <div id='test' onClick={() => { showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood) } }>
+          {/* <progress max={10} value={ Math.round(((toadData[3859].fed + toadData[3859].energy + toadData[3859].happiness + toadData[3859].health) / 4))} style={{border: 'solid 2px black'}}></progress> */}
+          {/* <div id='test' onClick={() => { showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood) } }>
             <img src='/img/meterIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
-          </div>
+          </div> */}
           <div id='test' style={{fontSize: '2vh'}}>
             {(points == undefined) ?
               <p>Loading... </p> :

@@ -149,7 +149,6 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                 }
         
                 const newOverall = Math.round(((fedValue + energyValue + happinessValue + healthValue) / 4))
-        
                 await prisma.toadz.update({
                     where: { toadId : selectedToad[0].toadId },
                     data: { overall: newOverall}
@@ -262,7 +261,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                     res.status(200).json(
                         {
                             message: `You fed toad some pizza... Delicious!`,
-                            animation: 'pizza'
+                            animation: 'pizza',
+                            points: thisOwner.points
                         }
                     )
                 }
@@ -287,15 +287,16 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         healthValue = selectedToad[0].health + 1
                     
                         updateOverallStats(fedValue, energyValue, happinessValue, healthValue)
-        
                         grantXp(20)
-                    }).then(() => {
+
+                    })
                     res.status(200).json(
                         {
                             message:`${selectedToad[0].overall}ZZZ..ZZzzz....`,
-                            animation: 'sleep'
+                            animation: 'sleep',
+                            points: thisOwner.points
                         }
-                    )})
+                    )
                 }
             }
         
