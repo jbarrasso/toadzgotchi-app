@@ -54,7 +54,8 @@ export default async function getUserByAddress(request:NextApiRequest, response:
                         address: account,
                         toadz: { 
                             connect: array
-                        }
+                        },
+                        points: 0
                     }    
                 })
                 response.status(200).json(
