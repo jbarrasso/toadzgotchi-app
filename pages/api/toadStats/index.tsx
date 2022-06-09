@@ -158,8 +158,6 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
             async function grantXp(actionXp: number) {
                 //add exponential feature
                 let currentXp = selectedToad[0].xp
-                let newXp: number
-                let level: number
         
                 if ((currentXp + actionXp) >= 100) {
                     let leftoverXp = (currentXp + actionXp) - 100
@@ -168,17 +166,14 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         data: { xp : leftoverXp,
                                 level: selectedToad[0].level + 1 }
                     })
-                    level = selectedToad[0].level + 1
                     await prisma.user.update({
                         where: { address: selectedToad[0].userId },
                         data: { points: {increment: 100}}
                     })
                 } else {
-                    newXp = currentXp + actionXp
-                    level = selectedToad[0].level
                     await prisma.toadz.update({
                         where: { toadId : selectedToad[0].toadId },
-                        data: { xp : newXp }
+                        data: { xp : (currentXp + actionXp) }
                     })
                     await prisma.user.update({
                         where: { address: selectedToad[0].userId },
@@ -292,7 +287,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                     })
                     res.status(200).json(
                         {
-                            message:`${selectedToad[0].overall}ZZZ..ZZzzz....`,
+                            message:`ZZZ..ZZzzz....`,
                             animation: 'sleep',
                             points: thisOwner.points
                         }
@@ -326,7 +321,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                     res.status(200).json(
                         {
                             message:`*Turns on Gameboy*`,
-                            animation: 'gameboy'
+                            animation: 'gameboy',
+                            points: thisOwner.points
                         }
                     )
                 }
@@ -344,7 +340,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                     res.status(200).json(
                         {
                             message:`Toad is now vibin'. Try some actions!`,
-                            animation: ''
+                            animation: '',
+                            points: thisOwner.points
                         }
                     )
                 } else {
