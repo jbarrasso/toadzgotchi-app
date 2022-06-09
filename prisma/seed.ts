@@ -34,25 +34,26 @@ async function main() {
     // await prisma.user.deleteMany({})
     // console.log('deleted user records')
     
-    await prisma.toadz.createMany({
-        data 
-    })
-    console.log('created toad ids')
-
-    // await prisma.toadz.updateMany({
-    //     data : {
-    //         vibing: false,
-    //         level: 0,
-    //         xp: 0,
-    //         overall: 5,
-    //         fed: 5,
-    //         energy: 5,
-    //         happiness: 5,
-    //         health: 5,
-    //         vibeStart: '',
-    //         lastDecay: ''
-    //     }
+    // await prisma.toadz.createMany({
+    //     data 
     // })
+    // console.log('created toad ids')
+
+    await prisma.toadz.updateMany({
+        data : {
+            vibing: true,
+            level: 0,
+            xp: 0,
+            overall: 5,
+            fed: 5,
+            energy: 5,
+            happiness: 5,
+            health: 5,
+            vibeStart: '',
+            lastDecay: ''
+        }
+    })
+    // console.log('updated all toad stats')
 
     // await prisma.toadz.updateMany({
     //     data : {
@@ -65,6 +66,7 @@ async function main() {
     //         address: '0xb75F87261a1FAC3a86f8A48d55597A622BA3CC48'
     //     }
     // })
+    // console.log('deleted user')
 }
 
 main()
