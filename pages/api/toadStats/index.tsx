@@ -252,6 +252,10 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         
                         updateOverallStats(fedValue, energyValue, happinessValue, healthValue)
                         grantXp(40)
+                    },
+                    {
+                        maxWait: 6000, // default: 2000
+                        timeout: 12000, // default: 5000
                     })
                     res.status(200).json(
                         {
@@ -284,6 +288,10 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         updateOverallStats(fedValue, energyValue, happinessValue, healthValue)
                         grantXp(20)
 
+                    },
+                    {
+                        maxWait: 6000, // default: 2000
+                        timeout: 12000, // default: 5000
                     })
                     res.status(200).json(
                         {
@@ -319,10 +327,9 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         grantXp(60)
                     },
                     {
-                        maxWait: 5000, // default: 2000
-                        timeout: 10000, // default: 5000
-                    }
-                    )
+                        maxWait: 6000, // default: 2000
+                        timeout: 12000, // default: 5000
+                    })
                     res.status(200).json(
                         {
                             message:`*Turns on Gameboy*`,
