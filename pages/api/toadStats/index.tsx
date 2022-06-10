@@ -96,52 +96,52 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
 
             async function updateOverallStats(fedValue: number, energyValue: number, happinessValue: number, healthValue: number) {
                 if (fedValue < 0) {
-                     prisma.toadz.update({
+                    await prisma.toadz.update({
                         where: { toadId : selectedToad[0].toadId },
                         data: { fed : 0}
                     })
                     fedValue = 0
                 } else if (fedValue > 10) {
-                     prisma.toadz.update({
+                    await prisma.toadz.update({
                         where: { toadId : selectedToad[0].toadId },
                         data: { fed : 10}
                     })
                     fedValue = 10
                 }
                 if (energyValue < 0) {
-                     prisma.toadz.update({
+                    await prisma.toadz.update({
                         where: { toadId : selectedToad[0].toadId },
                         data: { energy : 0}
                     })
                     energyValue = 0
                 } else if (energyValue > 10) {
-                     prisma.toadz.update({
+                    await prisma.toadz.update({
                         where: { toadId : selectedToad[0].toadId },
                         data: { energy : 10}
                     })
                     energyValue = 10
                 }
                 if (happinessValue < 0) {
-                     prisma.toadz.update({
+                    await prisma.toadz.update({
                         where: { toadId : selectedToad[0].toadId },
                         data: { happiness : 0}
                     })
                     happinessValue = 0
                 } else if (happinessValue > 10) {
-                     prisma.toadz.update({
+                    await prisma.toadz.update({
                         where: { toadId : selectedToad[0].toadId },
                         data: { happiness : 10}
                     })
                     happinessValue = 10
                 }
                 if (healthValue < 0) {
-                     prisma.toadz.update({
+                    await prisma.toadz.update({
                         where: { toadId : selectedToad[0].toadId },
                         data: { health : 0}
                     })
                     healthValue = 0
                 } else if (healthValue > 10) {
-                     prisma.toadz.update({
+                    await prisma.toadz.update({
                         where: { toadId : selectedToad[0].toadId },
                         data: { health : 10}
                     })
@@ -149,7 +149,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                 }
         
                 const newOverall = Math.round(((fedValue + energyValue + happinessValue + healthValue) / 4))
-                 prisma.toadz.update({
+                await prisma.toadz.update({
                     where: { toadId : selectedToad[0].toadId },
                     data: { overall: newOverall}
                 })
@@ -161,21 +161,22 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
         
                 if ((currentXp + actionXp) >= 100) {
                     let leftoverXp = (currentXp + actionXp) - 100
-                     prisma.toadz.update({
+                    await prisma.toadz.update({
                         where: { toadId : selectedToad[0].toadId },
                         data: { xp : leftoverXp,
                                 level: selectedToad[0].level + 1 }
                     })
-                     prisma.user.update({
+                    await prisma.user.update({
                         where: { address: selectedToad[0].userId },
                         data: { points: {increment: 100}}
                     })
                 } else {
-                     prisma.toadz.update({
+                    let newXp = currentXp + actionXp
+                    await prisma.toadz.update({
                         where: { toadId : selectedToad[0].toadId },
-                        data: { xp : (currentXp + actionXp) }
+                        data: { xp : newXp}
                     })
-                     prisma.user.update({
+                    await prisma.user.update({
                         where: { address: selectedToad[0].userId },
                         data: { points: {increment: 10}}
                     })
