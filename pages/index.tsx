@@ -51,21 +51,23 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
     console.log('Web3 is injected')
     try {
       console.log('fetching wallet data')
-      const tryProvider = new ethers.providers.Web3Provider(ethereum())
-      provider=tryProvider
-      const tryNetwork = (await tryProvider.getNetwork()).chainId
-      setNetwork(tryNetwork)
-      const trySigner = tryProvider.getSigner()
-      signer = trySigner
-      const tryAccount = await trySigner.getAddress()
+      // const tryProvider = new ethers.providers.Web3Provider(ethereum())
+      // provider=tryProvider
+      // const tryNetwork = (await tryProvider.getNetwork()).chainId
+      // setNetwork(tryNetwork)
+      // const trySigner = tryProvider.getSigner()
+      // signer = trySigner
+      // const tryAccount = await trySigner.getAddress()
       //ask for a sign here?
-      account = tryAccount
+      // account = tryAccount
       //account = '0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8'
-      // account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
+      //account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
+      account = '0xb75F87261a1FAC3a86f8A48d55597A622BA3CC48'
       setIsWalletConnected(true)
       console.log('Wallect is connected')
       console.log(account)
     } catch (err) {
+      
       console.log("Wallet is not connected. Cannot instantiate provider or get signer", err)
     }
   }
@@ -133,7 +135,7 @@ export const requestAccount = async() => {
 
 function Home({toadData, ownerData}) {
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [isNewPlayer, setIsNewPlayer] = useState(true)
   const [globalMessage, setGlobalMessage] = useState('')
   const [isWalletConnected, setIsWalletConnected] = useState(false)
@@ -148,9 +150,9 @@ function Home({toadData, ownerData}) {
   const [toadIdsOwned, setToadIdsOwned] = useState([])
   const [ownsToadz, setOwnsToadz] = useState(false)
   const [network, setNetwork] = useState()
-  const [toadId, setToadId] = useState('')
-  const [toadDisplayState, setToadDisplayState] = useState('')
-  const [isVibing, setIsVibing] = useState(false)
+  const [toadId, setToadId] = useState('3860')
+  const [toadDisplayState, setToadDisplayState] = useState('/img/3860.gif')
+  const [isVibing, setIsVibing] = useState(true)
   const [points, setPoints] = useState()
 
   function getTime() {
@@ -311,28 +313,29 @@ function Home({toadData, ownerData}) {
 
   async function checkOwnsToadz(setOwnsToadz, setToadIdsOwned) {
     console.log('Running useEffect checkOwnsToadz')
-    if ((ethereum() != undefined || null) && (network == 1)) {
+    if (true) {
       try {
-        const contract = new ethers.Contract(cryptoadzAddress, CrypToadz.abi, signer)
+        // const contract = new ethers.Contract(cryptoadzAddress, CrypToadz.abi, signer)
         
         //Basic frontend check
-        if (await contract.balanceOf(account) > 0) {
+        if (true) {
           setOwnsToadz(true)
-          const numberOfToadzOwned = await contract.balanceOf(account)
-          const arrayOfToadIds = []
-          for (let i=0; i<numberOfToadzOwned; i++) {
-            let id = await contract.tokenOfOwnerByIndex(account, i)
-            arrayOfToadIds[i] = id.toNumber()
+          // const numberOfToadzOwned = await contract.balanceOf(account)
+          // const arrayOfToadIds = []
+          // for (let i=0; i<numberOfToadzOwned; i++) {
+            // let id = await contract.tokenOfOwnerByIndex(account, i)
+            // arrayOfToadIds[i] = id.toNumber()
             //before pushing, authenticate with signature pass in verifiedAccount instead of account or key in localstorage
-          }
+          // }
           updateOwner(account)
           //set states below in updateOwner
-          setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '.gif')
-          console.log(arrayOfToadIds)
-          setToadId(arrayOfToadIds[0].toString())
-          setIsVibing(toadData[arrayOfToadIds[0].toString()-1].vibing)
+          // setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '.gif')
+          // console.log(arrayOfToadIds)
+          // setToadId(arrayOfToadIds[0].toString())
+          setToadId('3860')
+          // setIsVibing(toadData[arrayOfToadIds[0].toString()-1].vibing)
           setOwnsToadz(true)
-          setToadIdsOwned(arrayOfToadIds)
+          // setToadIdsOwned(arrayOfToadIds)
         } else {
           setIsLoading(false)
           setToadDisplayState('/img/bruce.png')
