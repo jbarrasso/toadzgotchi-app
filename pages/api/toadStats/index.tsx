@@ -168,11 +168,11 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         data: { xp : leftoverXp,
                                 level: selectedToad[0].level + 1 }
                     })
-                    level = selectedToad[0].level + 1
-                    await prisma.user.update({
-                        where: { address: selectedToad[0].userId },
-                        data: { points: {increment: 100}}
-                    })
+                    // level = selectedToad[0].level + 1
+                    // await prisma.user.update({
+                    //     where: { address: selectedToad[0].userId },
+                    //     data: { points: {increment: 100}}
+                    // })
                 } else {
                     newXp = currentXp + actionXp
                     level = selectedToad[0].level
@@ -180,10 +180,10 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         where: { toadId : selectedToad[0].toadId },
                         data: { xp : newXp }
                     })
-                    await prisma.user.update({
-                        where: { address: selectedToad[0].userId },
-                        data: { points: {increment: 10}}
-                    })
+                    // await prisma.user.update({
+                    //     where: { address: selectedToad[0].userId },
+                    //     data: { points: {increment: 10}}
+                    // })
                 }
             }
         
