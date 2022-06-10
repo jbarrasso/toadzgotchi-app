@@ -255,8 +255,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         grantXp(40)
                     },
                     {
-                        maxWait: 6000, // default: 2000
-                        timeout: 12000, // default: 5000
+                        maxWait: 20000, // default: 2000
+                        timeout: 25000, // default: 5000
                     })
                     res.status(200).json(
                         {
@@ -291,8 +291,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
 
                     },
                     {
-                        maxWait: 6000, // default: 2000
-                        timeout: 12000, // default: 5000
+                        maxWait: 20000, // default: 2000
+                        timeout: 25000, // default: 5000
                     })
                     res.status(200).json(
                         {
@@ -328,8 +328,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         grantXp(60)
                     },
                     {
-                        maxWait: 6000, // default: 2000
-                        timeout: 12000, // default: 5000
+                        maxWait: 20000, // default: 2000
+                        timeout: 25000, // default: 5000
                     })
                     res.status(200).json(
                         {
