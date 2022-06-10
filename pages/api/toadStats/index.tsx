@@ -317,7 +317,12 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         updateOverallStats(fedValue, energyValue, happinessValue, healthValue)
         
                         grantXp(60)
-                    })
+                    },
+                    {
+                        maxWait: 5000, // default: 2000
+                        timeout: 10000, // default: 5000
+                    }
+                    )
                     res.status(200).json(
                         {
                             message:`*Turns on Gameboy*`,
