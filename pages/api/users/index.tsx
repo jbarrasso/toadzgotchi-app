@@ -63,7 +63,7 @@ export default async function getUserByAddress(request:NextApiRequest, response:
                         message:`New user ${account} created. The account owns the following toads: ${toadIdsOwned}`,
                         newPlayer: true,
                         firstToad: toadIdsOwned[0],
-                        points: thisOwner.points
+                        points: 0
                     }
                 )
             } else {

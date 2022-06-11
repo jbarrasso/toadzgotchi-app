@@ -53,7 +53,7 @@ async function main() {
             lastDecay: ''
         }
     })
-    // console.log('updated all toad stats')
+    console.log('updated all toad stats')
 
     // await prisma.toadz.updateMany({
     //     data : {
