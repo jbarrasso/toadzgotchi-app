@@ -41,19 +41,19 @@ async function main() {
 
     await prisma.toadz.updateMany({
         data : {
-            vibing: true,
+            vibing: false,
             level: 0,
             xp: 0,
-            overall: 2,
-            fed: 2,
-            energy: 2,
-            happiness: 2,
-            health: 2,
+            overall: 1,
+            fed: 1,
+            energy: 1,
+            happiness: 1,
+            health: 1,
             vibeStart: '',
             lastDecay: ''
         }
     })
-    // console.log('updated all toad stats')
+    console.log('updated all toad stats')
 
     // await prisma.toadz.updateMany({
     //     data : {
