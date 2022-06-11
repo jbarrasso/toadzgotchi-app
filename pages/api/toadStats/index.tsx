@@ -2,7 +2,7 @@ import { prisma } from '../../../lib/prisma'
 import { NextApiRequest, NextApiResponse } from 'next';
 
 function startDecay(toadid: number) {
-    setInterval(function() {decayStats(toadid)}, 1000*60*60*4)
+    setInterval(function() {decayStats(toadid)}, 1000*60)
 }
 
 async function decayStats(toadid: number) {
