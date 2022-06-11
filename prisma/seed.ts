@@ -44,11 +44,11 @@ async function main() {
             vibing: true,
             level: 0,
             xp: 0,
-            overall: 5,
-            fed: 5,
-            energy: 5,
-            happiness: 5,
-            health: 5,
+            overall: 2,
+            fed: 2,
+            energy: 2,
+            happiness: 2,
+            health: 2,
             vibeStart: '',
             lastDecay: ''
         }
