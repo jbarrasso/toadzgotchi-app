@@ -251,14 +251,6 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         happinessValue = selectedToad[0].happiness + 1
                         healthValue = selectedToad[0].health + 1
                         
-                        // updateOverallStats(fedValue, energyValue, happinessValue, healthValue)
-                        // if (fedValue < 0) {
-                        //     await prisma.toadz.update({
-                        //         where: { toadId : selectedToad[0].toadId },
-                        //         data: { fed : 0}
-                        //     })
-                        //     fedValue = 0
-                        // } else
                         if (fedValue > 10) {
                             await prisma.toadz.update({
                                 where: { toadId : selectedToad[0].toadId },
@@ -266,27 +258,6 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                             })
                             fedValue = 10
                         }
-                        // if (energyValue < 0) {
-                        //     await prisma.toadz.update({
-                        //         where: { toadId : selectedToad[0].toadId },
-                        //         data: { energy : 0}
-                        //     })
-                        //     energyValue = 0
-                        // } else
-                        if (energyValue > 10) {
-                            await prisma.toadz.update({
-                                where: { toadId : selectedToad[0].toadId },
-                                data: { energy : 10}
-                            })
-                            energyValue = 10
-                        }
-                        // if (happinessValue < 0) {
-                        //     await prisma.toadz.update({
-                        //         where: { toadId : selectedToad[0].toadId },
-                        //         data: { happiness : 0}
-                        //     })
-                        //     happinessValue = 0
-                        // } else
                         if (happinessValue > 10) {
                             await prisma.toadz.update({
                                 where: { toadId : selectedToad[0].toadId },
@@ -294,13 +265,6 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                             })
                             happinessValue = 10
                         }
-                        // if (healthValue < 0) {
-                        //     await prisma.toadz.update({
-                        //         where: { toadId : selectedToad[0].toadId },
-                        //         data: { health : 0}
-                        //     })
-                        //     healthValue = 0
-                        // } else 
                         if (healthValue > 10) {
                             await prisma.toadz.update({
                                 where: { toadId : selectedToad[0].toadId },
@@ -315,7 +279,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                             where: { toadId : selectedToad[0].toadId },
                             data: { overall: newOverall}
                         })
-                        // grantXp(40)
+
                         let currentXp = selectedToad[0].xp
         
                         if ((currentXp + 40) >= 100) {
@@ -342,8 +306,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         }
                     },
                     {
-                        maxWait: 20000, // default: 2000
-                        timeout: 25000, // default: 5000
+                        maxWait: 5000, // default: 2000
+                        timeout: 10000, // default: 5000
                     })
                     res.status(200).json(
                         {
@@ -372,14 +336,57 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         energyValue = selectedToad[0].energy + 2
                         happinessValue = selectedToad[0].happiness
                         healthValue = selectedToad[0].health + 1
-                    
-                        updateOverallStats(fedValue, energyValue, happinessValue, healthValue)
-                        grantXp(20)
+
+                        if (energyValue > 10) {
+                            await prisma.toadz.update({
+                                where: { toadId : selectedToad[0].toadId },
+                                data: { energy : 10}
+                            })
+                            energyValue = 10
+                        }
+                        if (healthValue > 10) {
+                            await prisma.toadz.update({
+                                where: { toadId : selectedToad[0].toadId },
+                                data: { health : 10}
+                            })
+                            healthValue = 10
+                        }
+                
+                        const newOverall = Math.round(((fedValue + energyValue + happinessValue + healthValue) / 4))
+                        await prisma.toadz.update({
+                            where: { toadId : selectedToad[0].toadId },
+                            data: { overall: newOverall}
+                        })
+
+                        let currentXp = selectedToad[0].xp
+        
+                        if ((currentXp + 40) >= 100) {
+                            let leftoverXp = (currentXp + 40) - 100
+                            await prisma.toadz.update({
+                                where: { toadId : selectedToad[0].toadId },
+                                data: { xp : leftoverXp,
+                                        level: selectedToad[0].level + 1 }
+                            })
+                            await prisma.user.update({
+                                where: { address: selectedToad[0].userId },
+                                data: { points: {increment: 100}}
+                            })
+                        } else {
+                            let newXp = currentXp + 40
+                            await prisma.toadz.update({
+                                where: { toadId : selectedToad[0].toadId },
+                                data: { xp : newXp}
+                            })
+                            await prisma.user.update({
+                                where: { address: selectedToad[0].userId },
+                                data: { points: {increment: 10}}
+                            })
+                        }
 
                     },
                     {
-                        maxWait: 20000, // default: 2000
-                        timeout: 25000, // default: 5000
+                        maxWait: 5000, // default: 2000
+                        timeout: 10000, // default: 5000
                     })
                     res.status(200).json(
                         {
@@ -409,14 +416,63 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         energyValue = selectedToad[0].energy - 1
                         happinessValue = selectedToad[0].happiness + 3
                         healthValue = selectedToad[0].health
+
+                        if (fedValue < 0) {
+                            await prisma.toadz.update({
+                                where: { toadId : selectedToad[0].toadId },
+                                data: { fed : 0}
+                            })
+                            fedValue = 0
+                        }
+                        if (energyValue < 0) {
+                            await prisma.toadz.update({
+                                where: { toadId : selectedToad[0].toadId },
+                                data: { energy : 0}
+                            })
+                            energyValue = 0
+                        }
+                        if (happinessValue > 10) {
+                            await prisma.toadz.update({
+                                where: { toadId : selectedToad[0].toadId },
+                                data: { happiness : 10}
+                            })
+                            happinessValue = 10
+                        }
+                
+                        const newOverall = Math.round(((fedValue + energyValue + happinessValue + healthValue) / 4))
+                        await prisma.toadz.update({
+                            where: { toadId : selectedToad[0].toadId },
+                            data: { overall: newOverall}
+                        })
+
+                        let currentXp = selectedToad[0].xp
         
-                        updateOverallStats(fedValue, energyValue, happinessValue, healthValue)
-        
-                        grantXp(60)
+                        if ((currentXp + 40) >= 100) {
+                            let leftoverXp = (currentXp + 40) - 100
+                            await prisma.toadz.update({
+                                where: { toadId : selectedToad[0].toadId },
+                                data: { xp : leftoverXp,
+                                        level: selectedToad[0].level + 1 }
+                            })
+                            await prisma.user.update({
+                                where: { address: selectedToad[0].userId },
+                                data: { points: {increment: 100}}
+                            })
+                        } else {
+                            let newXp = currentXp + 40
+                            await prisma.toadz.update({
+                                where: { toadId : selectedToad[0].toadId },
+                                data: { xp : newXp}
+                            })
+                            await prisma.user.update({
+                                where: { address: selectedToad[0].userId },
+                                data: { points: {increment: 10}}
+                            })
+                        }
                     },
                     {
-                        maxWait: 20000, // default: 2000
-                        timeout: 25000, // default: 5000
+                        maxWait: 5000, // default: 2000
+                        timeout: 10000, // default: 5000
                     })
                     res.status(200).json(
                         {
