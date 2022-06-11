@@ -41,7 +41,7 @@ async function main() {
 
     await prisma.toadz.updateMany({
         data : {
-            vibing: true,
+            vibing: false,
             level: 0,
             xp: 0,
             overall: 1,
@@ -53,7 +53,7 @@ async function main() {
             lastDecay: ''
         }
     })
-    // console.log('updated all toad stats')
+    console.log('updated all toad stats')
 
     // await prisma.toadz.updateMany({
     //     data : {
