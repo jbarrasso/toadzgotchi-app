@@ -492,7 +492,16 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                                 level: 1,
                                 vibeStart: new Date().toISOString() }
                     })
-                    startDecay(selectedToad[0].toadId)
+                    // startDecay(selectedToad[0].toadId)
+
+                    // const ca = await fetch(`https://api.github.com/repos/${owner}/${repo}/dispatches`, {
+                    //     method: 'POST',
+                    //     body: JSON.stringify({
+                    //                             "event-type": "run_decay",
+                    //                             "client_payload": {"command": "decay"}
+                    //                         })
+                    // })
+     
                     res.status(200).json(
                         {
                             message:`Toad is now vibin'. Try some actions!`,
