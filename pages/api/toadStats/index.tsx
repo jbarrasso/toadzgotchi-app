@@ -76,7 +76,7 @@ async function decayStats(toadid: number) {
 
 export default async function getToadById( req:NextApiRequest, res:NextApiResponse) {
     const {method} = req
-    //
+    
     if (req.method === 'GET') {
         res.status(200).json({message: "No toad id specified"})
 
@@ -90,9 +90,15 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
 
             const allToadz = await prisma.toadz.findMany()
             const selectedToad = allToadz.filter((data) => (data.toadId).toString() === toad)
-            const thisOwner = await prisma.user.findUnique({
-                where: { address: selectedToad[0].userId }
-            })
+            let thisOwner: any
+
+            if (selectedToad[0].userId == null) {
+                thisOwner = 'none'
+            } else {
+                thisOwner = await prisma.user.findUnique({
+                    where: { address: selectedToad[0].userId }
+                })
+            }
 
             async function updateOverallStats(fedValue: number, energyValue: number, happinessValue: number, healthValue: number) {
                 if (fedValue < 0) {
@@ -239,6 +245,10 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                 let healthValue: number
         
                 if (canFeed()) {
+                    let currentXp = selectedToad[0].xp
+                    let actionXp = Math.round( 140 / selectedToad[0].level)
+                    let newXp = currentXp + actionXp
+
                     await prisma.$transaction(async (prisma) => {
                         await prisma.toadz.update({
                             where: { toadId : selectedToad[0].toadId },
@@ -280,10 +290,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                             data: { overall: newOverall}
                         })
 
-                        let currentXp = selectedToad[0].xp
-        
-                        if ((currentXp + 40) >= 100) {
-                            let leftoverXp = (currentXp + 40) - 100
+                        if (newXp >= 100) {
+                            let leftoverXp = newXp - 100
                             await prisma.toadz.update({
                                 where: { toadId : selectedToad[0].toadId },
                                 data: { xp : leftoverXp,
@@ -294,7 +302,6 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                                 data: { points: {increment: 100}}
                             })
                         } else {
-                            let newXp = currentXp + 40
                             await prisma.toadz.update({
                                 where: { toadId : selectedToad[0].toadId },
                                 data: { xp : newXp}
@@ -313,7 +320,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         {
                             message: `You fed toad some pizza... Delicious!`,
                             animation: 'pizza',
-                            points: thisOwner.points
+                            points: thisOwner.points,
+                            overall: selectedToad[0].overall
                         }
                     )
                 }
@@ -326,6 +334,10 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                 let healthValue: number
         
                 if (canSleep()) {
+                    let currentXp = selectedToad[0].xp
+                    let actionXp = Math.round( 120 / selectedToad[0].level)
+                    let newXp = currentXp + actionXp
+
                     await prisma.$transaction(async (prisma) => {
                         await prisma.toadz.update({
                             where: { toadId : selectedToad[0].toadId },
@@ -358,10 +370,9 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                             data: { overall: newOverall}
                         })
 
-                        let currentXp = selectedToad[0].xp
         
-                        if ((currentXp + 40) >= 100) {
-                            let leftoverXp = (currentXp + 40) - 100
+                        if (newXp >= 100) {
+                            let leftoverXp = newXp - 100
                             await prisma.toadz.update({
                                 where: { toadId : selectedToad[0].toadId },
                                 data: { xp : leftoverXp,
@@ -372,7 +383,6 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                                 data: { points: {increment: 100}}
                             })
                         } else {
-                            let newXp = currentXp + 40
                             await prisma.toadz.update({
                                 where: { toadId : selectedToad[0].toadId },
                                 data: { xp : newXp}
@@ -392,7 +402,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         {
                             message:`ZZZ..ZZzzz....`,
                             animation: 'sleep',
-                            points: thisOwner.points
+                            points: thisOwner.points,
+                            overall: selectedToad[0].overall
                         }
                     )
                 }
@@ -405,6 +416,10 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                 let healthValue: number
                 
                 if (canPlay()) {
+                    let currentXp = selectedToad[0].xp
+                    let actionXp = Math.round( 160 / selectedToad[0].level)
+                    let newXp = currentXp + actionXp
+
                     await prisma.$transaction(async (prisma) => {
                         await prisma.toadz.update({
                             where: { toadId : selectedToad[0].toadId },
@@ -440,15 +455,14 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         }
                 
                         const newOverall = Math.round(((fedValue + energyValue + happinessValue + healthValue) / 4))
+
                         await prisma.toadz.update({
                             where: { toadId : selectedToad[0].toadId },
                             data: { overall: newOverall}
                         })
 
-                        let currentXp = selectedToad[0].xp
-        
-                        if ((currentXp + 40) >= 100) {
-                            let leftoverXp = (currentXp + 40) - 100
+                        if (newXp >= 100) {
+                            let leftoverXp = newXp - 100
                             await prisma.toadz.update({
                                 where: { toadId : selectedToad[0].toadId },
                                 data: { xp : leftoverXp,
@@ -459,7 +473,6 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                                 data: { points: {increment: 100}}
                             })
                         } else {
-                            let newXp = currentXp + 40
                             await prisma.toadz.update({
                                 where: { toadId : selectedToad[0].toadId },
                                 data: { xp : newXp}
@@ -478,7 +491,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         {
                             message:`*Turns on Gameboy*`,
                             animation: 'gameboy',
-                            points: thisOwner.points
+                            points: thisOwner.points,
+                            overall: selectedToad[0].overall
                         }
                     )
                 }
@@ -492,7 +506,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                                 level: 1,
                                 vibeStart: new Date().toISOString() }
                     })
-                    startDecay(selectedToad[0].toadId)
+                    // startDecay(selectedToad[0].toadId)
                     res.status(200).json(
                         {
                             message:`Toad is now vibin'. Try some actions!`,
@@ -506,7 +520,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
             }
         
             const gameLogic = async(action: string, account: string) => {
-                if (account === selectedToad[0].userId) {
+                if (account == thisOwner.address) {
                     if (action == 'vibe') {
                         vibe()
                     } else if (action === 'eat') {
@@ -516,10 +530,10 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                     } else if (action === 'gameboy') {
                         play()
                     } else {
-                        res.status(404).json({message: 'Not a valid action.'})
+                        res.status(500).json({message: 'Not a valid action.'})
                     }
                 } else {
-                    res.status(404).json({message: 'You are not the owner of this toad.'})
+                    res.status(500).json({message: `You are not the owner of this toad.`})
                 }
             }
 

@@ -277,6 +277,8 @@ function Home({toadData, ownerData}) {
       let animation = data[animationKey]
       let pointsKey = Object.keys(data)[2]
       let points = data[pointsKey]
+      let overallKey = Object.keys(data)[3]
+      let overall = data[overallKey]
 
       setPoints(points)
 
@@ -287,7 +289,13 @@ function Home({toadData, ownerData}) {
         document.getElementById('globalMessageContainer').classList.add('hidden')
       }, 3000);
       setTimeout(() => {
-        setToadDisplayState('/img/' + toadId + '.gif')
+        if (overall >= 8) {
+          setToadDisplayState('/img/' + toadId + '-happy.gif')
+        } else if (overall <= 2) {
+          setToadDisplayState('/img/' + toadId + '-sad.gif')
+        } else {
+          setToadDisplayState('/img/' + toadId + '.gif')
+        }
         let elems = document.querySelectorAll("#test");
         let index = 0
         let length = elems.length;
@@ -327,7 +335,13 @@ function Home({toadData, ownerData}) {
           }
           updateOwner(account)
           //set states below in updateOwner
-          setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '.gif')
+          if (toadData[arrayOfToadIds[0].toString()-1].overall >= 8) {
+            setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '-happy.gif')
+          } else if (toadData[arrayOfToadIds[0].toString()-1].happiness <= 2) {
+            setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '-sad.gif')
+          } else {
+            setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '.gif')
+          }
           console.log(arrayOfToadIds)
           setToadId(arrayOfToadIds[0].toString())
           setIsVibing(toadData[arrayOfToadIds[0].toString()-1].vibing)
@@ -336,6 +350,13 @@ function Home({toadData, ownerData}) {
         } else {
           setIsLoading(false)
           setToadDisplayState('/img/bruce.png')
+          let elems = document.querySelectorAll("#test");
+          let index = 0
+          let length = elems.length;
+          for ( ; index < length; index++) {
+              elems[index].classList.add('disabled')
+          }
+          setPoints('N/A')
           setOwnsToadz(false)
           setToadId('')
           setToadIdsOwned([])
@@ -427,8 +448,11 @@ function Home({toadData, ownerData}) {
               document.getElementById('typewriterText').classList.remove('typewriterEffect')
               document.getElementById('typewriterText').classList.add('hidden')
               setTimeout(() => {
-                let rand = Math.floor(Math.random() * welcomeMessages.length);
-                setGlobalMessage(welcomeMessages[rand])
+                ownsToadz ? 
+          
+                setGlobalMessage(welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)]) : 
+                setGlobalMessage(`Check back soon!`)
+                
                 document.getElementById('globalMessageContainer').classList.remove('hidden')
                 document.getElementById('typewriterText').classList.remove('hidden')
                 document.getElementById('typewriterText').classList.add('typewriterEffect')
