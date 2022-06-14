@@ -432,7 +432,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                         {
                             message:`Toad is now vibin'. Try some actions!`,
                             animation: '',
-                            points: thisOwner.points
+                            points: thisOwner.points,
+                            status: callGithubAction.status
                         }
                     )
                 } else {
