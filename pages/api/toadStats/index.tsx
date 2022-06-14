@@ -422,8 +422,8 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                     const callGithubAction = await fetch(`https://api.github.com/repos/jbarrasso/toadzgotchi-app/dispatches`, {
                         method: 'POST',
                         headers: {
-                                    Authorization: `Bearer ${token}`,
-                                    Accept : 'application/vnd.github.v3+json'
+                                    Authorization: `token ${token}`,
+                                    Accept : "application/vnd.github.v3+json"
                                 },
                         body: JSON.stringify({
                                                 "event-type": "run_decay",
