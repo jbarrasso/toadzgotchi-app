@@ -1,0 +1,10 @@
+name: Test Push
+on:
+  push:
+jobs:
+  decay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Call API route to decay toad stats by 1
+        run: echo "Automatically print a message once pushed to main"

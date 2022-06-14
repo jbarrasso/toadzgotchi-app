@@ -11,8 +11,8 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
         const data = JSON.parse(req.body)
 
         if (data.length > 1) {
-            let action: string = data[0]           
-            res.status(200).json({message: `${action}`})
+            // let action: string = data[0]           
+            res.status(200).json({message: `${data}`})
 
         } else {
             res.status(404).json({message: 'No data sent'})
