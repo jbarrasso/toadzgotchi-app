@@ -3,7 +3,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { ethers } from 'ethers';
 import { cryptoadzAddress } from '../../index';
 import CrypToadz from '../../../artifacts/contracts/CrypToadz.sol/CrypToadz.json'
-import { userInfo } from 'os';
 
 async function queryToadContract(account: string) {
     //const defProvider = ethers.getDefaultProvider() rate-limited
