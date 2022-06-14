@@ -1,4 +1,8 @@
 name: Decay toad stats workflow - manually added
+env:
+  REPO_OWNER: jbarrasso
+  REPO_NAME: toadzgotchi-app
+  GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
 on:
   repository_dispatch:
     types: [run_decay]
