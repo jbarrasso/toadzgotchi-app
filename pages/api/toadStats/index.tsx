@@ -434,13 +434,12 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                                             })
                     })
 
-                    console.log(`callGithubAction responded with code ${callGithubAction.status}`)
-
                     res.status(200).json(
                         {
                             message:`Toad is now vibin'. Try some actions!`,
                             animation: '',
-                            points: thisOwner.points
+                            points: thisOwner.points,
+                            ga: callGithubAction.status
                         }
                     )
                 } else {
