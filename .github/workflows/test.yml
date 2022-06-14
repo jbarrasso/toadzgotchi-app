@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: dev
+          ref: 'dev'
       - name: Call API route to decay toad stats by 1
         run: |
           curl --request PATCH \
