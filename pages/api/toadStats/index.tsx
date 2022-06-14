@@ -422,7 +422,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                     const callGithubAction = await fetch(`https://api.github.com/repos/jbarrasso/toadzgotchi-app/dispatches`, {
                         method: 'POST',
                         headers: {
-                                    'Authorization': `Bearer`,
+                                    'Authorization': `Bearer ${token}`,
                                     'Accept': 'application/vnd.github.v3+json'
                                 },
                         body: JSON.stringify({
