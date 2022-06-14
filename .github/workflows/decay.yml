@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -name: Call API route to decay toad stats by 1
-      run:
-       curl --request PATCH \
-       --url 'https://${{process.env.NEXT_PUBLIC_VERCEL_URL}}/api/toadStats/decay' \
-       -H 'Authorization: Bearer ${{ secrets.DECAY_API_TOKEN }}' \
-       -d '{ "toadId" : ${{ github.event.client_payload.toadId }} }'
+        run:
+        curl --request PATCH
+        --url 'https://${{process.env.NEXT_PUBLIC_VERCEL_URL}}/api/toadStats/decay' \
+        --header 'Authorization: Bearer ${{ secrets.DECAY_API_TOKEN }}' \
+        --data '{ "toadId" : ${{ github.event.client_payload.toadId }} }'
