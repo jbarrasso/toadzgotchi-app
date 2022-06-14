@@ -1,78 +1,78 @@
 import { prisma } from '../../../lib/prisma'
 import { NextApiRequest, NextApiResponse } from 'next';
 
-function startDecay(toadid: number) {
-    setInterval(function() {decayStats(toadid)}, 1000*60)
-}
+// function startDecay(toadid: number) {
+//     setInterval(function() {decayStats(toadid)}, 1000*60)
+// }
 
-async function decayStats(toadid: number) {
-    const allToadz = await prisma.toadz.findMany()
-    let fedValue: number
-    let energyValue: number
-    let happinessValue: number
-    let healthValue: number
+// async function decayStats(toadid: number) {
+//     const allToadz = await prisma.toadz.findMany()
+//     let fedValue: number
+//     let energyValue: number
+//     let happinessValue: number
+//     let healthValue: number
 
-    return await prisma.$transaction(async (prisma) => {
-        if ( (allToadz[toadid-1].fed == 0) || (allToadz[toadid-1].energy == 0) || (allToadz[toadid-1].happiness == 0) || (allToadz[toadid-1].health == 0) ) {
-            if (allToadz[toadid-1].fed == 0) {
-                fedValue = 0
-            } else {
-                await prisma.toadz.update({
-                    where: { toadId : allToadz[toadid-1].toadId },
-                    data: { fed: allToadz[toadid-1].fed - 1 }
-                })
-                fedValue = allToadz[toadid-1].fed - 1
-            }
-            if (allToadz[toadid-1].energy == 0) {
-                energyValue = 0
-            } else { 
-                await prisma.toadz.update({
-                    where: { toadId : allToadz[toadid-1].toadId },
-                    data: { energy: allToadz[toadid-1].energy - 1 }
-                })
-                energyValue = allToadz[toadid-1].energy - 1
-            }
-            if (allToadz[toadid-1].happiness == 0) {
-                happinessValue = 0
-            } else {
-                await prisma.toadz.update({
-                    where: { toadId : allToadz[toadid-1].toadId },
-                    data: { happiness: allToadz[toadid-1].happiness - 1 }
-                })
-                happinessValue = allToadz[toadid-1].happiness - 1
-            }
-            if (allToadz[toadid-1].health == 0) {
-                healthValue = 0
-            } else {
-                await prisma.toadz.update({
-                    where: { toadId : allToadz[toadid-1].toadId },
-                    data: { health: allToadz[toadid-1].health - 1 }
-                })
-                healthValue = allToadz[toadid-1].health - 1
-            }
-        } else {
-            await prisma.toadz.update({
-                where: { toadId : allToadz[toadid-1].toadId },
-                data: { fed: allToadz[toadid-1].fed - 1,
-                        energy: allToadz[toadid-1].energy - 1,
-                        happiness: allToadz[toadid-1].happiness - 1,
-                        health: allToadz[toadid-1].health - 1 }
-            })
-            fedValue = allToadz[toadid-1].fed - 1
-            energyValue = allToadz[toadid-1].energy - 1
-            happinessValue = allToadz[toadid-1].happiness - 1
-            healthValue = allToadz[toadid-1].health - 1
-        }
+//     return await prisma.$transaction(async (prisma) => {
+//         if ( (allToadz[toadid-1].fed == 0) || (allToadz[toadid-1].energy == 0) || (allToadz[toadid-1].happiness == 0) || (allToadz[toadid-1].health == 0) ) {
+//             if (allToadz[toadid-1].fed == 0) {
+//                 fedValue = 0
+//             } else {
+//                 await prisma.toadz.update({
+//                     where: { toadId : allToadz[toadid-1].toadId },
+//                     data: { fed: allToadz[toadid-1].fed - 1 }
+//                 })
+//                 fedValue = allToadz[toadid-1].fed - 1
+//             }
+//             if (allToadz[toadid-1].energy == 0) {
+//                 energyValue = 0
+//             } else { 
+//                 await prisma.toadz.update({
+//                     where: { toadId : allToadz[toadid-1].toadId },
+//                     data: { energy: allToadz[toadid-1].energy - 1 }
+//                 })
+//                 energyValue = allToadz[toadid-1].energy - 1
+//             }
+//             if (allToadz[toadid-1].happiness == 0) {
+//                 happinessValue = 0
+//             } else {
+//                 await prisma.toadz.update({
+//                     where: { toadId : allToadz[toadid-1].toadId },
+//                     data: { happiness: allToadz[toadid-1].happiness - 1 }
+//                 })
+//                 happinessValue = allToadz[toadid-1].happiness - 1
+//             }
+//             if (allToadz[toadid-1].health == 0) {
+//                 healthValue = 0
+//             } else {
+//                 await prisma.toadz.update({
+//                     where: { toadId : allToadz[toadid-1].toadId },
+//                     data: { health: allToadz[toadid-1].health - 1 }
+//                 })
+//                 healthValue = allToadz[toadid-1].health - 1
+//             }
+//         } else {
+//             await prisma.toadz.update({
+//                 where: { toadId : allToadz[toadid-1].toadId },
+//                 data: { fed: allToadz[toadid-1].fed - 1,
+//                         energy: allToadz[toadid-1].energy - 1,
+//                         happiness: allToadz[toadid-1].happiness - 1,
+//                         health: allToadz[toadid-1].health - 1 }
+//             })
+//             fedValue = allToadz[toadid-1].fed - 1
+//             energyValue = allToadz[toadid-1].energy - 1
+//             happinessValue = allToadz[toadid-1].happiness - 1
+//             healthValue = allToadz[toadid-1].health - 1
+//         }
            
-        const newOverall = Math.round(((fedValue + energyValue + happinessValue + healthValue) / 4))
+//         const newOverall = Math.round(((fedValue + energyValue + happinessValue + healthValue) / 4))
 
-        await prisma.toadz.update({
-            where: { toadId : allToadz[toadid-1].toadId },
-            data: { overall: newOverall,
-                    lastDecay: new Date().toLocaleTimeString().toString() }
-        })
-    })
-}
+//         await prisma.toadz.update({
+//             where: { toadId : allToadz[toadid-1].toadId },
+//             data: { overall: newOverall,
+//                     lastDecay: new Date().toLocaleTimeString().toString() }
+//         })
+//     })
+// }
 
 export default async function getToadById( req:NextApiRequest, res:NextApiResponse) {
     const {method} = req
@@ -99,96 +99,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                     where: { address: selectedToad[0].userId }
                 })
             }
-
-            async function updateOverallStats(fedValue: number, energyValue: number, happinessValue: number, healthValue: number) {
-                if (fedValue < 0) {
-                    await prisma.toadz.update({
-                        where: { toadId : selectedToad[0].toadId },
-                        data: { fed : 0}
-                    })
-                    fedValue = 0
-                } else if (fedValue > 10) {
-                    await prisma.toadz.update({
-                        where: { toadId : selectedToad[0].toadId },
-                        data: { fed : 10}
-                    })
-                    fedValue = 10
-                }
-                if (energyValue < 0) {
-                    await prisma.toadz.update({
-                        where: { toadId : selectedToad[0].toadId },
-                        data: { energy : 0}
-                    })
-                    energyValue = 0
-                } else if (energyValue > 10) {
-                    await prisma.toadz.update({
-                        where: { toadId : selectedToad[0].toadId },
-                        data: { energy : 10}
-                    })
-                    energyValue = 10
-                }
-                if (happinessValue < 0) {
-                    await prisma.toadz.update({
-                        where: { toadId : selectedToad[0].toadId },
-                        data: { happiness : 0}
-                    })
-                    happinessValue = 0
-                } else if (happinessValue > 10) {
-                    await prisma.toadz.update({
-                        where: { toadId : selectedToad[0].toadId },
-                        data: { happiness : 10}
-                    })
-                    happinessValue = 10
-                }
-                if (healthValue < 0) {
-                    await prisma.toadz.update({
-                        where: { toadId : selectedToad[0].toadId },
-                        data: { health : 0}
-                    })
-                    healthValue = 0
-                } else if (healthValue > 10) {
-                    await prisma.toadz.update({
-                        where: { toadId : selectedToad[0].toadId },
-                        data: { health : 10}
-                    })
-                    healthValue = 10
-                }
-        
-                const newOverall = Math.round(((fedValue + energyValue + happinessValue + healthValue) / 4))
-                await prisma.toadz.update({
-                    where: { toadId : selectedToad[0].toadId },
-                    data: { overall: newOverall}
-                })
-            }
-        
-            async function grantXp(actionXp: number) {
-                //add exponential feature
-                let currentXp = selectedToad[0].xp
-        
-                if ((currentXp + actionXp) >= 100) {
-                    let leftoverXp = (currentXp + actionXp) - 100
-                    await prisma.toadz.update({
-                        where: { toadId : selectedToad[0].toadId },
-                        data: { xp : leftoverXp,
-                                level: selectedToad[0].level + 1 }
-                    })
-                    await prisma.user.update({
-                        where: { address: selectedToad[0].userId },
-                        data: { points: {increment: 100}}
-                    })
-                } else {
-                    let newXp = currentXp + actionXp
-                    await prisma.toadz.update({
-                        where: { toadId : selectedToad[0].toadId },
-                        data: { xp : newXp}
-                    })
-                    await prisma.user.update({
-                        where: { address: selectedToad[0].userId },
-                        data: { points: {increment: 10}}
-                    })
-                }
-            }
-        
+      
             const canFeed = () => {
                 if (selectedToad[0].vibing == true) {
                     if (selectedToad[0].fed < 10) {
@@ -500,18 +411,29 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
         
             const vibe = async() => {
                 if (selectedToad[0].vibing != true) {
-                    const update = await prisma.toadz.update({
+                    await prisma.toadz.update({
                         where: { toadId : selectedToad[0].toadId },
                         data: { vibing : true, 
                                 level: 1,
                                 vibeStart: new Date().toISOString() }
                     })
-                    // startDecay(selectedToad[0].toadId)
+                    const { REPO_OWNER: owner, REPO_NAME: repo, GITHUB_TOKEN: token } = process.env
+
+                    const callGithubWorkflow = await fetch(`https://api.github.com/repos/${owner}/${repo}/dispatches`, {
+                        method: 'POST',
+                        headers: {
+                                    Authorization: `Bearer ${token}`,
+                                    Accept : "application/vnd.github.v3+json"
+                                },
+                        body: `{"event_type":"run_decay","client_payload":{"command":"decay","toadId":${selectedToad[0].toadId}}}`
+                    })
+
                     res.status(200).json(
                         {
                             message:`Toad is now vibin'. Try some actions!`,
                             animation: '',
-                            points: thisOwner.points
+                            points: thisOwner.points,
+                            status: callGithubWorkflow.status
                         }
                     )
                 } else {
