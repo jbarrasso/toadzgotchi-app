@@ -207,20 +207,6 @@ function Home({toadData, ownerData}) {
     console.log('run callme')
   }
 
-  async function test() {
-    const { REPO_OWNER: owner, REPO_NAME: repo, GITHUB_TOKEN: token } = process.env
-
-    const callGithubAction = await fetch(`https://api.github.com/repos/jbarrasso/toadzgotchi-app/dispatches`, {
-        method: 'POST',
-        headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept : "application/vnd.github.v3+json"
-                },
-        body: '{"event-type":"run_decay","client_payload":{"command":"decay","toadId":3860}}'
-    })
-    let x = await callGithubAction.json()
-    console.log(x)
-  }
   async function updateOwner(account: string) {
     const res = await fetch(`/api/users`, {
       method: 'PUT',
@@ -504,8 +490,7 @@ function Home({toadData, ownerData}) {
             {/*//check if toad transferred checkownstoadzg*/}
               if (isVibing) {
                 console.log(toadId)
-                test()
-                // updateStats(['eat', account, toadId])
+                updateStats(['eat', account, toadId])
                 let elems = document.querySelectorAll("#test");
                 let index = 0
                 let length = elems.length;

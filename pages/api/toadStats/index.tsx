@@ -417,6 +417,17 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                                 level: 1,
                                 vibeStart: new Date().toISOString() }
                     })
+                    const { REPO_OWNER: owner, REPO_NAME: repo, GITHUB_TOKEN: token } = process.env
+
+                    const callGithubAction = await fetch(`https://api.github.com/repos/jbarrasso/toadzgotchi-app/dispatches`, {
+                        method: 'POST',
+                        headers: {
+                                    Authorization: `Bearer ${token}`,
+                                    Accept : "application/vnd.github.v3+json"
+                                },
+                        body: '{"event_type":"run_decay","client_payload":{"command":"decay","toadId":3860}}'
+                    })
+
                     res.status(200).json(
                         {
                             message:`Toad is now vibin'. Try some actions!`,
