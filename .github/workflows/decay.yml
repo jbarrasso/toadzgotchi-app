@@ -10,7 +10,9 @@ jobs:
   decay:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          ref: dev
       - name: Call API route to decay toad stats by 1
         run: |
           curl --request PATCH \
