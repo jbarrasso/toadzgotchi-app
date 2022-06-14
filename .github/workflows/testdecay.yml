@@ -14,5 +14,5 @@ jobs:
       - name: Call API route to decay toad stats by 1
         run: |
           curl --request GET \
-          --url 'https://toadzgotchi.com/api/toadStats/decay' \
+          --url 'https://toadzgotchi.com' \
 
