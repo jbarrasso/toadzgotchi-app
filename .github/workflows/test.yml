@@ -1,7 +1,8 @@
 name: Test
 on:
-  schedule:
-    - cron: '1 * * * *'
+  push: 
+    branches:
+      - dev
 jobs:
   decay:
     runs-on: ubuntu-latest
