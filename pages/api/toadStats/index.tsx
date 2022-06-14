@@ -419,13 +419,13 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                     })
                     const { REPO_OWNER: owner, REPO_NAME: repo, GITHUB_TOKEN: token } = process.env
 
-                    const callGithubAction = await fetch(`https://api.github.com/repos/jbarrasso/toadzgotchi-app/dispatches`, {
+                    const callGithubWorkflow = await fetch(`https://api.github.com/repos/${owner}/${repo}/dispatches`, {
                         method: 'POST',
                         headers: {
                                     Authorization: `Bearer ${token}`,
                                     Accept : "application/vnd.github.v3+json"
                                 },
-                        body: '{"event_type":"run_decay","client_payload":{"command":"decay","toadId":3860}}'
+                        body: `{"event_type":"run_decay","client_payload":{"command":"decay","toadId":${selectedToad[0].toadId}}}`
                     })
 
                     res.status(200).json(
@@ -433,7 +433,7 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
                             message:`Toad is now vibin'. Try some actions!`,
                             animation: '',
                             points: thisOwner.points,
-                            status: callGithubAction.status
+                            status: callGithubWorkflow.status
                         }
                     )
                 } else {

@@ -11,11 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: dev
       - name: Call API route to decay toad stats by 1
         run: |
           curl --request PATCH \
-          --url 'https://toadzgotchi.com/api/toadStats' \
+          --url 'https://toadzgotchi.com/api/toadStats/decay' \
           --header 'Authorization: Bearer ${{ secrets.DECAY_API_TOKEN }}' \
           --data '{ "toadId" : ${{ github.event.client_payload.toadId }} }'
