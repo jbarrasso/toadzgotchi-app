@@ -1,4 +1,4 @@
-name: Decay toad stats workflow - manually added
+name: Test Decay Main
 env:
   REPO_OWNER: jbarrasso
   REPO_NAME: toadzgotchi-app

@@ -1,7 +1,7 @@
-name: Test Schedule
+name: Test Schedule Main
 on:
   schedule:
-    - cron: '1 * * * *'
+    - cron: '6 * * * *'
 jobs:
   decay:
     runs-on: ubuntu-latest
