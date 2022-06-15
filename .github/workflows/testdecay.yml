@@ -9,7 +9,5 @@ jobs:
       - uses: actions/checkout@v3
       - name: Call API route to decay toad stats by 1
         run: |
-          curl --request PATCH \
-          --url 'https://www.toadzgotchi.com' \
-          --header 'Authorization: Bearer ${{ secrets.DECAY_API_TOKEN }}' \
-          --data '{ "toadId" : ${{ github.event.client_payload.toadId }} }'
+          curl --request GET \
+          --url 'https://www.toadzgotchi.com/api/toadStats/decay' \

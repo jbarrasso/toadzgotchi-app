@@ -2,10 +2,29 @@ import { prisma } from '../../../lib/prisma'
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function decayToadStats( req:NextApiRequest, res:NextApiResponse) {
-    const {method} = req
+    const date = req.headers.date
+    const method = req.method
     
     if (method === 'GET') {
-        res.status(200).json({message: "No toad id specified"})
+
+        // const vibingToadz = await prisma.toadz.findMany({
+        //     where: {vibing: true}
+        // })
+        // let data = [1,2]
+        // for (let i=0; i < vibingToadz.length; i++) {
+        // }
+        await prisma.toadz.updateMany({
+            where: {
+                lastDecay: {
+                    contains: '8:00 pm'
+                },
+                vibing : true
+            },
+            data: {
+                lastDecay: 'gotcha'
+            }
+        })
+        res.status(200).json({message: `${date}`})
 
     } else if (method === 'PATCH') {
         const data = JSON.parse(req.body)
