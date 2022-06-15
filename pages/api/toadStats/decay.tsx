@@ -2,7 +2,7 @@ import { prisma } from '../../../lib/prisma'
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function decayToadStats( req:NextApiRequest, res:NextApiResponse) {
-    const date = req.headers.date
+    const date = req.rawHeaders
     const method = req.method
     
     if (method === 'GET') {
