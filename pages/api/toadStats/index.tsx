@@ -411,29 +411,43 @@ export default async function getToadById( req:NextApiRequest, res:NextApiRespon
         
             const vibe = async() => {
                 if (selectedToad[0].vibing != true) {
+                    const timestamp = new Date().toLocaleTimeString().toString().split(" ")
+                    const time = timestamp[0]
+                    const amPM = timestamp[1]
+                    let hour = time.substring(0, time.indexOf(':'))
+
+                    if (hour === '2' || hour === '3' || hour === '5') {
+                        hour = '4'
+                    } else if (hour === '6' || hour === '7' || hour === '9') {
+                        hour = '8'
+                    } else if (hour === '10' || hour === '11' || hour === '1') {
+                        hour = '12'
+                    }
+
                     await prisma.toadz.update({
                         where: { toadId : selectedToad[0].toadId },
                         data: { vibing : true, 
                                 level: 1,
-                                vibeStart: new Date().toISOString() }
+                                vibeStart: new Date().toISOString(),
+                                lastDecay: `${hour}` + ' ' + `${amPM}`     
+                            }
                     })
-                    const { REPO_OWNER: owner, REPO_NAME: repo, GITHUB_TOKEN: token } = process.env
+                    // const { REPO_OWNER: owner, REPO_NAME: repo, GITHUB_TOKEN: token } = process.env
 
-                    const callGithubWorkflow = await fetch(`https://api.github.com/repos/${owner}/${repo}/dispatches`, {
-                        method: 'POST',
-                        headers: {
-                                    Authorization: `Bearer ${token}`,
-                                    Accept : "application/vnd.github.v3+json"
-                                },
-                        body: `{"event_type":"run_decay","client_payload":{"command":"decay","toadId":${selectedToad[0].toadId}}}`
-                    })
+                    // const callGithubWorkflow = await fetch(`https://api.github.com/repos/${owner}/${repo}/dispatches`, {
+                    //     method: 'POST',
+                    //     headers: {
+                    //                 Authorization: `Bearer ${token}`,
+                    //                 Accept : "application/vnd.github.v3+json"
+                    //             },
+                    //     body: `{"event_type":"run_decay","client_payload":{"command":"decay","toadId":${selectedToad[0].toadId}}}`
+                    // })
 
                     res.status(200).json(
                         {
                             message:`Toad is now vibin'. Try some actions!`,
                             animation: '',
-                            points: thisOwner.points,
-                            status: callGithubWorkflow.status
+                            points: thisOwner.points
                         }
                     )
                 } else {

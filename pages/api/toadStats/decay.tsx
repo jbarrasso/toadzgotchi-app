@@ -2,41 +2,87 @@ import { prisma } from '../../../lib/prisma'
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function decayToadStats( req:NextApiRequest, res:NextApiResponse) {
-    const date = req.rawHeaders
     const method = req.method
     
-    if (method === 'GET') {
-
-        // const vibingToadz = await prisma.toadz.findMany({
-        //     where: {vibing: true}
-        // })
-        // let data = [1,2]
-        // for (let i=0; i < vibingToadz.length; i++) {
-        // }
-        await prisma.toadz.updateMany({
-            where: {
-                lastDecay: {
-                    contains: '8:00 pm'
-                },
-                vibing : true
-            },
-            data: {
-                lastDecay: 'gotcha'
+    if (method === 'PATCH') {
+        const timestamp = new Date().toLocaleTimeString().toString().split(" ")
+        const time = timestamp[0]
+        let amPM = timestamp[1]
+        let lastAMPM = amPM
+        let hour = time.substring(0, time.indexOf(':'))
+        
+        if (hour == '4' || hour == '8' || hour == '12') {
+            if (hour === '12') {
+                if (amPM === 'AM') {
+                    lastAMPM = 'PM'
+                } else {
+                    lastAMPM = 'AM'
+                }
             }
-        })
-        res.status(200).json({message: `${date}`})
+    
+            let lastDecayHour = parseInt(hour) - 4
 
-    } else if (method === 'PATCH') {
-        const data = JSON.parse(req.body)
+            if (lastDecayHour == 0) {
+                lastDecayHour = 12
+            }
+    
+            await prisma.$transaction(async (prisma) => {
+                await prisma.toadz.updateMany({
+                    where: {
+                        lastDecay: {
+                            contains: `${lastDecayHour.toString()}` + ' ' + `${lastAMPM}`
+                        },
+                        vibing : true,
+                        fed: { not: 0 },
+                        energy: { not: 0},
+                        happiness: { not: 0},
+                        health: { not: 0}
+                    },
+                    data: {
+                        overall: {decrement: 1},
+                        fed: {decrement: 1},
+                        energy: {decrement: 1},
+                        happiness: {decrement: 1},
+                        health: {decrement: 1},
+                        lastDecay: `${hour}` + ' ' + `${amPM}`
+                    }
+                })
 
-        if (data.length > 1) {
-            // let action: string = data[0]           
-            res.status(200).json({message: `${data}`})
-
+                await prisma.toadz.updateMany({
+                    where: { fed: { lt: 0 } },
+                    data: {
+                        fed: 0,
+                    }
+                })
+                await prisma.toadz.updateMany({
+                    where: { energy: { lt: 0 } },
+                    data: {
+                        energy: 0,
+                    }
+                })
+                await prisma.toadz.updateMany({
+                    where: { happiness: { lt: 0 } },
+                    data: {
+                        happiness: 0,
+                    }
+                })
+                await prisma.toadz.updateMany({
+                    where: { health: { lt: 0 } },
+                    data: {
+                        health: 0,
+                    }
+                })
+            },
+            {
+                maxWait: 5000, // default: 2000
+                timeout: 10000, // default: 5000
+            })
+            res.status(200).json({message: `Successfully decayed eligible toad stats by -1`})
+            
         } else {
-            res.status(404).json({message: 'No data sent'})
-        }
+            res.status(500).json({message: 'Decay function can only be called at hours 4, 8, or 12'})
+        }       
     } else {
-        res.status(404).json({message: 'Invalid request method'}) 
+        res.status(500).json({message: 'Invalid request method'}) 
     }
 }
