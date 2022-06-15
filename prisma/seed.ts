@@ -51,6 +51,19 @@ async function main() {
     // })
     // console.log('updated all toad stats')
 
+    await prisma.toadz.updateMany({
+        where: {toadId: 152 },
+        data : {
+            overall: 8,
+            fed: 8,
+            energy: 8,
+            happiness: 8,
+            health: 8,
+            lastDecay: '8:00 pm 6/14'
+        }
+    })
+    console.log('updated one toad stats')
+
     // await prisma.toadz.updateMany({
     //     data : {
     //         vibeStart: new Date().toLocaleTimeString().toString()
