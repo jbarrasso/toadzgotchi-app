@@ -54,13 +54,14 @@ async function main() {
     await prisma.toadz.updateMany({
         where: {toadId: { not : 3860 } },
         data : {
-            vibing: true,
-            overall: 0,
-            fed: 0,
-            energy: 0,
-            happiness: 0,
-            health: 1,
-            lastDecay: '8 PM'
+            vibing: false,
+            overall: 5,
+            fed: 5,
+            energy: 5,
+            happiness: 5,
+            health: 5,
+            vibeStart: '',
+            lastDecay: ''
         }
     })
     console.log('updated one toad stats')
