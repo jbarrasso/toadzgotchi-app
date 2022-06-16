@@ -5,7 +5,7 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
     const method = req.method
     
     if (method === 'PATCH') {
-        const passwordJSON = JSON.parse(req.body)
+        const passwordJSON = req.body
         const passwordKey = Object.keys(passwordJSON)[0]
         const password = passwordJSON[passwordKey]
 
@@ -18,7 +18,7 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
             let lastAMPM = amPM
             let hour = time.substring(0, time.indexOf(':'))
             
-            if (hour === '1' || hour === '8' || hour === '12') {
+            if (hour === '4' || hour === '8' || hour === '12') {
                 // if (hour === '12') {
                 //     if (amPM === 'AM') {
                 //         lastAMPM = 'PM'
