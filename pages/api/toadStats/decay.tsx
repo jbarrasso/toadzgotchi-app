@@ -35,11 +35,28 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
                 await prisma.$transaction(async (prisma) => {
                     await prisma.toadz.updateMany({
                         where: {
-                            lastDecay: {
-                                contains: `${lastDecayHour.toString()}` + ' ' + `${lastAMPM}`
-                            },
-                            vibing : true,
-                            overall: { not: 0}
+                            AND: [
+                                {
+                                    lastDecay: {
+                                        contains: `${lastDecayHour.toString()}` + ' ' + `${lastAMPM}`,
+                                    },
+                                },
+                                {
+                                    vibing : true,
+                                },
+                                {
+                                    fed: { not: 0 },
+                                },
+                                {
+                                    energy: { not: 0 },
+                                },
+                                {
+                                    happiness: { not: 0 },
+                                },
+                                {
+                                    health: { not: 0 },
+                                },
+                            ],
                         },
                         data: {
                             overall: {decrement: 1},
