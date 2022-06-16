@@ -217,6 +217,7 @@ function Home({toadData, ownerData}) {
     console.log(data)
     let messageKey = Object.keys(data)[0]
     let message = data[messageKey]
+    console.log(data[0])
 
     if (res.status < 300) {
       let newPlayerKey = Object.keys(data)[1]
