@@ -1,7 +1,7 @@
 import { prisma } from '../../../lib/prisma'
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function getToadById( req:NextApiRequest, res:NextApiResponse) {
+export default async function getToadById(req:NextApiRequest, res:NextApiResponse) {
     const {method} = req
     
     if (req.method === 'GET') {

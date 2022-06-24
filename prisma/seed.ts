@@ -52,9 +52,11 @@ async function main() {
     // console.log('updated all toad stats')
 
     await prisma.toadz.updateMany({
-        where: {toadId: { not : 3860 } },
+        where: {toadId: 442 },
         data : {
             vibing: false,
+            level: 0,
+            xp: 0,
             overall: 5,
             fed: 5,
             energy: 5,

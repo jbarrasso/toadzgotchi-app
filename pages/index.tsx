@@ -20,7 +20,6 @@ export let currentToad: string;
 export let songPlaylist = ['/img/a-fly.mp3','/img/no-worries.mp3','/img/city-over-clouds.mp3','/img/big-helmet.mp3','/img/ninja-toad.mp3']
 export let welcomeMessages = ['Welcome back to the swamp!',
                               'Sit a while and relax...',
-                              'Toad is happy to see you again...',
                               '*Croak* ... *Ribbit*...']
 
 //Runs on the server, not client
@@ -60,7 +59,10 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
       const tryAccount = await trySigner.getAddress()
       //ask for a sign here?
       account = tryAccount
+      //wallet with no toadz
       //account = '0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8'
+      //wallet with multiple toadz
+      // account = '0xF6E1A43EB08120b2e0eDfADDdD53E1d5B71e86e8'
       // account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
       setIsWalletConnected(true)
       console.log('Wallect is connected')
@@ -183,6 +185,9 @@ function Home({toadData, ownerData}) {
     handleChainChanged(setNetwork)
   }, [])
 
+  useEffect(() => {
+    console.log(toadId)
+  }, [isVibing])
 
   useEffect(() => {
     console.log(account)
@@ -217,7 +222,6 @@ function Home({toadData, ownerData}) {
     console.log(data)
     let messageKey = Object.keys(data)[0]
     let message = data[messageKey]
-    console.log(data[0])
 
     if (res.status < 300) {
       let newPlayerKey = Object.keys(data)[1]
@@ -226,7 +230,6 @@ function Home({toadData, ownerData}) {
       let firstToad = data[firstToadKey]
       let pointsKey = Object.keys(data)[3]
       let points = data[pointsKey]
-
 
       // refreshData()
       setToadId(firstToad.toString())
@@ -285,18 +288,26 @@ function Home({toadData, ownerData}) {
 
       if (animation != '') {
         setToadDisplayState('/img/' + toadId + '-' + animation + '.gif')
+
+        setTimeout(() => {
+          if (overall >= 8) {
+            setToadDisplayState('/img/' + toadId + '-happy.gif')
+          } else if (overall <= 2) {
+            setToadDisplayState('/img/' + toadId + '-sad.gif')
+          } else {
+            console.log(toadId)
+            setToadDisplayState('/img/' + toadId + '.gif')
+          }
+        }, 4500);
+      } else {
+        setIsVibing(true)
+        console.log('sf')
       }
       setTimeout(() => {
         document.getElementById('globalMessageContainer').classList.add('hidden')
       }, 3000);
+
       setTimeout(() => {
-        if (overall >= 8) {
-          setToadDisplayState('/img/' + toadId + '-happy.gif')
-        } else if (overall <= 2) {
-          setToadDisplayState('/img/' + toadId + '-sad.gif')
-        } else {
-          setToadDisplayState('/img/' + toadId + '.gif')
-        }
         let elems = document.querySelectorAll("#test");
         let index = 0
         let length = elems.length;
@@ -338,11 +349,21 @@ function Home({toadData, ownerData}) {
           //set states below in updateOwner
           if (toadData[arrayOfToadIds[0].toString()-1].overall >= 8) {
             setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '-happy.gif')
+            document.getElementById('tombstone').classList.add('hidden')
           } else if (toadData[arrayOfToadIds[0].toString()-1].happiness <= 2) {
             setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '-sad.gif')
+            document.getElementById('tombstone').classList.add('hidden')
           } else {
             setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '.gif')
+            document.getElementById('tombstone').classList.add('hidden')
           }
+
+          //change to each stat &&
+          if (toadData[arrayOfToadIds[0].toString()-1].overall == 0) {
+            document.getElementById('toad').classList.add('hidden')
+            document.getElementById('tombstone').classList.remove('hidden')
+          }
+
           console.log(arrayOfToadIds)
           setToadId(arrayOfToadIds[0].toString())
           setIsVibing(toadData[arrayOfToadIds[0].toString()-1].vibing)
@@ -463,7 +484,9 @@ function Home({toadData, ownerData}) {
         </div>)
         }
         {/* FOR TOADDISPLAYSTATE PATH... PULL TOAD STATE FROM TOADDATA (GETSERVERSIDEPROPS) TO POINT TO PATH */}
-        <img src={toadDisplayState} style={{display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'40%', width:'30%', zIndex:1, position:'absolute', top:'32%', right:'37%'}}/>
+        <img src={toadDisplayState} id='toad' style={{display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'40%', width:'30%', zIndex:1, position:'absolute', top:'32%', right:'37%'}}/>
+        <img src={'/img/' + toadId + '-tombstone.gif'} id='tombstone' style={{display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'30%', width:'16%', zIndex:1, position:'absolute', top:'18%', right:'29%'}}/>
+        <div className='topActionBarBg'></div>
         <div className='topActionBar'>
           <div id='test' onClick={() => { 
             if (document.getElementById('globalMessageContainer').classList.contains('hidden')) {
@@ -478,7 +501,7 @@ function Home({toadData, ownerData}) {
           {/* <div id='test' onClick={() => { showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood) } }>
             <img src='/img/meterIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div> */}
-          <div id='test' style={{fontSize: '2vh'}}>
+          <div id='test' style={{fontSize: '2vh', color: 'beige'}}>
             {(points == undefined) ?
               <p>Loading... </p> :
               <p>{points}</p>
@@ -490,6 +513,17 @@ function Home({toadData, ownerData}) {
           <div id='test' onClick={() => {
             {/*//check if toad transferred checkownstoadzg*/}
               if (isVibing) {
+                if ((toadData[toadId-1].fed == 0)  && (toadData[toadId-1].energy == 0) && (toadData[toadId-1].happiness==0) && (toadData[toadId-1].health == 0)) {
+                  setGlobalMessage('')
+                  document.getElementById('typewriterText').classList.remove('typewriterEffect')
+                  document.getElementById('typewriterText').classList.add('hidden')
+                  setTimeout(() => {
+                    setGlobalMessage(`...It appears toad has... passed away...`)
+                      document.getElementById('globalMessageContainer').classList.remove('hidden')
+                      document.getElementById('typewriterText').classList.add('typewriterEffect')
+                      document.getElementById('typewriterText').classList.remove('hidden')
+                  }, 100);
+                } else {
                 console.log(toadId)
                 updateStats(['eat', account, toadId])
                 let elems = document.querySelectorAll("#test");
@@ -501,6 +535,7 @@ function Home({toadData, ownerData}) {
                 setGlobalMessage('')
                 document.getElementById('typewriterText').classList.remove('typewriterEffect')
                 document.getElementById('typewriterText').classList.add('hidden')
+              }
               } else {
                 setGlobalMessage('')
                 document.getElementById('typewriterText').classList.remove('typewriterEffect')
@@ -518,6 +553,17 @@ function Home({toadData, ownerData}) {
           <div id='test' onClick={() => {
             {/*//check if toad transferred checkownstoadzg*/}
             if (isVibing) {
+              if ((toadData[toadId-1].fed == 0)  && (toadData[toadId-1].energy == 0) && (toadData[toadId-1].happiness==0) && (toadData[toadId-1].health == 0)) {
+                setGlobalMessage('')
+                document.getElementById('typewriterText').classList.remove('typewriterEffect')
+                document.getElementById('typewriterText').classList.add('hidden')
+                setTimeout(() => {
+                  setGlobalMessage(`...It appears toad has... passed away...`)
+                    document.getElementById('globalMessageContainer').classList.remove('hidden')
+                    document.getElementById('typewriterText').classList.add('typewriterEffect')
+                    document.getElementById('typewriterText').classList.remove('hidden')
+                }, 100);
+              } else {
               updateStats(['sleep', account, toadId])
               let elems = document.querySelectorAll("#test");
               let index = 0
@@ -528,6 +574,7 @@ function Home({toadData, ownerData}) {
               setGlobalMessage('')
               document.getElementById('typewriterText').classList.remove('typewriterEffect')
               document.getElementById('typewriterText').classList.add('hidden')
+            }
             } else {
                 setGlobalMessage('')
                 document.getElementById('typewriterText').classList.remove('typewriterEffect')
@@ -545,6 +592,17 @@ function Home({toadData, ownerData}) {
           <div id='test' onClick={() => {
             {/*//check if toad transferred checkownstoadzg*/}
             if (isVibing) {
+              if ((toadData[toadId-1].fed == 0)  && (toadData[toadId-1].energy == 0) && (toadData[toadId-1].happiness==0) && (toadData[toadId-1].health == 0)) {
+                setGlobalMessage('')
+                document.getElementById('typewriterText').classList.remove('typewriterEffect')
+                document.getElementById('typewriterText').classList.add('hidden')
+                setTimeout(() => {
+                  setGlobalMessage(`...It appears toad has... passed away...`)
+                    document.getElementById('globalMessageContainer').classList.remove('hidden')
+                    document.getElementById('typewriterText').classList.add('typewriterEffect')
+                    document.getElementById('typewriterText').classList.remove('hidden')
+                }, 100);
+              } else {
               updateStats(['gameboy', account, toadId])
               let elems = document.querySelectorAll("#test");
               let index = 0
@@ -555,6 +613,7 @@ function Home({toadData, ownerData}) {
               setGlobalMessage('')
               document.getElementById('typewriterText').classList.remove('typewriterEffect')
               document.getElementById('typewriterText').classList.add('hidden')
+            }
             } else {
                 setGlobalMessage('')
                 document.getElementById('typewriterText').classList.remove('typewriterEffect')
@@ -779,6 +838,18 @@ function Home({toadData, ownerData}) {
             height: 70%;
             z-index:9;
           }
+          .topActionBarBg {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            font-size: 50px;
+            position: absolute;
+            top:0px;
+            z-index: -11;
+            background-color: red;
+            width: 100%;
+            height: 15%;
+          }
           .topActionBar {
             display: flex;
             align-items: center;
@@ -805,10 +876,6 @@ function Home({toadData, ownerData}) {
             bottom: 16%;
             width: 99%;
             height: 15%;
-          }
-          #toad {
-            top:35%;
-            left:60%;
           }
           .hidden {
             position: fixed;

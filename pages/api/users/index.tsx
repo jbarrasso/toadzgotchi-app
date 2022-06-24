@@ -1,5 +1,5 @@
 import { prisma } from '../../../lib/prisma'
-import { NextApireq, NextApiResponse } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next';
 import { ethers } from 'ethers';
 import { cryptoadzAddress } from '../../index';
 import CrypToadz from '../../../artifacts/contracts/CrypToadz.sol/CrypToadz.json'
@@ -21,7 +21,7 @@ async function queryToadContract(account: string) {
     return (arrayOfToadIds)
 }
 
-export default async function getUserByAddress(req:NextApireq, res:NextApiResponse) {
+export default async function getUserByAddress(req:NextApiRequest, res:NextApiResponse) {
     const {method} = req
 
     if (method === "PUT") {
