@@ -29,7 +29,7 @@ export default async function getToadById(req:NextApiRequest, res:NextApiRespons
       
             const canFeed = () => {
                 if (selectedToad[0].vibing == true) {
-                    if (selectedToad[0].fed < 10) {
+                    if (selectedToad[0].fed < 100) {
                         if (selectedToad[0].health > 0) {
                             return true
                         } else {
@@ -46,7 +46,7 @@ export default async function getToadById(req:NextApiRequest, res:NextApiRespons
         
             const canSleep = () => {
                 if (selectedToad[0].vibing == true) {
-                    if (selectedToad[0].energy < 10) {
+                    if (selectedToad[0].energy < 100) {
                         if (selectedToad[0].fed > 0) {
                             return true
                         } else {
@@ -62,7 +62,7 @@ export default async function getToadById(req:NextApiRequest, res:NextApiRespons
         
             const canPlay = () => {
                 if (selectedToad[0].vibing == true) {
-                    if (selectedToad[0].happiness < 10) {
+                    if (selectedToad[0].happiness < 100) {
                          if (selectedToad[0].energy > 0) {
                             return true
                         } else {
@@ -90,35 +90,35 @@ export default async function getToadById(req:NextApiRequest, res:NextApiRespons
                     await prisma.$transaction(async (prisma) => {
                         await prisma.toadz.update({
                             where: { toadId : selectedToad[0].toadId },
-                            data: { fed : selectedToad[0].fed + 3,
-                                    happiness: selectedToad[0].happiness + 1,
-                                    health: selectedToad[0].health + 1 }
+                            data: { fed : selectedToad[0].fed + 30,
+                                    happiness: selectedToad[0].happiness + 10,
+                                    health: selectedToad[0].health + 10 }
                         })
-                        fedValue = selectedToad[0].fed + 3
+                        fedValue = selectedToad[0].fed + 30
                         energyValue = selectedToad[0].energy
-                        happinessValue = selectedToad[0].happiness + 1
-                        healthValue = selectedToad[0].health + 1
+                        happinessValue = selectedToad[0].happiness + 10
+                        healthValue = selectedToad[0].health + 10
                         
-                        if (fedValue > 10) {
+                        if (fedValue > 100) {
                             await prisma.toadz.update({
                                 where: { toadId : selectedToad[0].toadId },
-                                data: { fed : 10}
+                                data: { fed : 100}
                             })
-                            fedValue = 10
+                            fedValue = 100
                         }
-                        if (happinessValue > 10) {
+                        if (happinessValue > 100) {
                             await prisma.toadz.update({
                                 where: { toadId : selectedToad[0].toadId },
-                                data: { happiness : 10}
+                                data: { happiness : 100}
                             })
-                            happinessValue = 10
+                            happinessValue = 100
                         }
-                        if (healthValue > 10) {
+                        if (healthValue > 100) {
                             await prisma.toadz.update({
                                 where: { toadId : selectedToad[0].toadId },
-                                data: { health : 10}
+                                data: { health : 100}
                             })
-                            healthValue = 10
+                            healthValue = 100
                         }
                 
                         const newOverall = Math.round(((fedValue + energyValue + happinessValue + healthValue) / 4))
@@ -179,27 +179,27 @@ export default async function getToadById(req:NextApiRequest, res:NextApiRespons
                     await prisma.$transaction(async (prisma) => {
                         await prisma.toadz.update({
                             where: { toadId : selectedToad[0].toadId },
-                            data: { energy : selectedToad[0].energy + 2,
-                                    health: selectedToad[0].health + 1 }
+                            data: { energy : selectedToad[0].energy + 20,
+                                    health: selectedToad[0].health + 10 }
                         })
                         fedValue = selectedToad[0].fed
-                        energyValue = selectedToad[0].energy + 2
+                        energyValue = selectedToad[0].energy + 20
                         happinessValue = selectedToad[0].happiness
-                        healthValue = selectedToad[0].health + 1
+                        healthValue = selectedToad[0].health + 10
 
-                        if (energyValue > 10) {
+                        if (energyValue > 100) {
                             await prisma.toadz.update({
                                 where: { toadId : selectedToad[0].toadId },
-                                data: { energy : 10}
+                                data: { energy : 100}
                             })
-                            energyValue = 10
+                            energyValue = 100
                         }
-                        if (healthValue > 10) {
+                        if (healthValue > 100) {
                             await prisma.toadz.update({
                                 where: { toadId : selectedToad[0].toadId },
-                                data: { health : 10}
+                                data: { health : 100}
                             })
-                            healthValue = 10
+                            healthValue = 100
                         }
                 
                         const newOverall = Math.round(((fedValue + energyValue + happinessValue + healthValue) / 4))
@@ -261,13 +261,13 @@ export default async function getToadById(req:NextApiRequest, res:NextApiRespons
                     await prisma.$transaction(async (prisma) => {
                         await prisma.toadz.update({
                             where: { toadId : selectedToad[0].toadId },
-                            data: { happiness : selectedToad[0].happiness + 3,
-                                    fed: selectedToad[0].fed - 1,
-                                    energy: selectedToad[0].energy - 1 }
+                            data: { happiness : selectedToad[0].happiness + 30,
+                                    fed: selectedToad[0].fed - 10,
+                                    energy: selectedToad[0].energy - 10 }
                         })
-                        fedValue = selectedToad[0].fed - 1
-                        energyValue = selectedToad[0].energy - 1
-                        happinessValue = selectedToad[0].happiness + 3
+                        fedValue = selectedToad[0].fed - 10
+                        energyValue = selectedToad[0].energy - 10
+                        happinessValue = selectedToad[0].happiness + 30
                         healthValue = selectedToad[0].health
 
                         if (fedValue < 0) {
@@ -284,12 +284,12 @@ export default async function getToadById(req:NextApiRequest, res:NextApiRespons
                             })
                             energyValue = 0
                         }
-                        if (happinessValue > 10) {
+                        if (happinessValue > 100) {
                             await prisma.toadz.update({
                                 where: { toadId : selectedToad[0].toadId },
-                                data: { happiness : 10}
+                                data: { happiness : 100}
                             })
-                            happinessValue = 10
+                            happinessValue = 100
                         }
                 
                         const newOverall = Math.round(((fedValue + energyValue + happinessValue + healthValue) / 4))

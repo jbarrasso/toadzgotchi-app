@@ -39,30 +39,29 @@ async function main() {
     // })
     // console.log('created toad ids')
 
-    // await prisma.toadz.updateMany({
-    //     data : {
-    //         overall: 5,
-    //         fed: 5,
-    //         energy: 5,
-    //         happiness: 5,
-    //         health: 5,
-    //         lastDecay: '12:00 am 6/14'
-    //     }
-    // })
-    // console.log('updated all toad stats')
-
     await prisma.toadz.updateMany({
-        where: {toadId: 2776 },
         data : {
-            vibing: true,
-            overall: 9,
-            fed: 9,
-            energy: 9,
-            happiness: 9,
-            health: 9,
+            overall: 50,
+            fed: 50,
+            energy: 50,
+            happiness: 50,
+            health: 50,
         }
     })
-    console.log('updated one toad stats')
+    console.log('updated all toad stats')
+
+    // await prisma.toadz.updateMany({
+    //     where: {toadId: 3860 },
+    //     data : {
+    //         vibing: true,
+    //         overall: 100,
+    //         fed: 100,
+    //         energy: 100,
+    //         happiness: 100,
+    //         health: 100,
+    //     }
+    // })
+    // console.log('updated one toad stats')
 
     // await prisma.toadz.updateMany({
     //     data : {

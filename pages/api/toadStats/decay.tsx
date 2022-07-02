@@ -61,11 +61,11 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
                             ],
                         },
                         data: {
-                            overall: {decrement: 1},
-                            fed: {decrement: 1},
-                            energy: {decrement: 1},
-                            happiness: {decrement: 1},
-                            health: {decrement: 1},
+                            overall: {decrement: 2},
+                            fed: {decrement: 2},
+                            energy: {decrement: 2},
+                            happiness: {decrement: 2},
+                            health: {decrement: 2},
                             lastDecay: `${hour}` + ' ' + `${amPM}`
                         }
                     })

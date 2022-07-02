@@ -290,9 +290,9 @@ function Home({toadData, ownerData}) {
         setToadDisplayState('/img/' + toadId + '-' + animation + '.gif')
 
         setTimeout(() => {
-          if (overall >= 8) {
+          if (overall >= 80) {
             setToadDisplayState('/img/' + toadId + '-happy.gif')
-          } else if (overall <= 2) {
+          } else if (overall <= 20) {
             setToadDisplayState('/img/' + toadId + '-sad.gif')
           } else {
             console.log(toadId)
@@ -347,10 +347,10 @@ function Home({toadData, ownerData}) {
           }
           updateOwner(account)
           //set states below in updateOwner
-          if (toadData[arrayOfToadIds[0].toString()-1].overall >= 8) {
+          if (toadData[arrayOfToadIds[0].toString()-1].overall >= 80) {
             setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '-happy.gif')
             document.getElementById('tombstone').classList.add('hidden')
-          } else if (toadData[arrayOfToadIds[0].toString()-1].happiness <= 2) {
+          } else if (toadData[arrayOfToadIds[0].toString()-1].happiness <= 20) {
             setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '-sad.gif')
             document.getElementById('tombstone').classList.add('hidden')
           } else {
@@ -359,7 +359,7 @@ function Home({toadData, ownerData}) {
           }
 
           //change to each stat &&
-          if (toadData[arrayOfToadIds[0].toString()-1].overall == 0) {
+          if ((toadData[arrayOfToadIds[0].toString()-1].fed == 0)&&(toadData[arrayOfToadIds[0].toString()-1].energy == 0) && (toadData[arrayOfToadIds[0].toString()-1].happiness == 0) && (toadData[arrayOfToadIds[0].toString()-1].health == 0)) {
             document.getElementById('toad').classList.add('hidden')
             document.getElementById('tombstone').classList.remove('hidden')
           }
