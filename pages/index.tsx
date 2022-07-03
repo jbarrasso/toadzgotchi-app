@@ -346,7 +346,7 @@ function Home({toadData, ownerData}) {
             //before pushing, authenticate with signature pass in verifiedAccount instead of account or key in localstorage
           }
           updateOwner(account)
-          //set states below in updateOwner
+          //put math.round here for all toad stats >=80
           if (toadData[arrayOfToadIds[0].toString()-1].overall >= 80) {
             setToadDisplayState('/img/' + arrayOfToadIds[0].toString() + '-happy.gif')
             document.getElementById('tombstone').classList.add('hidden')
@@ -358,7 +358,6 @@ function Home({toadData, ownerData}) {
             document.getElementById('tombstone').classList.add('hidden')
           }
 
-          //change to each stat &&
           if ((toadData[arrayOfToadIds[0].toString()-1].fed == 0)&&(toadData[arrayOfToadIds[0].toString()-1].energy == 0) && (toadData[arrayOfToadIds[0].toString()-1].happiness == 0) && (toadData[arrayOfToadIds[0].toString()-1].health == 0)) {
             document.getElementById('toad').classList.add('hidden')
             document.getElementById('tombstone').classList.remove('hidden')

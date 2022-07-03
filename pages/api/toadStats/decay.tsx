@@ -1,5 +1,7 @@
 import { prisma } from '../../../lib/prisma'
 import { NextApiRequest, NextApiResponse } from 'next';
+import _, { sample } from 'underscore'
+import { SSL_OP_NO_TLSv1_1 } from 'constants';
 
 export default async function decayToadStats( req:NextApiRequest, res:NextApiResponse) {
     const method = req.method
@@ -17,13 +19,24 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
             let lastAMPM = amPM
             let hour = time.substring(0, time.indexOf(':'))
             
-            if (hour === '4' || hour === '8' || hour === '12') {
+            // if (hour === '4' || hour === '8' || hour === '12') {
                 if (hour === '12') {
                     if (amPM === 'AM') {
                         lastAMPM = 'PM'
                     } else {
                         lastAMPM = 'AM'
                     }
+                }
+
+                const toadIdsVibing = await prisma.toadz.findMany({
+                    where: { vibing: true }
+                })
+                //randomtoadz = [{toadid:1}, {toadid:2}]
+                let sample = _.sample(toadIdsVibing, Math.round(toadIdsVibing.length/4))
+                let randomToadIds: number[]
+
+                for (let i=0; i < sample.length; i++) {
+                    randomToadIds[i] = sample[i].toadid
                 }
         
                 let lastDecayHour = parseInt(hour) - 4
@@ -99,6 +112,104 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
                             health: 0,
                         }
                     })
+                    switch(_.sample(['fed', 'energy', 'happiness', 'health'])) {
+                        case 'fed':
+                            await prisma.toadz.updateMany({
+                                where: {
+                                    OR: [
+                                        {
+                                            fed: { not: 0 },
+                                        },
+                                        {
+                                            energy: { not: 0 },
+                                        },
+                                        {
+                                            happiness: { not: 0 },
+                                        },
+                                        {
+                                            health: { not: 0 },
+                                        },
+                                    ],
+                                    toadId: { in: randomToadIds }
+                                },
+                                data: {
+                                    fed: 0
+                                }
+                            })
+                            break;
+                        case 'energy':
+                            await prisma.toadz.updateMany({
+                                where: {
+                                    OR: [
+                                        {
+                                            fed: { not: 0 },
+                                        },
+                                        {
+                                            energy: { not: 0 },
+                                        },
+                                        {
+                                            happiness: { not: 0 },
+                                        },
+                                        {
+                                            health: { not: 0 },
+                                        },
+                                    ],
+                                    toadId: { in: randomToadIds }
+                                },
+                                data: {
+                                    energy: 0
+                                }
+                            })
+                            break;
+                        case 'happiness':
+                            await prisma.toadz.updateMany({
+                                where: {
+                                    OR: [
+                                        {
+                                            fed: { not: 0 },
+                                        },
+                                        {
+                                            energy: { not: 0 },
+                                        },
+                                        {
+                                            happiness: { not: 0 },
+                                        },
+                                        {
+                                            health: { not: 0 },
+                                        },
+                                    ],
+                                    toadId: { in: randomToadIds }
+                                },
+                                data: {
+                                    happiness: 0
+                                }
+                            })
+                            break;
+                        case 'health':
+                            await prisma.toadz.updateMany({
+                                where: {
+                                    OR: [
+                                        {
+                                            fed: { not: 0 },
+                                        },
+                                        {
+                                            energy: { not: 0 },
+                                        },
+                                        {
+                                            happiness: { not: 0 },
+                                        },
+                                        {
+                                            health: { not: 0 },
+                                        },
+                                    ],
+                                    toadId: { in: randomToadIds }
+                                },
+                                data: {
+                                    health: 0
+                                }
+                            })
+                            break;
+                    }
                 },
                 {
                     maxWait: 5000, // default: 2000
@@ -106,9 +217,9 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
                 })
                 res.status(200).json({message: `${timestamp}: Successfully decayed all eligible toad stats by 1`})
                 
-            } else {
-                res.status(500).json({message: 'Decay function can only be called at hours 4, 8, or 12'})
-            }
+            // } else {
+                // res.status(500).json({message: 'Decay function can only be called at hours 4, 8, or 12'})
+            // }
         } else {
             res.status(500).json({message: `Unauthorized request`})
         }       

@@ -141,11 +141,11 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
               onClick={() => {
                 SetToadId(previewToadId.toString())
 
-                if (ToadData[previewToadId-1].overall >= 8) {
+                if (ToadData[previewToadId-1].overall >= 80) {
                   SetToadDisplayState('/img/' + previewToadId + '-happy.gif')
                   document.getElementById('tombstone').classList.add('hidden')
                   document.getElementById('toad').classList.remove('hidden')
-                } else if (ToadData[previewToadId-1].happiness <= 2) {
+                } else if (ToadData[previewToadId-1].happiness <= 20) {
                   SetToadDisplayState('/img/' + previewToadId + '-sad.gif')
                   document.getElementById('tombstone').classList.add('hidden')
                   document.getElementById('toad').classList.remove('hidden')
@@ -155,8 +155,7 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
                   document.getElementById('toad').classList.remove('hidden')
                 }
 
-                //change to each stat &&
-                if (ToadData[previewToadId-1].overall == 0) {
+                if ((ToadData[previewToadId-1].fed == 0)&&(ToadData[previewToadId-1].energy == 0) && (ToadData[previewToadId-1].happiness == 0) && (ToadData[previewToadId-1].health == 0)) {
                   document.getElementById('toad').classList.add('hidden')
                   document.getElementById('tombstone').classList.remove('hidden')
                 }

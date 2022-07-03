@@ -159,7 +159,8 @@ export default async function getToadById(req:NextApiRequest, res:NextApiRespons
                             message: `You fed toad some pizza... Delicious!`,
                             animation: 'pizza',
                             points: thisOwner.points,
-                            overall: selectedToad[0].overall
+                            overall: selectedToad[0].overall,
+                            allToadz: allToadz[0].toadId
                         }
                     )
                 }
