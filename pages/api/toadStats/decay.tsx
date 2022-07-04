@@ -39,7 +39,8 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
                 for (let i=0; i < sample.length; i++) {
                     randomToadIds[i] = sample[i].toadid
                 }
-        
+                res.status(200).json({message: `${randomToadIds}`})
+
                 let lastDecayHour = parseInt(hour) - 4
 
                 if (lastDecayHour == 0) {
@@ -235,7 +236,7 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
                 res.status(200).json({message: `${timestamp}: Successfully decayed all eligible toad stats by 1`})
 
             } catch (err) {
-                res.status(504).json({message: `${err}`})
+                res.status(504).json({message: `error:${err}`})
             }
             
             // } else {
