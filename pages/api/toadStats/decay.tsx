@@ -20,6 +20,7 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
             let hour = time.substring(0, time.indexOf(':'))
             
             // if (hour === '4' || hour === '8' || hour === '12') {
+            try {
                 if (hour === '12') {
                     if (amPM === 'AM') {
                         lastAMPM = 'PM'
@@ -216,7 +217,11 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
                     timeout: 10000, // default: 5000
                 })
                 res.status(200).json({message: `${timestamp}: Successfully decayed all eligible toad stats by 1`})
-                
+
+            } catch (err) {
+                res.status(504).json({message: `${err}`})
+            }
+            
             // } else {
                 // res.status(500).json({message: 'Decay function can only be called at hours 4, 8, or 12'})
             // }
