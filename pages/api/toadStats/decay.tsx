@@ -59,11 +59,6 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
                             ],
                             AND: [
                                 {
-                                    lastDecay: {
-                                        contains: `${lastDecayHour.toString()}` + ' ' + `${lastAMPM}`,
-                                    },
-                                },
-                                {
                                     vibing : true,
                                 },
                             ],
