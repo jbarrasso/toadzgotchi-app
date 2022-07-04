@@ -131,7 +131,11 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
                                             health: { not: 0 },
                                         },
                                     ],
-                                    toadId: { in: randomToadIds }
+                                    AND: [
+                                        {
+                                            toadId: { in: randomToadIds }
+                                        }
+                                    ]
                                 },
                                 data: {
                                     fed: 0
@@ -155,7 +159,11 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
                                             health: { not: 0 },
                                         },
                                     ],
-                                    toadId: { in: randomToadIds }
+                                    AND: [
+                                        {
+                                            toadId: { in: randomToadIds }
+                                        }
+                                    ]
                                 },
                                 data: {
                                     energy: 0
@@ -179,7 +187,11 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
                                             health: { not: 0 },
                                         },
                                     ],
-                                    toadId: { in: randomToadIds }
+                                    AND: [
+                                        {
+                                            toadId: { in: randomToadIds }
+                                        }
+                                    ]                                
                                 },
                                 data: {
                                     happiness: 0
@@ -203,7 +215,11 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
                                             health: { not: 0 },
                                         },
                                     ],
-                                    toadId: { in: randomToadIds }
+                                    AND: [
+                                        {
+                                            toadId: { in: randomToadIds }
+                                        }
+                                    ]                               
                                 },
                                 data: {
                                     health: 0
