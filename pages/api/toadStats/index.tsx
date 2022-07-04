@@ -1,5 +1,6 @@
 import { prisma } from '../../../lib/prisma'
 import { NextApiRequest, NextApiResponse } from 'next';
+import _, {sample, pluck} from 'underscore'
 
 export default async function getToadById(req:NextApiRequest, res:NextApiResponse) {
     const {method} = req
@@ -87,6 +88,18 @@ export default async function getToadById(req:NextApiRequest, res:NextApiRespons
                     let actionXp = Math.round( 140 / selectedToad[0].level)
                     let newXp = currentXp + actionXp
 
+                    const toadIdsVibing = await prisma.toadz.findMany({
+                        where: { vibing: true }
+                    })
+                    // let randomtoadz = [{toadid:1, fed:10}, {toadid:2, fed:10}]
+                    let sample = _.sample(toadIdsVibing, Math.round(toadIdsVibing.length/4))
+                    let randomToadIds = _.pluck(sample, 'toadId')
+                    // let sample = [1,2,3]
+    
+                    // for (let i=0; i < sample.length; i++) {
+                    //     randomToadIds[i] = sample[i]
+                    // }
+
                     await prisma.$transaction(async (prisma) => {
                         await prisma.toadz.update({
                             where: { toadId : selectedToad[0].toadId },
@@ -160,7 +173,8 @@ export default async function getToadById(req:NextApiRequest, res:NextApiRespons
                             animation: 'pizza',
                             points: thisOwner.points,
                             overall: selectedToad[0].overall,
-                            allToadz: allToadz[0].toadId
+                            allToadz: allToadz[0].toadId,
+                            random: randomToadIds
                         }
                     )
                 }
