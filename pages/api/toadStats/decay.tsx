@@ -18,8 +18,7 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
             let lastAMPM = amPM
             let hour = time.substring(0, time.indexOf(':'))
             
-            // if (hour === '4' || hour === '8' || hour === '12') {
-            try {
+            if (hour === '4' || hour === '8' || hour === '12') {
                 if (hour === '12') {
                     if (amPM === 'AM') {
                         lastAMPM = 'PM'
@@ -58,6 +57,11 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
                                 },
                             ],
                             AND: [
+                                {
+                                    lastDecay: {
+                                        contains: `${lastDecayHour.toString()}` + ' ' + `${lastAMPM}`,
+                                    },
+                                },
                                 {
                                     vibing : true,
                                 },
@@ -213,25 +217,10 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
                     maxWait: 5000, // default: 2000
                     timeout: 10000, // default: 5000
                 })
-                res.status(200).json({message: `${timestamp}: Successfully decayed all eligible toad stats by 1 ${randomToadIds}`})
-
-            } catch (err) {
-                // const toadIdsVibing = await prisma.toadz.findMany({
-                //     where: { vibing: true }
-                // })
-                // //randomtoadz = [{toadid:1}, {toadid:2}]
-                // let sample = _.sample(toadIdsVibing, Math.round(toadIdsVibing.length/4))
-                // let randomToadIds: number[]
-
-                // for (let i=0; i < sample.length; i++) {
-                //     randomToadIds[i] = sample[i].toadid
-                // }
-                res.status(504).json({message: `error:${err}`})
+                res.status(200).json({message: `${timestamp}: Successfully decayed all eligible toad stats by 1`})
+            } else {
+                res.status(500).json({message: 'Decay function can only be called at hours 4, 8, or 12'})
             }
-            
-            // } else {
-                // res.status(500).json({message: 'Decay function can only be called at hours 4, 8, or 12'})
-            // }
         } else {
             res.status(500).json({message: `Unauthorized request`})
         }       
