@@ -28,7 +28,7 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
       console.log(previewToadId) } } src={'/img/' + image + '.gif'} style={{cursor:'pointer',height:'100%'}}/>
       <div style={{display:'flex', flexDirection: 'column', alignItems:'center', justifyContent:'space-around', height:'100%'}}>
         <span style={{height:'auto', width:'100%', fontSize:'.75vw'}}>Overall Health</span>
-        <progress max={10} value={ToadData[image-1].overall} style={{border: 'solid 2px black', width:'100%'}}></progress>
+        <progress max={100} value={ToadData[image-1].overall} style={{border: 'solid 2px black', width:'100%'}}></progress>
       </div>
     </div>);
 
@@ -67,7 +67,7 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
               <p style={{width:'', fontSize:'.5vw'}}>Toad Name: {ToadData[previewToadId-1].toadName}</p>
               )}
               <p style={{fontSize:'.75vw', margin:'0px'}}>Overall Health</p> 
-              <progress max={10} value={ToadData[previewToadId-1].overall} style={{border: 'solid 2px black'}}></progress>
+              <progress max={100} value={ToadData[previewToadId-1].overall} style={{border: 'solid 2px black'}}></progress>
               <p style={{fontSize: '.75vw', marginTop:'0px', marginBottom:'0px'}}>Toad Level: {ToadData[previewToadId-1].level}</p>
               <Button
                 text=''

@@ -1,7 +1,12 @@
 import CrypToadz from '../artifacts/contracts/CrypToadz.sol/CrypToadz.json'
 import { useRouter } from "next/router"
 import Button from "../components/Button"
-import Sound from "react-sound"
+import useSound from 'use-sound'
+import eatSound from '../public/sounds/eat2.mp3'
+import actionSelectSound from '../public/sounds/menuPing3.mp3'
+import errorSound from '../public/sounds/error.mp3'
+import sleepSound from '../public/sounds/sleep.mp3'
+import gameboySound from '../public/sounds/gameboy.mp3'
 import MyToadz from "../components/MyToadz"
 import { useState, useEffect, useRef } from 'react'
 import { ethers } from 'ethers'
@@ -18,6 +23,8 @@ export let account: string;
 export let dynamicBG: string;
 export let currentToad: string;
 export let songPlaylist = ['/img/a-fly.mp3','/img/no-worries.mp3','/img/city-over-clouds.mp3','/img/big-helmet.mp3','/img/ninja-toad.mp3']
+export let menuPing = ['/sounds/menuPing.mp3']
+export let buttonPing = ['/sounds/hm.mp3']
 export let welcomeMessages = ['Welcome back to the swamp!',
                               'Sit a while and relax...',
                               '*Croak* ... *Ribbit*...']
@@ -145,8 +152,6 @@ function Home({toadData, ownerData}) {
   const [showRest, setShowRest] = useState(false);
   const [showPlay, setShowPlay] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
-  const [songStatus, setSongStatus] = useState(Sound.status.STOPPED)
-  const [currentSong, setCurrentSong] = useState(songPlaylist[0])
   const [toadIdsOwned, setToadIdsOwned] = useState([])
   const [ownsToadz, setOwnsToadz] = useState(false)
   const [network, setNetwork] = useState()
@@ -154,6 +159,11 @@ function Home({toadData, ownerData}) {
   const [toadDisplayState, setToadDisplayState] = useState('')
   const [isVibing, setIsVibing] = useState(false)
   const [points, setPoints] = useState()
+  const [playEat] = useSound(eatSound, {interrupt: true})
+  const [playActionSelect] = useSound(actionSelectSound)
+  const [playError] = useSound(errorSound)
+  const [playSleep] = useSound(sleepSound)
+  const [playGameboy] = useSound(gameboySound)
 
   function getTime() {
     //const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -173,8 +183,6 @@ function Home({toadData, ownerData}) {
   useEffect(() => {
     getTime()
     console.log(new Date())
-    console.log(toadId)
-    console.log(toadData[3859])
     triggerRefresh()
     checkWeb3(setIsWeb3Injected, setIsWalletConnected, setIsLoading, setNetwork)
     //Below has no effect because ethereum() and network are not set yet
@@ -184,10 +192,6 @@ function Home({toadData, ownerData}) {
     handleAccountsChanged(setIsWalletConnected, checkOwnsToadz, setOwnsToadz, setShowMyToadz)
     handleChainChanged(setNetwork)
   }, [])
-
-  useEffect(() => {
-    console.log(toadId)
-  }, [isVibing])
 
   useEffect(() => {
     console.log(account)
@@ -286,9 +290,24 @@ function Home({toadData, ownerData}) {
 
       setPoints(points)
 
-      if (animation != '') {
-        setToadDisplayState('/img/' + toadId + '-' + animation + '.gif')
+      switch (animation) {
+        case '':
+          break
+        case 'pizza':
+          setToadDisplayState('/img/' + toadId + '-' + animation + '.gif')
+          playEat()
+          break
+        case 'sleep':
+          setToadDisplayState('/img/' + toadId + '-' + animation + '.gif')
+          playSleep()
+          break
+        case 'gameboy':
+          setToadDisplayState('/img/' + toadId + '-' + animation + '.gif')
+          playGameboy()
+          break
+      }
 
+      if (animation != '') {
         setTimeout(() => {
           if (overall >= 80) {
             setToadDisplayState('/img/' + toadId + '-happy.gif')
@@ -301,8 +320,8 @@ function Home({toadData, ownerData}) {
         }, 4500);
       } else {
         setIsVibing(true)
-        console.log('sf')
       }
+
       setTimeout(() => {
         document.getElementById('globalMessageContainer').classList.add('hidden')
       }, 3000);
@@ -317,6 +336,7 @@ function Home({toadData, ownerData}) {
       }, 4500);
       //to check if toad is sick, toadData wont update until next state action, so have toadAction be a state variable and run useeffect
     } else {
+      playError()
       setTimeout(() => {
         let elems = document.querySelectorAll("#test");
         let index = 0
@@ -388,37 +408,28 @@ function Home({toadData, ownerData}) {
     }
   }
 
-  // async function getToadData(toadIdsOwned) {
-  //   let j=1
-  //   for (let i=0; i<toadIdsOwned.length; i++) {
-  //     if (toadIdsOwned[i] > 6968) {
-  //     }
-  //     console.log(toadData[toadIdsOwned[i]-1].toad_id)
+  // function togglePlaySong(setSongStatus) {
+  //   if (songStatus == 'PLAYING') {
+  //     setSongStatus(Sound.status.STOPPED)
+  //   } else {
+  //     setSongStatus(Sound.status.PLAYING)
   //   }
   // }
-
-  function togglePlaySong(setSongStatus) {
-    if (songStatus == 'PLAYING') {
-      setSongStatus(Sound.status.STOPPED)
-    } else {
-      setSongStatus(Sound.status.PLAYING)
-    }
-  }
-  async function skipSong(setCurrentSong) {
-    if (songStatus == 'PLAYING') {
-      for (let i=0; i<songPlaylist.length; i++) {
-        if (currentSong == songPlaylist[i]) {
-          if (i == (songPlaylist.length-1)) {
-            setCurrentSong(songPlaylist[0])
-            return
-          } else {
-            setCurrentSong(songPlaylist[i+1])
-            return
-          }
-        }
-      }
-    }
-  }
+  // async function skipSong(setCurrentSong) {
+  //   if (songStatus == 'PLAYING') {
+  //     for (let i=0; i<songPlaylist.length; i++) {
+  //       if (currentSong == songPlaylist[i]) {
+  //         if (i == (songPlaylist.length-1)) {
+  //           setCurrentSong(songPlaylist[0])
+  //           return
+  //         } else {
+  //           setCurrentSong(songPlaylist[i+1])
+  //           return
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
   function closeAllOtherMenus(onlyShowMe) {
     const allMenus = [setShowFood, setShowRest, setShowLeaderboard, setShowPlay]
     for (let i=0; i<allMenus.length; i++) {
@@ -432,11 +443,6 @@ function Home({toadData, ownerData}) {
 
   return (
     <div>
-      <Sound
-        url={currentSong}
-        playStatus={songStatus}
-        loop={true}
-      />
       <img className='case' src={'/img/common1.png'}/>
       <div className='game'>
         <img className='gameScene' src={dynamicBG} style={{border: '3px solid black'}}/>
@@ -487,7 +493,8 @@ function Home({toadData, ownerData}) {
         <img src={'/img/' + toadId + '-tombstone.gif'} id='tombstone' style={{display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'30%', width:'16%', zIndex:1, position:'absolute', top:'18%', right:'29%'}}/>
         <div className='topActionBarBg'></div>
         <div className='topActionBar'>
-          <div id='test' onClick={() => { 
+          <div id='test' onClick={() => {
+            playActionSelect()
             if (document.getElementById('globalMessageContainer').classList.contains('hidden')) {
               document.getElementById('globalMessageContainer').classList.remove('hidden')
             } else {
@@ -496,7 +503,7 @@ function Home({toadData, ownerData}) {
           }}>
             <img src='/img/messageIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div>
-          {/* <progress max={10} value={ Math.round(((toadData[3859].fed + toadData[3859].energy + toadData[3859].happiness + toadData[3859].health) / 4))} style={{border: 'solid 2px black'}}></progress> */}
+          {/* <progress max={100} value={ Math.round(((toadData[3859].fed + toadData[3859].energy + toadData[3859].happiness + toadData[3859].health) / 4))} style={{border: 'solid 2px black'}}></progress> */}
           {/* <div id='test' onClick={() => { showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood) } }>
             <img src='/img/meterIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div> */}
@@ -523,7 +530,7 @@ function Home({toadData, ownerData}) {
                       document.getElementById('typewriterText').classList.remove('hidden')
                   }, 100);
                 } else {
-                console.log(toadId)
+                playActionSelect()
                 updateStats(['eat', account, toadId])
                 let elems = document.querySelectorAll("#test");
                 let index = 0
@@ -563,6 +570,7 @@ function Home({toadData, ownerData}) {
                     document.getElementById('typewriterText').classList.remove('hidden')
                 }, 100);
               } else {
+              playActionSelect()
               updateStats(['sleep', account, toadId])
               let elems = document.querySelectorAll("#test");
               let index = 0
@@ -602,6 +610,7 @@ function Home({toadData, ownerData}) {
                     document.getElementById('typewriterText').classList.remove('hidden')
                 }, 100);
               } else {
+              playActionSelect()
               updateStats(['gameboy', account, toadId])
               let elems = document.querySelectorAll("#test");
               let index = 0
@@ -718,9 +727,10 @@ function Home({toadData, ownerData}) {
             border=''
             borderRadius=''
             cursor= 'pointer'
-            onClick={!isWeb3Injected ? 
+            onClick={() => { playActionSelect()
+            !isWeb3Injected ? 
             (() => { window.open('https://metamask.io/download','_blank') }) : 
-            (!isWalletConnected ? requestAccount : null)}
+            (!isWalletConnected ? requestAccount : null)} }
           />
           <img 
             src={isWalletConnected? '/img/connected.png' : '/img/connect.png'}
@@ -746,8 +756,9 @@ function Home({toadData, ownerData}) {
             border=''
             borderRadius=''
             cursor= 'pointer'
-            onClick={isWalletConnected ? 
-            (() => { showMyToadz ? setShowMyToadz(false) : setShowMyToadz(true) }) : null }
+            onClick={() => { 
+              playActionSelect()
+              isWalletConnected ? (showMyToadz ? setShowMyToadz(false) : setShowMyToadz(true)) : null }}
           />
           <img src='/img/mynfts.png' style={{position: 'relative', height: '50%', width: '100%', left: '0%', paddingTop: '1.5vh'}}/>
           <img src='/img/buttonShadow.png' style={{zIndex:-10, position: 'absolute', height: '60%', width: '12%', left: '44%', top:'0%'}}/>
@@ -771,7 +782,9 @@ function Home({toadData, ownerData}) {
             border=''
             borderRadius=''
             cursor= 'pointer'
-            onClick={() => {window.open('https://discord.com/invite/zkgtxQvF3j','_blank')}}
+            onClick={() => {
+              playActionSelect()
+              window.open('https://discord.com/invite/zkgtxQvF3j','_blank')}}
           />
           <img src='/img/discord.png' style={{position: '', height: '50%', width: '100%', left: '0%', paddingTop: '1.5vh'}}/>
           <img src='/img/buttonShadow.png' style={{zIndex:-10, position: 'absolute', height: '67%', width: '12%', left: '82%', top:'0%'}}/>

@@ -217,7 +217,7 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
                     maxWait: 5000, // default: 2000
                     timeout: 10000, // default: 5000
                 })
-                res.status(200).json({message: `${timestamp}: Successfully decayed all eligible toad stats by 1`})
+                res.status(200).json({message: `${timestamp}: Successfully decayed all eligible toad stats by 1. Random toadz selected: ${randomToadIds}`})
             } else {
                 res.status(500).json({message: 'Decay function can only be called at hours 4, 8, or 12'})
             }
