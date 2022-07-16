@@ -53,6 +53,7 @@ async function main() {
     await prisma.toadz.updateMany({
         where: {toadId: 3860 },
         data : {
+            vibing: false,
             overall: 10,
             fed: 10,
             energy: 10,

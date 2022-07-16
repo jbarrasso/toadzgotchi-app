@@ -3,10 +3,13 @@ import { useRouter } from "next/router"
 import Button from "../components/Button"
 import useSound from 'use-sound'
 import eatSound from '../public/sounds/eat2.mp3'
-import actionSelectSound from '../public/sounds/menuPing3.mp3'
+import actionSelectSound from '../public/sounds/menuPingForward.mp3'
+import closeMenuSound from '../public/sounds/menuPing4.mp3'
 import errorSound from '../public/sounds/error.mp3'
 import sleepSound from '../public/sounds/sleep.mp3'
 import gameboySound from '../public/sounds/gameboy.mp3'
+import vibeSound from '../public/sounds/vibe.mp3'
+import helloSound from '../public/sounds/hello.mp3'
 import MyToadz from "../components/MyToadz"
 import { useState, useEffect, useRef } from 'react'
 import { ethers } from 'ethers'
@@ -33,11 +36,21 @@ export let welcomeMessages = ['Welcome back to the swamp!',
 export async function getServerSideProps() {
   const allToadz = await prisma.toadz.findMany()
   const allOwners = await prisma.user.findMany()
-  
+  const highestLevel = await prisma.toadz.findMany({
+    where: {vibing:true},
+    orderBy: {
+      level: 'desc'
+    }
+  })
+  const vibingToadz = await prisma.toadz.findMany({
+    where: {vibing: true}
+  })
   return {
     props: {
       toadData: allToadz,
-      ownerData: allOwners
+      ownerData: allOwners,
+      highestLevel: highestLevel,
+      vibingToadz: vibingToadz
     }
   }
 }
@@ -140,7 +153,7 @@ export const requestAccount = async() => {
   }
 }
 
-function Home({toadData, ownerData}) {
+function Home({toadData, ownerData, highestLevel, vibingToadz}) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [isNewPlayer, setIsNewPlayer] = useState(true)
@@ -164,6 +177,9 @@ function Home({toadData, ownerData}) {
   const [playError] = useSound(errorSound)
   const [playSleep] = useSound(sleepSound)
   const [playGameboy] = useSound(gameboySound)
+  const [playVibe] = useSound(vibeSound)
+  const [playCloseMenu] = useSound(closeMenuSound)
+  const [playHello] = useSound(helloSound)
 
   function getTime() {
     //const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -241,6 +257,7 @@ function Home({toadData, ownerData}) {
       setPoints(points)
 
       setTimeout(() => {
+        playHello()
         let rand = Math.floor(Math.random() * welcomeMessages.length);
         setGlobalMessage(welcomeMessages[rand])
         document.getElementById('globalMessageContainer').classList.remove('hidden')
@@ -291,7 +308,8 @@ function Home({toadData, ownerData}) {
       setPoints(points)
 
       switch (animation) {
-        case '':
+        case 'vibe':
+          playVibe()
           break
         case 'pizza':
           setToadDisplayState('/img/' + toadId + '-' + animation + '.gif')
@@ -431,7 +449,7 @@ function Home({toadData, ownerData}) {
   //   }
   // }
   function closeAllOtherMenus(onlyShowMe) {
-    const allMenus = [setShowFood, setShowRest, setShowLeaderboard, setShowPlay]
+    const allMenus = [setShowFood, setShowRest, setShowLeaderboard, setShowPlay, setShowMyToadz]
     for (let i=0; i<allMenus.length; i++) {
       if (allMenus[i] == onlyShowMe) {
         allMenus[i](true)
@@ -469,12 +487,14 @@ function Home({toadData, ownerData}) {
             borderRadius=''
             cursor= 'pointer'
             onClick={() => {
+              playActionSelect()
               setIsNewPlayer(false)
               setGlobalMessage('')
               document.getElementById('globalMessageContainer').classList.add('hidden')
               document.getElementById('typewriterText').classList.remove('typewriterEffect')
               document.getElementById('typewriterText').classList.add('hidden')
               setTimeout(() => {
+                playHello()
                 ownsToadz ? 
           
                 setGlobalMessage(welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)]) : 
@@ -494,19 +514,28 @@ function Home({toadData, ownerData}) {
         <div className='topActionBarBg'></div>
         <div className='topActionBar'>
           <div id='test' onClick={() => {
-            playActionSelect()
             if (document.getElementById('globalMessageContainer').classList.contains('hidden')) {
+              playActionSelect()
               document.getElementById('globalMessageContainer').classList.remove('hidden')
             } else {
+              playCloseMenu()
               document.getElementById('globalMessageContainer').classList.add('hidden')
             }
           }}>
             <img src='/img/messageIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div>
           {/* <progress max={100} value={ Math.round(((toadData[3859].fed + toadData[3859].energy + toadData[3859].happiness + toadData[3859].health) / 4))} style={{border: 'solid 2px black'}}></progress> */}
-          {/* <div id='test' onClick={() => { showFood ? setShowFood(false) : closeAllOtherMenus(setShowFood) } }>
+          <div id='test' onClick={() => {
+                           if (showLeaderboard == true) {
+                            playCloseMenu()
+                            setShowLeaderboard(false)
+                          } else {
+                            playActionSelect()
+                            closeAllOtherMenus(setShowLeaderboard)
+                          }
+           } }>
             <img src='/img/meterIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
-          </div> */}
+          </div>
           <div id='test' style={{fontSize: '2vh', color: 'beige'}}>
             {(points == undefined) ?
               <p>Loading... </p> :
@@ -543,6 +572,7 @@ function Home({toadData, ownerData}) {
                 document.getElementById('typewriterText').classList.add('hidden')
               }
               } else {
+                playError()
                 setGlobalMessage('')
                 document.getElementById('typewriterText').classList.remove('typewriterEffect')
                 document.getElementById('typewriterText').classList.add('hidden')
@@ -581,8 +611,9 @@ function Home({toadData, ownerData}) {
               setGlobalMessage('')
               document.getElementById('typewriterText').classList.remove('typewriterEffect')
               document.getElementById('typewriterText').classList.add('hidden')
-            }
+              }
             } else {
+                playError()
                 setGlobalMessage('')
                 document.getElementById('typewriterText').classList.remove('typewriterEffect')
                 document.getElementById('typewriterText').classList.add('hidden')
@@ -623,6 +654,7 @@ function Home({toadData, ownerData}) {
               document.getElementById('typewriterText').classList.add('hidden')
             }
             } else {
+                playError()
                 setGlobalMessage('')
                 document.getElementById('typewriterText').classList.remove('typewriterEffect')
                 document.getElementById('typewriterText').classList.add('hidden')
@@ -692,16 +724,17 @@ function Home({toadData, ownerData}) {
         <div id='leaderboardRoot'>
           <Leaderboard
             show={showLeaderboard}
-            OwnsToadz={ownsToadz}
-            imageURL={toadIdsOwned}
+            toadsByHighestLevel={highestLevel}
+            vibingToadz={vibingToadz}
             SetToadDisplayState={setToadDisplayState}
-            onClose={ () => { setShowLeaderboard(false) } }>
+            onClose={() => {setShowLeaderboard(false)}}>
           </Leaderboard>
         </div>
         <div id='globalMessageContainer' className='hidden'>
           <img id='globalMessageImg' className='globalMessageImg' src='/img/global-messages.png'/>
           <p id='typewriterText' className='hidden'>{globalMessage}</p>
           <div id='closeMessageButton' className='closeMessageButton' onClick={() => {
+            playCloseMenu()
             document.getElementById('globalMessageContainer').classList.add('hidden') }}>
             x
           </div>
@@ -757,8 +790,17 @@ function Home({toadData, ownerData}) {
             borderRadius=''
             cursor= 'pointer'
             onClick={() => { 
-              playActionSelect()
-              isWalletConnected ? (showMyToadz ? setShowMyToadz(false) : setShowMyToadz(true)) : null }}
+              if (isWalletConnected) { 
+                if (showMyToadz == true) {
+                  playCloseMenu()
+                  setShowMyToadz(false)
+                } else {
+                  playActionSelect()
+                  closeAllOtherMenus(setShowMyToadz)
+                }
+              } else {
+                null
+              }}}
           />
           <img src='/img/mynfts.png' style={{position: 'relative', height: '50%', width: '100%', left: '0%', paddingTop: '1.5vh'}}/>
           <img src='/img/buttonShadow.png' style={{zIndex:-10, position: 'absolute', height: '60%', width: '12%', left: '44%', top:'0%'}}/>

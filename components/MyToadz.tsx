@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import Button from "./Button"
+import useSound from "use-sound";
+import actionSelectSound from '../public/sounds/menuPingForward.mp3'
+import closeMenuSound from '../public/sounds/menuPing4.mp3'
 
 type Props = {
   show: boolean;
@@ -18,12 +21,16 @@ type Props = {
 const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplayState, ToadData, ToadIdsOwned, SetIsVibing, show, onClose }: Props) => {
   const [isBrowser, setIsBrowser] = useState(false)
   const [previewToadId, setPreviewToadId] = useState(0)
+  const [playActionSelect] = useSound(actionSelectSound)
+  const [playCloseMenu] = useSound(closeMenuSound)
+  
   let selectedToad = ToadIdsOwned[0]
 
   const listItems = ToadIdsOwned.map((image: number) =>
     <div key={image} style={{display:'flex', justifyContent:'space-around', width:'100%', height:'35%', alignItems:'center', border:'2px solid #673c37' }}>
-      <img onClick={ () => { selectedToad = image
-      console.log(selectedToad)
+      <img onClick={ () => {
+      playActionSelect()
+      selectedToad = image
       setPreviewToadId(image)
       console.log(previewToadId) } } src={'/img/' + image + '.gif'} style={{cursor:'pointer',height:'100%'}}/>
       <div style={{display:'flex', flexDirection: 'column', alignItems:'center', justifyContent:'space-around', height:'100%'}}>
@@ -41,6 +48,7 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
   }, [])
   
   const handleCloseClick = (e) => {
+    playCloseMenu()
     e.preventDefault();
     onClose();
   };
@@ -92,6 +100,7 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
                 borderRadius=''
                 cursor= 'pointer'
                 onClick={() => {
+                  playActionSelect()
                   SetToadId(previewToadId.toString())
                   
                   if (ToadData[previewToadId-1].overall >= 8) {
@@ -139,6 +148,7 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
               borderRadius=''
               cursor= 'pointer'
               onClick={() => {
+                playActionSelect()
                 SetToadId(previewToadId.toString())
 
                 if (ToadData[previewToadId-1].overall >= 80) {

@@ -27,11 +27,11 @@ export default async function decayToadStats( req:NextApiRequest, res:NextApiRes
                     }
                 }
 
-                const toadIdsVibing = await prisma.toadz.findMany({
+                const toadzVibing = await prisma.toadz.findMany({
                     where: { vibing: true }
                 })
 
-                let sample = _.sample(toadIdsVibing, Math.round(toadIdsVibing.length/4))
+                let sample = _.sample(toadzVibing, Math.round(toadzVibing.length/4))
                 let randomToadIds = _.pluck(sample, 'toadId')
                 let lastDecayHour = parseInt(hour) - 4
 

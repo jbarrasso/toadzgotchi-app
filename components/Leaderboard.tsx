@@ -1,45 +1,173 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import Button from "./Button"
+import _, { sample, pluck, sortBy } from 'underscore'
+import useSound from "use-sound";
+import actionSelectSound from '../public/sounds/menuPingForward.mp3'
+import closeMenuSound from '../public/sounds/menuPing4.mp3'
 
 type Props = {
-  ownsToadzgotchis: boolean;
   show: boolean;
-  imageURL: any;
+  toadsByHighestLevel: [{}];
+  vibingToadz: [{}];
   propSelectedToad: any;
   onClose: () => void
 };
 
-const Leaderboard = ({ ownsToadzgotchis, propSelectedToad, imageURL, show, onClose }: Props) => {
+const Leaderboard = ({ show, toadsByHighestLevel, vibingToadz, onClose }: Props) => {
   const [isBrowser, setIsBrowser] = useState(false)
   const [previewToad, setPreviewToad] = useState('')
+  const [property, setProperty] = useState('Level')
+  const [index, setIndex] = useState(0)
+  // const highestLevelsById = _.pluck(toadsByHighestLevel, 'toadId')
+  // const toadLevelsVibing = _.pluck(toadsByHighestLevel, 'level')
+  const oldestVibing = _.sortBy(vibingToadz, 'vibeStart')
+  const toadzByHighestLevel = _.sortBy(vibingToadz, 'level').reverse()
+  const [playActionSelect] = useSound(actionSelectSound)
+  const [playCloseMenu] = useSound(closeMenuSound)
+  let nineToadzShown: any[][] = []
+  let count = 0
+ 
+  useEffect(()=> {
+    if (property != undefined) {
+      if (property === 'Level') {
+        console.log('you')
+        for (let i=0; i<(Math.ceil(vibingToadz.length/9)); i++) {
+          nineToadzShown[i] = []
+          let k = 9
+          if ((i+1) == Math.ceil(vibingToadz.length/9)) {
+            if (Math.ceil(vibingToadz.length) % 9 == 0) {
+              k=9
+            } else {
+              k= Math.ceil(vibingToadz.length) % 9
+            }
+          }
+          for (let j=0; j<k; j++) {
+            nineToadzShown[i].push(toadzByHighestLevel[count])
+            count++
+          }
+        }
+      } else if (property === 'Longest Vibing') {
+        for (let i=0; i<(Math.ceil(vibingToadz.length/9)); i++) {
+          nineToadzShown[i] = []
+          let k = 9
+          if ((i+1) == Math.ceil(vibingToadz.length/9)) {
+            if (Math.ceil(vibingToadz.length) % 9 == 0) {
+              k=9
+            } else {
+              k= Math.ceil(vibingToadz.length) % 9
+            }
+          }
+          for (let j=0; j<k; j++) {
+            nineToadzShown[i].push(oldestVibing[count])
+            count++
+          }
+        }
+      }
+    } else {
+      return
+    }
+  }, [property])
 
-  const listItems = imageURL.map((image) =>
-    <div key={image} style={{display:'flex', width:'100%', height:'100px', alignItems:'center', border:'2px solid #673c37' }}>
-      <img onClick={ () => { setPreviewToad(image) } } src={image} style={{cursor:'pointer',height:'100%'}}/>
-      <p>Toad Name</p>
-      <progress></progress>
-    </div>);
+  const renderSwitch = (param, id) => {
+    switch(param) {
+      case 'Level':
+        return (<p style={{fontSize: '0.5vw'}}>Level: { id.level}</p>)
+      case 'Longest Vibing':
+        return (
+        <div style={{}}>
+          {/* <p style={{fontSize: '0.5vw'}}>Vibing Since: </p> */}
+        <p style={{fontSize: '0.5vw'}}>{ id.vibeStart.substring(0, id.vibeStart.indexOf('T'))}</p></div>)
+
+    }
+  }
+
+  function renderToadz() {
+    if (property === 'Level') {
+      for (let i=0; i<(Math.ceil(vibingToadz.length/9)); i++) {
+        nineToadzShown[i] = []
+        let k = 9
+        if ((i+1) == Math.ceil(vibingToadz.length/9)) {
+          if (Math.ceil(vibingToadz.length) % 9 == 0) {
+            k=9
+          } else {
+            k= Math.ceil(vibingToadz.length) % 9
+          }
+        }
+        for (let j=0; j<k; j++) {
+          nineToadzShown[i].push(toadzByHighestLevel[count])
+          count++
+        }
+      }
+    } else if (property === 'Longest Vibing') {
+      for (let i=0; i<(Math.ceil(vibingToadz.length/9)); i++) {
+        nineToadzShown[i] = []
+        let k = 9
+        if ((i+1) == Math.ceil(vibingToadz.length/9)) {
+          if (Math.ceil(vibingToadz.length) % 9 == 0) {
+            k=9
+          } else {
+            k= Math.ceil(vibingToadz.length) % 9
+          }
+        }
+        for (let j=0; j<k; j++) {
+          nineToadzShown[i].push(oldestVibing[count])
+          count++
+        }
+      }
+    }
+    return (nineToadzShown[index].map((id, index) =>
+      <div key={id.toadId} style={{display:'flex',  flexDirection:'column', flexWrap: 'wrap', justifyContent: 'flex-start', alignContent:'center', width:'33%', height:'33%', alignItems:'center', border:'', backgroundColor: ''}}>
+        <img onClick={ () => {console.log(nineToadzShown)} } src={'/img/' + id.toadId.toString() +'.gif'} onError={({ currentTarget }) => {
+          currentTarget.onerror = null
+          currentTarget.src="/img/unknown.png"
+        }} style={{cursor:'pointer',height:'100%'}}/>
+        <p style={{fontSize: '0.5vw'}}>ID: #{id.toadId}</p>
+        {renderSwitch(property, id)}
+      </div>))
+  }
 
   useEffect(() => {
     setIsBrowser(true)
   }, []);
   
   const handleCloseClick = (e) => {
+    playCloseMenu()
     e.preventDefault();
     onClose();
   };
 
-  const modalWidth = 500;
-
   const modalContent = show ? (
     <div style={{position: 'absolute', top: '16%', left: '.5%', height: '68%', width: '99%', zIndex:2}}>
       <img style={{height:'100%', width: '100%'}} src='/img/menu.png'/>
-      <a href="#" style={{ position: 'absolute', top:'-1%', right: '3%', fontSize:'20px'}} onClick={handleCloseClick}>x</a>
-      <div className='toadContainer' style={{position:'absolute', overflow: 'auto', top: '11%', display:'flex', flexWrap: 'wrap', flexDirection:'row', alignContent: 'flex-start', left: '2.5%', width: '45%',height:'85%'}}>
-        {ownsToadzgotchis? {listItems}.listItems : <div></div>}
+      <a href="#" style={{ position: 'absolute', top:'-1%', right: '3%', fontSize:'1.5vw'}} onClick={handleCloseClick}>x</a>
+      <a href="#" style={{ position: 'absolute', top:'3%', right: '15%', fontSize:'1vw'}} onClick={()=>{
+        if (index < (Math.ceil(vibingToadz.length/9)-1)) {
+          playActionSelect()
+          setIndex(index+1)
+        } else {
+          playActionSelect()
+        }}}>{`Next>`}</a>
+      <p style={{ position: 'absolute', top:'-1%', left: '5%', fontSize:'1vw', cursor:'pointer'}} onClick={()=>{
+        if (property === 'Level') {
+          playActionSelect()
+          setProperty('Longest Vibing')
+        } else {
+          playActionSelect()
+          setProperty ('Level')
+        } 
+        }}>Sort By: {property}</p>
+      <a href="#" style={{ position: 'absolute', top:'3%', right: '30%', fontSize:'1vw'}} onClick={()=>{
+        if (index > 0 ) {
+          playActionSelect()
+          setIndex(index-1)
+        } else{
+          playActionSelect()
+        }}}>{`<Prev`}</a>
+      <div className='toadContainer' style={{position:'absolute', overflow: 'auto', top: '20%', display:'flex', flexWrap: 'wrap', flexDirection:'row', alignContent: 'flex-start', left: '2%', width: '95.5%',height:'78%', backgroundColor:'white'}}>
+        {renderToadz()}
       </div>
-      <div className='toadPreview' style={{position:'absolute', alignItems: 'center', flexWrap:'wrap', top:'11%', left:'50%', display:'flex', width:'45%', height:'85%'}}>
+      {/* <div className='toadPreview' style={{position:'absolute', alignItems: 'center', flexWrap:'wrap', top:'11%', left:'50%', display:'flex', width:'45%', height:'85%'}}>
         {previewToad != '' && (
           <div>
           <img src={previewToad} style={{width:'30%', height: '50%'}} />
@@ -66,7 +194,7 @@ const Leaderboard = ({ ownsToadzgotchis, propSelectedToad, imageURL, show, onClo
               onClose() }}
           />
           </div> )}
-      </div>
+      </div> */}
     </div>
   ) : null;
 

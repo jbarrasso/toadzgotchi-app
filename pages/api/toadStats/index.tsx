@@ -363,7 +363,7 @@ export default async function getToadById(req:NextApiRequest, res:NextApiRespons
                     res.status(200).json(
                         {
                             message:`Toad is now vibin'. Try some actions!`,
-                            animation: '',
+                            animation: 'vibe',
                             points: thisOwner.points
                         }
                     )
