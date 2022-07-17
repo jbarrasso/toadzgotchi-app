@@ -900,7 +900,6 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
             position: absolute;
             top:0px;
             z-index: -11;
-            background-color: red;
             width: 100%;
             height: 15%;
           }

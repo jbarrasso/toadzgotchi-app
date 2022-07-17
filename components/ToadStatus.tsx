@@ -5,7 +5,6 @@ import _, { sample, pluck, sortBy } from 'underscore'
 import useSound from "use-sound";
 import actionSelectSound from '../public/sounds/menuPingForward.mp3'
 import closeMenuSound from '../public/sounds/menuPing4.mp3'
-import ToadStatus from "./ToadStatus";
 
 type Props = {
   show: boolean;
@@ -14,9 +13,8 @@ type Props = {
   onClose: () => void
 };
 
-const Leaderboard = ({ show, vibingToadz, onClose }: Props) => {
+const ToadStatus = ({ show, vibingToadz, onClose }: Props) => {
   const [isBrowser, setIsBrowser] = useState(false)
-  const [showToadStatus, setShowToadStatus] = useState(false)
   const [previewToad, setPreviewToad] = useState('')
   const [property, setProperty] = useState('Level')
   const [index, setIndex] = useState(0)
@@ -117,7 +115,7 @@ const Leaderboard = ({ show, vibingToadz, onClose }: Props) => {
     }
     return (nineToadzShown[index].map((id, index) =>
       <div key={id.toadId} style={{display:'flex',  flexDirection:'column', flexWrap: 'wrap', justifyContent: 'flex-start', alignContent:'center', width:'33%', height:'33%', alignItems:'center', border:'', backgroundColor: ''}}>
-        <img onClick={ () => {} } src={'/img/' + id.toadId.toString() +'.gif'} onError={({ currentTarget }) => {
+        <img onClick={ () => {console.log(nineToadzShown)} } src={'/img/' + id.toadId.toString() +'.gif'} onError={({ currentTarget }) => {
           currentTarget.onerror = null
           currentTarget.src="/img/unknown.png"
         }} style={{cursor:'pointer',height:'100%'}}/>
@@ -139,34 +137,8 @@ const Leaderboard = ({ show, vibingToadz, onClose }: Props) => {
   const modalContent = show ? (
     <div style={{position: 'absolute', top: '16%', left: '.5%', height: '68%', width: '99%', zIndex:2}}>
       <img style={{height:'100%', width: '100%'}} src='/img/menu.png'/>
-      <a href="#" style={{ position: 'absolute', top:'-1%', right: '3%', fontSize:'1.5vw'}} onClick={handleCloseClick}>x</a>
-      <a href="#" style={{ position: 'absolute', top:'3%', right: '15%', fontSize:'1vw'}} onClick={()=>{
-        if (index < (Math.ceil(vibingToadz.length/9)-1)) {
-          playActionSelect()
-          setIndex(index+1)
-        } else {
-          playActionSelect()
-        }}}>{`Next>`}</a>
-      <p style={{ position: 'absolute', top:'-1%', left: '5%', fontSize:'1vw', cursor:'pointer'}} onClick={()=>{
-        if (property === 'Level') {
-          playActionSelect()
-          setProperty('Longest Vibing')
-        } else {
-          playActionSelect()
-          setProperty ('Level')
-        } 
-        }}>Sort By: {property}</p>
-      <a href="#" style={{ position: 'absolute', top:'3%', right: '30%', fontSize:'1vw'}} onClick={()=>{
-        if (index > 0 ) {
-          playActionSelect()
-          setIndex(index-1)
-        } else{
-          playActionSelect()
-        }}}>{`<Prev`}</a>
       <div className='toadContainer' style={{position:'absolute', overflow: 'auto', top: '20%', display:'flex', flexWrap: 'wrap', flexDirection:'row', alignContent: 'flex-start', left: '2%', width: '95.5%',height:'78%', backgroundColor:'white'}}>
-        {renderToadz()}
       </div>
-
       {/* <div className='toadPreview' style={{position:'absolute', alignItems: 'center', flexWrap:'wrap', top:'11%', left:'50%', display:'flex', width:'45%', height:'85%'}}>
         {previewToad != '' && (
           <div>
@@ -201,11 +173,11 @@ const Leaderboard = ({ show, vibingToadz, onClose }: Props) => {
   if (isBrowser) {
     return ReactDOM.createPortal(
       modalContent, 
-        document.getElementById("leaderboardRoot")
+        document.getElementById("toadStatusRoot")
     );
   } else {
     return null;
   }    
 }
 
-export default Leaderboard;
+export default ToadStatus;
