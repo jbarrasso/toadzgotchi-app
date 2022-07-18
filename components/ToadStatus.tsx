@@ -20,6 +20,7 @@ const ToadStatus = ({ show, vibingToadz, PreviewToad, place, onBack, onClose }: 
   const [isBrowser, setIsBrowser] = useState(false)
   const [playActionSelect] = useSound(actionSelectSound)
   const [playCloseMenu] = useSound(closeMenuSound)
+  let addy: any
 
   useEffect(() => {
     setIsBrowser(true)
@@ -37,7 +38,11 @@ const ToadStatus = ({ show, vibingToadz, PreviewToad, place, onBack, onClose }: 
     onClose();
   };
 
-  const address = _.findWhere(vibingToadz, {'toadId': parseInt(PreviewToad)}).userId
+  if (PreviewToad != '') {
+    addy = _.findWhere(vibingToadz, {'toadId': parseInt(PreviewToad)}).userId
+  } else {
+    addy = ''
+  }
 
   const modalContent = show ? (
     <div style={{position: 'absolute', top: '0%', left: '0%', height: '100%', width: '100%', zIndex:2}}>
@@ -54,7 +59,7 @@ const ToadStatus = ({ show, vibingToadz, PreviewToad, place, onBack, onClose }: 
             <p style={{margin: '0 2vw'}}>Toad Id: #{_.findWhere(vibingToadz, {'toadId': parseInt(PreviewToad)}).toadId}</p>
             <p style={{margin: '0 2vw'}}>Toad Level: {_.findWhere(vibingToadz, {'toadId': parseInt(PreviewToad)}).level}</p>
             <p style={{margin: '0 2vw', width: '120%'}}>Toad Name: unknown, for now...</p>
-            <p style={{margin: '0 2vw'}}>Owned by: {address.substring(0,5)+'...'+address.substring(address.length-5,address.length)}</p>
+            <p style={{margin: '0 2vw'}}>Owned by: {addy.substring(0,5)+'...'+addy.substring(addy.length-5,addy.length)}</p>
             <p></p>
         </div>)}
     </div>
