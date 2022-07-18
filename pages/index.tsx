@@ -726,6 +726,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
             show={showLeaderboard}
             toadsByHighestLevel={highestLevel}
             vibingToadz={vibingToadz}
+            SetShowLeaderboard={setShowLeaderboard}
             SetToadDisplayState={setToadDisplayState}
             onClose={() => {setShowLeaderboard(false)}}>
           </Leaderboard>

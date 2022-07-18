@@ -11,13 +11,15 @@ type Props = {
   show: boolean;
   vibingToadz: [{}];
   propSelectedToad: any;
+  SetShowLeaderboard: any;
   onClose: () => void
 };
 
-const Leaderboard = ({ show, vibingToadz, onClose }: Props) => {
+const Leaderboard = ({ show, vibingToadz, SetShowLeaderboard, onClose }: Props) => {
   const [isBrowser, setIsBrowser] = useState(false)
   const [showToadStatus, setShowToadStatus] = useState(false)
   const [previewToad, setPreviewToad] = useState('')
+  const [place, setPlace] = useState(null)
   const [property, setProperty] = useState('Level')
   const [index, setIndex] = useState(0)
   const oldestVibing = _.sortBy(vibingToadz, 'vibeStart')
@@ -115,9 +117,13 @@ const Leaderboard = ({ show, vibingToadz, onClose }: Props) => {
         }
       }
     }
-    return (nineToadzShown[index].map((id, index) =>
+    return (nineToadzShown[index].map((id, indexs) =>
       <div key={id.toadId} style={{display:'flex',  flexDirection:'column', flexWrap: 'wrap', justifyContent: 'flex-start', alignContent:'center', width:'33%', height:'33%', alignItems:'center', border:'', backgroundColor: ''}}>
-        <img onClick={ () => {} } src={'/img/' + id.toadId.toString() +'.gif'} onError={({ currentTarget }) => {
+        <img onClick={ () => {
+          playActionSelect()
+          setPreviewToad(id.toadId.toString())
+          setPlace(9*index + indexs)
+          setShowToadStatus(true)} } src={'/img/' + id.toadId.toString() +'.gif'} onError={({ currentTarget }) => {
           currentTarget.onerror = null
           currentTarget.src="/img/unknown.png"
         }} style={{cursor:'pointer',height:'100%'}}/>
@@ -150,9 +156,11 @@ const Leaderboard = ({ show, vibingToadz, onClose }: Props) => {
       <p style={{ position: 'absolute', top:'-1%', left: '5%', fontSize:'1vw', cursor:'pointer'}} onClick={()=>{
         if (property === 'Level') {
           playActionSelect()
+          setIndex(0)
           setProperty('Longest Vibing')
         } else {
           playActionSelect()
+          setIndex(0)
           setProperty ('Level')
         } 
         }}>Sort By: {property}</p>
@@ -166,35 +174,20 @@ const Leaderboard = ({ show, vibingToadz, onClose }: Props) => {
       <div className='toadContainer' style={{position:'absolute', overflow: 'auto', top: '20%', display:'flex', flexWrap: 'wrap', flexDirection:'row', alignContent: 'flex-start', left: '2%', width: '95.5%',height:'78%', backgroundColor:'white'}}>
         {renderToadz()}
       </div>
-
-      {/* <div className='toadPreview' style={{position:'absolute', alignItems: 'center', flexWrap:'wrap', top:'11%', left:'50%', display:'flex', width:'45%', height:'85%'}}>
-        {previewToad != '' && (
-          <div>
-          <img src={previewToad} style={{width:'30%', height: '50%'}} />
-          <progress></progress>
-          <p>asdlfkj</p>  
-          <Button
-            text='Select Toad' 
-            position=''
-            display=''
-            flex=''
-            color='#332020'
-            backgroundColor='#b0a28d'
-            top='80%'
-            left='50%'
-            height=''
-            width=''
-            margin='10px'
-            padding='0px'
-            border=' 2px solid #673c37'
-            borderRadius='5%'
-            cursor= 'pointer'
-            onClick={() => {
-              propSelectedToad(previewToad)
-              onClose() }}
-          />
-          </div> )}
-      </div> */}
+      <div id='toadStatusRoot'>
+          <ToadStatus
+            show={showToadStatus}
+            vibingToadz={vibingToadz}
+            PreviewToad={previewToad}
+            place={place}
+            onBack={() => {
+              setShowToadStatus(false)
+            }} 
+            onClose={() => {
+              setShowToadStatus(false)
+              SetShowLeaderboard(false)}}>
+          </ToadStatus>
+      </div>
     </div>
   ) : null;
 
