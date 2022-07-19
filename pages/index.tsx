@@ -10,6 +10,7 @@ import sleepSound from '../public/sounds/sleep.mp3'
 import gameboySound from '../public/sounds/gameboy.mp3'
 import vibeSound from '../public/sounds/vibe.mp3'
 import helloSound from '../public/sounds/hello.mp3'
+import reviveSound from '../public/sounds/revive.mp3'
 import MyToadz from "../components/MyToadz"
 import { useState, useEffect, useRef } from 'react'
 import { ethers } from 'ethers'
@@ -172,6 +173,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
   const [toadDisplayState, setToadDisplayState] = useState('')
   const [isVibing, setIsVibing] = useState(false)
   const [points, setPoints] = useState()
+  const [toadDead, setToadDead] = useState(false)
   const [playEat] = useSound(eatSound, {interrupt: true})
   const [playActionSelect] = useSound(actionSelectSound)
   const [playError] = useSound(errorSound)
@@ -180,6 +182,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
   const [playVibe] = useSound(vibeSound)
   const [playCloseMenu] = useSound(closeMenuSound)
   const [playHello] = useSound(helloSound)
+  const [playRevive] = useSound(reviveSound)
 
   function getTime() {
     //const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -308,11 +311,22 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
       setPoints(points)
 
       switch (animation) {
+        case 'revive':
+          playRevive()
+          setToadDead(false)
+          toadData[toadId-1].fed=10
+          document.getElementById('tombstone').classList.add('hidden')
+          document.getElementById('toad').classList.remove('hidden')
+          break
         case 'vibe':
           playVibe()
+          setToadDead(false)
+          setIsVibing(true)
+          console.log('trigger switch', toadId)
           break
         case 'pizza':
           setToadDisplayState('/img/' + toadId + '-' + animation + '.gif')
+          //setOverall(overall) from res .... pass into MyToadz
           playEat()
           break
         case 'sleep':
@@ -325,19 +339,16 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
           break
       }
 
-      if (animation != '') {
+      if (animation != 'vibe') {
         setTimeout(() => {
           if (overall >= 80) {
             setToadDisplayState('/img/' + toadId + '-happy.gif')
           } else if (overall <= 20) {
             setToadDisplayState('/img/' + toadId + '-sad.gif')
           } else {
-            console.log(toadId)
             setToadDisplayState('/img/' + toadId + '.gif')
           }
         }, 4500);
-      } else {
-        setIsVibing(true)
       }
 
       setTimeout(() => {
@@ -397,6 +408,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
           }
 
           if ((toadData[arrayOfToadIds[0].toString()-1].fed == 0)&&(toadData[arrayOfToadIds[0].toString()-1].energy == 0) && (toadData[arrayOfToadIds[0].toString()-1].happiness == 0) && (toadData[arrayOfToadIds[0].toString()-1].health == 0)) {
+            setToadDead(true)
             document.getElementById('toad').classList.add('hidden')
             document.getElementById('tombstone').classList.remove('hidden')
           }
@@ -510,7 +522,9 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
         }
         {/* FOR TOADDISPLAYSTATE PATH... PULL TOAD STATE FROM TOADDATA (GETSERVERSIDEPROPS) TO POINT TO PATH */}
         <img src={toadDisplayState} id='toad' style={{display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'40%', width:'30%', zIndex:1, position:'absolute', top:'32%', right:'37%'}}/>
-        <img src={'/img/' + toadId + '-tombstone.gif'} id='tombstone' style={{display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'30%', width:'16%', zIndex:1, position:'absolute', top:'18%', right:'29%'}}/>
+        <img src={'/img/' + toadId + '-tombstone.gif'} alt='' id='tombstone' onClick={()=>{
+          updateStats(['revive', account, toadId])
+          }} style={{cursor: 'pointer', display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'30%', width:'16%', zIndex:1, position:'absolute', top:'18%', right:'29%'}}/>
         <div className='topActionBarBg'></div>
         <div className='topActionBar'>
           <div id='test' onClick={() => {
@@ -548,7 +562,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
           <div id='test' onClick={() => {
             {/*//check if toad transferred checkownstoadzg*/}
               if (isVibing) {
-                if ((toadData[toadId-1].fed == 0)  && (toadData[toadId-1].energy == 0) && (toadData[toadId-1].happiness==0) && (toadData[toadId-1].health == 0)) {
+                if (toadDead == true) {
                   setGlobalMessage('')
                   document.getElementById('typewriterText').classList.remove('typewriterEffect')
                   document.getElementById('typewriterText').classList.add('hidden')
@@ -589,7 +603,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
           <div id='test' onClick={() => {
             {/*//check if toad transferred checkownstoadzg*/}
             if (isVibing) {
-              if ((toadData[toadId-1].fed == 0)  && (toadData[toadId-1].energy == 0) && (toadData[toadId-1].happiness==0) && (toadData[toadId-1].health == 0)) {
+              if (toadDead == true) {
                 setGlobalMessage('')
                 document.getElementById('typewriterText').classList.remove('typewriterEffect')
                 document.getElementById('typewriterText').classList.add('hidden')
@@ -630,7 +644,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
           <div id='test' onClick={() => {
             {/*//check if toad transferred checkownstoadzg*/}
             if (isVibing) {
-              if ((toadData[toadId-1].fed == 0)  && (toadData[toadId-1].energy == 0) && (toadData[toadId-1].happiness==0) && (toadData[toadId-1].health == 0)) {
+              if (toadDead == true) {
                 setGlobalMessage('')
                 document.getElementById('typewriterText').classList.remove('typewriterEffect')
                 document.getElementById('typewriterText').classList.add('hidden')
@@ -717,6 +731,9 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
             OwnsToadz={ownsToadz}
             SetToadId={setToadId}
             ToadIdsOwned={toadIdsOwned}
+            ToadDead={toadDead}
+            SetToadDead={setToadDead}
+            IsVibing={isVibing}
             SetIsVibing={setIsVibing}
             onClose={ () => { setShowMyToadz(false) } }>
           </MyToadz>

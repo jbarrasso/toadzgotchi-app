@@ -14,25 +14,39 @@ type Props = {
   SetToadId: any;
   SetToadDisplayState: any;
   ToadIdsOwned: any;
+  ToadDead: any;
+  SetToadDead: any;
+  IsVibing: any;
   SetIsVibing: any;
   onClose: () => void
 };
 
-const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplayState, ToadData, ToadIdsOwned, SetIsVibing, show, onClose }: Props) => {
+const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplayState, ToadData, ToadIdsOwned, ToadDead, SetToadDead, IsVibing, SetIsVibing, show, onClose }: Props) => {
   const [isBrowser, setIsBrowser] = useState(false)
   const [previewToadId, setPreviewToadId] = useState(0)
+  const [previewToadVibe, setPreviewToadVibe] = useState(false)
   const [playActionSelect] = useSound(actionSelectSound)
   const [playCloseMenu] = useSound(closeMenuSound)
   
-  let selectedToad = ToadIdsOwned[0]
-
   const listItems = ToadIdsOwned.map((image: number) =>
     <div key={image} style={{display:'flex', justifyContent:'space-around', width:'100%', height:'35%', alignItems:'center', border:'2px solid #673c37' }}>
       <img onClick={ () => {
       playActionSelect()
-      selectedToad = image
       setPreviewToadId(image)
-      console.log(previewToadId) } } src={'/img/' + image + '.gif'} style={{cursor:'pointer',height:'100%'}}/>
+      if (ToadData[image-1].vibing == true) {
+        setPreviewToadVibe(true)
+      } else {
+        setPreviewToadVibe(false)
+      }
+      if ((ToadData[image-1].fed == 0)&&(ToadData[image-1].energy == 0) && (ToadData[image-1].happiness == 0) && (ToadData[image-1].health == 0)) {
+        SetToadDead(true)
+        console.log('true')
+      } else {
+        SetToadDead(false)
+        console.log('false')
+
+      }
+      console.log(image, ToadData[image-1].vibing , previewToadId) } } src={'/img/' + image + '.gif'} style={{cursor:'pointer',height:'100%'}}/>
       <div style={{display:'flex', flexDirection: 'column', alignItems:'center', justifyContent:'space-around', height:'100%'}}>
         <span style={{height:'auto', width:'100%', fontSize:'.75vw'}}>Overall Health</span>
         <progress max={100} value={ToadData[image-1].overall} style={{border: 'solid 2px black', width:'100%'}}></progress>
@@ -42,18 +56,12 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
   useEffect(() => {
     setIsBrowser(true)
   }, []);
-
-  useEffect(() => {
-
-  }, [])
   
   const handleCloseClick = (e) => {
     playCloseMenu()
     e.preventDefault();
     onClose();
   };
-
-  const modalWidth = 500;
 
   const modalContent = show ? (
     <div style={{position: 'absolute', top: '16%', left: '.5%', height: '68%', width: '99%', zIndex:2}}>
@@ -68,8 +76,10 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
       {previewToadId >= 1 && (
       <div className='toadPreview' style={{position:'absolute', flexDirection:'row', alignItems: 'flex-start', flexWrap:'wrap', alignContent: 'flex-start', top:'11%', left:'50%', display:'flex', width:'45%', height:'85%'}}>
             <img src={'/img/' + previewToadId + '.gif'} style={{width:'35%', height: '35%'}} />
-            <p style={{width:'60%', fontSize: '.75vw', textAlign: 'center'}}>CrypToadz ID# {ToadData[previewToadId-1].toadId}</p>
-            { (ToadData[previewToadId-1].vibing == true) ?
+            <p style={{width:'60%', fontSize: '.75vw', textAlign: 'center'}}>CrypToadz ID: #{ToadData[previewToadId-1].toadId}</p>
+            { //pass isvibing from index in here and check instead of toadData 
+            // (ToadData[previewToadId-1].vibing == true) ?
+            (previewToadVibe == true) ?
             <div style={{width: '100%', height: '65%',textAlign: 'center', overflow:'scroll', padding:'1px'}}>
               {ToadData[previewToadId-1].toadName != '' && (
               <p style={{width:'', fontSize:'.5vw'}}>Toad Name: {ToadData[previewToadId-1].toadName}</p>
@@ -103,11 +113,11 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
                   playActionSelect()
                   SetToadId(previewToadId.toString())
                   
-                  if (ToadData[previewToadId-1].overall >= 8) {
+                  if (ToadData[previewToadId-1].overall >= 80) {
                     SetToadDisplayState('/img/' + previewToadId + '-happy.gif')
                     document.getElementById('tombstone').classList.add('hidden')
                     document.getElementById('toad').classList.remove('hidden')
-                  } else if (ToadData[previewToadId-1].happiness <= 2) {
+                  } else if (ToadData[previewToadId-1].happiness <= 20) {
                     SetToadDisplayState('/img/' + previewToadId + '-sad.gif')
                     document.getElementById('tombstone').classList.add('hidden')
                     document.getElementById('toad').classList.remove('hidden')
@@ -118,9 +128,15 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
                   }
 
                   //change to each stat &&
-                  if (ToadData[previewToadId-1].overall == 0) {
+                  if (ToadDead == true){
+                  // if ((ToadData[previewToadId-1].fed == 0)&&(ToadData[previewToadId-1].energy == 0) && (ToadData[previewToadId-1].happiness == 0) && (ToadData[previewToadId-1].health == 0)) {
                     document.getElementById('toad').classList.add('hidden')
                     document.getElementById('tombstone').classList.remove('hidden')
+                    SetToadDead(true)
+                    console.log('asdfsa')
+                  } else {
+                    SetToadDead(false)
+                    console.log('aaaaaaaa')
                   }
                   onClose() }}/>
             </div>
@@ -150,26 +166,27 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
               onClick={() => {
                 playActionSelect()
                 SetToadId(previewToadId.toString())
+                SetToadDisplayState('/img/' + previewToadId + '.gif')
+                ToadData[previewToadId-1].vibing = true
 
-                if (ToadData[previewToadId-1].overall >= 80) {
-                  SetToadDisplayState('/img/' + previewToadId + '-happy.gif')
-                  document.getElementById('tombstone').classList.add('hidden')
-                  document.getElementById('toad').classList.remove('hidden')
-                } else if (ToadData[previewToadId-1].happiness <= 20) {
-                  SetToadDisplayState('/img/' + previewToadId + '-sad.gif')
-                  document.getElementById('tombstone').classList.add('hidden')
-                  document.getElementById('toad').classList.remove('hidden')
-                } else {
-                  SetToadDisplayState('/img/' + previewToadId + '.gif')
-                  document.getElementById('tombstone').classList.add('hidden')
-                  document.getElementById('toad').classList.remove('hidden')
-                }
+                // if (ToadData[previewToadId-1].overall >= 80) {
+                //   SetToadDisplayState('/img/' + previewToadId + '-happy.gif')
+                //   document.getElementById('tombstone').classList.add('hidden')
+                //   document.getElementById('toad').classList.remove('hidden')
+                // } else if (ToadData[previewToadId-1].happiness <= 20) {
+                //   SetToadDisplayState('/img/' + previewToadId + '-sad.gif')
+                //   document.getElementById('tombstone').classList.add('hidden')
+                //   document.getElementById('toad').classList.remove('hidden')
+                // } else {
+                //   SetToadDisplayState('/img/' + previewToadId + '.gif')
+                //   document.getElementById('tombstone').classList.add('hidden')
+                //   document.getElementById('toad').classList.remove('hidden')
+                // }
 
-                if ((ToadData[previewToadId-1].fed == 0)&&(ToadData[previewToadId-1].energy == 0) && (ToadData[previewToadId-1].happiness == 0) && (ToadData[previewToadId-1].health == 0)) {
-                  document.getElementById('toad').classList.add('hidden')
-                  document.getElementById('tombstone').classList.remove('hidden')
-                }
-                console.log(selectedToad)
+                // if ((ToadData[previewToadId-1].fed == 0)&&(ToadData[previewToadId-1].energy == 0) && (ToadData[previewToadId-1].happiness == 0) && (ToadData[previewToadId-1].health == 0)) {
+                //   document.getElementById('toad').classList.add('hidden')
+                //   document.getElementById('tombstone').classList.remove('hidden')
+                // }
                 console.log(Account, previewToadId.toString())
                 UpdateStats(['vibe', Account, previewToadId.toString()])
                 let elems = document.querySelectorAll("#test");
@@ -181,7 +198,9 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
                 document.getElementById('toad').classList.remove('hidden')
                 document.getElementById('tombstone').classList.add('hidden')
                 SetIsVibing(true)
-                onClose() }}/>
+                setPreviewToadVibe(true)
+                onClose()
+              }}/>
             }
       </div>)}
     </div>

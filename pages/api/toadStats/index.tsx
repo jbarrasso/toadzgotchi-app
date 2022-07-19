@@ -67,7 +67,7 @@ export default async function getToadById(req:NextApiRequest, res:NextApiRespons
                          if (selectedToad[0].energy > 0) {
                             return true
                         } else {
-                            res.status(500).json({message: `Toad is exhausted, it can't play right now...`})
+                            res.status(500).json({message: `Toad is sleep-deprived, it can't play right now...`})
                         }
                     } else {
                         res.status(500).json({message: `Toad needs a break from playing...`})
@@ -371,6 +371,41 @@ export default async function getToadById(req:NextApiRequest, res:NextApiRespons
                     res.status(500).json({message: `Toad is already vibing`})
                 }
             }
+
+            const revive = async() => {
+                if (selectedToad[0].fed==0 && selectedToad[0].energy== 0 && selectedToad[0].happiness==0 && selectedToad[0].health==0) {
+                    if (thisOwner.points < 100) {
+                        res.status(500).json({message: `You don't have enough points!`})
+                    } else {
+                        await prisma.toadz.update({
+                            where: {toadId: selectedToad[0].toadId},
+                            data: {
+                                level: {decrement: 1},
+                                xp: 0,
+                                overall: 33,
+                                fed: 10,
+                                energy: 10,
+                                happiness: 10,
+                                health: 100,
+                                user: {
+                                    update: {
+                                        points: { decrement: 100 }
+                                    }
+                                }
+                            }
+                        })
+                        res.status(200).json(
+                            {
+                                message:`Toad had been revived!`,
+                                animation: 'revive',
+                                points: thisOwner.points,
+                                overall: 33
+                            })
+                    }
+                } else {
+                    res.status(500).json({message: `Toad is already alive`})
+                }
+            }
         
             const gameLogic = async(action: string, account: string) => {
                 if (account == thisOwner.address) {
@@ -382,6 +417,8 @@ export default async function getToadById(req:NextApiRequest, res:NextApiRespons
                         sleep()
                     } else if (action === 'gameboy') {
                         play()
+                    } else if (action === 'revive') {
+                        revive()
                     } else {
                         res.status(500).json({message: 'Not a valid action.'})
                     }
