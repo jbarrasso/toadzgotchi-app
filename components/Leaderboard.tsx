@@ -123,6 +123,7 @@ const Leaderboard = ({ show, vibingToadz, SetShowLeaderboard, onClose }: Props) 
           playActionSelect()
           setPreviewToad(id.toadId.toString())
           setPlace(9*index + indexs)
+          console.log(oldestVibing[0])
           setShowToadStatus(true)} } src={'/img/' + id.toadId.toString() +'.gif'} onError={({ currentTarget }) => {
           currentTarget.onerror = null
           currentTarget.src="/img/unknown.png"

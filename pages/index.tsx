@@ -723,6 +723,8 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
         <div id="myToadzRoot">
           <MyToadz
             show={showMyToadz}
+            vibingToadz={vibingToadz}
+            SetShowMyToadz={setShowMyToadz}
             ToadData={toadData}
             UpdateStats={updateStats}
             Account={account}
