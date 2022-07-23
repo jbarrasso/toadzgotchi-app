@@ -795,7 +795,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
             onClick={() => { playActionSelect()
             !isWeb3Injected ? 
             (() => { window.open('https://metamask.io/download','_blank') }) : 
-            (!isWalletConnected ? requestAccount : null)} }
+            (!isWalletConnected ? requestAccount() : null)} }
           />
           <img 
             src={isWalletConnected? '/img/connected.png' : '/img/connect.png'}
