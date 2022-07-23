@@ -9,13 +9,14 @@ import ToadStatus from "./ToadStatus";
 
 type Props = {
   show: boolean;
+  ToadData: any;
   vibingToadz: [{}];
   propSelectedToad: any;
   SetShowLeaderboard: any;
   onClose: () => void
 };
 
-const Leaderboard = ({ show, vibingToadz, SetShowLeaderboard, onClose }: Props) => {
+const Leaderboard = ({ show, ToadData, vibingToadz, SetShowLeaderboard, onClose }: Props) => {
   const [isBrowser, setIsBrowser] = useState(false)
   const [showToadStatus, setShowToadStatus] = useState(false)
   const [previewToad, setPreviewToad] = useState('')
@@ -32,7 +33,6 @@ const Leaderboard = ({ show, vibingToadz, SetShowLeaderboard, onClose }: Props) 
   useEffect(()=> {
     if (property != undefined) {
       if (property === 'Level') {
-        console.log('you')
         for (let i=0; i<(Math.ceil(vibingToadz.length/9)); i++) {
           nineToadzShown[i] = []
           let k = 9
@@ -172,12 +172,14 @@ const Leaderboard = ({ show, vibingToadz, SetShowLeaderboard, onClose }: Props) 
         } else{
           playActionSelect()
         }}}>{`<Prev`}</a>
-      <div className='toadContainer' style={{position:'absolute', overflow: 'auto', top: '20%', display:'flex', flexWrap: 'wrap', flexDirection:'row', alignContent: 'flex-start', left: '2%', width: '95.5%',height:'78%', backgroundColor:'white'}}>
+      <div className='toadContainer' style={{position:'absolute', overflow: 'auto', top: '20%', display:'flex', flexWrap: 'wrap', flexDirection:'row', alignContent: 'flex-start', left: '2%', width: '95.5%',height:'78%', backgroundColor:''}}>
         {renderToadz()}
       </div>
       <div id='toadStatusRoot'>
           <ToadStatus
             show={showToadStatus}
+            Details={property}
+            ToadData={ToadData}
             vibingToadz={vibingToadz}
             PreviewToad={previewToad}
             place={place}

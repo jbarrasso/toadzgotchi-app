@@ -81,7 +81,7 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
       //ask for a sign here?
       account = tryAccount
       //wallet with no toadz
-      //account = '0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8'
+      // account = '0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8'
       //wallet with multiple toadz
       // account = '0xF6E1A43EB08120b2e0eDfADDdD53E1d5B71e86e8'
       // account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
@@ -522,8 +522,20 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
         }
         {/* FOR TOADDISPLAYSTATE PATH... PULL TOAD STATE FROM TOADDATA (GETSERVERSIDEPROPS) TO POINT TO PATH */}
         <img src={toadDisplayState} id='toad' style={{display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'40%', width:'30%', zIndex:1, position:'absolute', top:'32%', right:'37%'}}/>
-        <img src={'/img/' + toadId + '-tombstone.gif'} alt='' id='tombstone' onClick={()=>{
+        <img src={'/img/' + toadId + '-tombstone.gif'} onError={({ currentTarget }) => {
+          currentTarget.onerror = null
+          currentTarget.src="/img/unknown.png"
+          }}alt='' id='tombstone' onClick={()=>{
           updateStats(['revive', account, toadId])
+          let elems = document.querySelectorAll("#tombstone");
+          let index = 0
+          let length = elems.length;
+          for ( ; index < length; index++) {
+              elems[index].classList.add('disabled')
+          }
+          setGlobalMessage('')
+          document.getElementById('typewriterText').classList.remove('typewriterEffect')
+          document.getElementById('typewriterText').classList.add('hidden')
           }} style={{cursor: 'pointer', display: '', maxHeight: '', maxWidth:'25%', minWidth:'', height:'30%', width:'16%', zIndex:1, position:'absolute', top:'18%', right:'29%'}}/>
         <div className='topActionBarBg'></div>
         <div className='topActionBar'>
@@ -538,8 +550,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
           }}>
             <img src='/img/messageIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div>
-          {/* <progress max={100} value={ Math.round(((toadData[3859].fed + toadData[3859].energy + toadData[3859].happiness + toadData[3859].health) / 4))} style={{border: 'solid 2px black'}}></progress> */}
-          <div id='test' onClick={() => {
+          <div style={{height:'100%', display: 'flex', alignItems:'center'}} onClick={() => {
                            if (showLeaderboard == true) {
                             playCloseMenu()
                             setShowLeaderboard(false)
@@ -548,7 +559,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
                             closeAllOtherMenus(setShowLeaderboard)
                           }
            } }>
-            <img src='/img/meterIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
+            <img src='/img/leaderboardIcon.png' style={{cursor: 'pointer', height: '75%'}}/>
           </div>
           <div id='test' style={{fontSize: '2vh', color: 'beige'}}>
             {(points == undefined) ?
@@ -743,6 +754,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
         <div id='leaderboardRoot'>
           <Leaderboard
             show={showLeaderboard}
+            ToadData={toadData}
             toadsByHighestLevel={highestLevel}
             vibingToadz={vibingToadz}
             SetShowLeaderboard={setShowLeaderboard}
@@ -790,7 +802,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
             style={{position: 'relative', height: '50%', width: '100%', left: '0%', paddingTop: '1.5vh'}}/>
           <img src='/img/buttonShadow.png' style={{zIndex:-10, position: 'absolute', height: '67%', width: '12%', left: '6%', top:'0%'}}/>
         </div>
-        <div style={{display:'flex', flexDirection:'column', alignItems: 'center', width: '24%'}}>
+        <div id='test' style={{display:'flex', flexDirection:'column', alignItems: 'center', width: '24%'}}>
           <Button
             text=''
             img='/img/button.png'
@@ -874,7 +886,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
             position: absolute;
             bottom: 17%;
             right: 3%;
-            font-size: 30px;
+            font-size: 1.75vw;
             cursor: pointer;
           }
           .case {

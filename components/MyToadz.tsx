@@ -81,18 +81,27 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
       }
     }
     return (nineToadzShown[index].map((id, indexs) =>
-      <div key={id.toadId} style={{display:'flex',  flexDirection:'column', flexWrap: 'nowrap', justifyContent: 'flex-start', alignContent:'center', width:'33%', height:'33%', alignItems:'center', border:'', backgroundColor: ''}}>
+      <div key={id.toadId} style={{display:'flex',  flexDirection:'column', flexWrap: 'wrap', justifyContent: 'flex-start', alignContent:'center', width:'33%', height:'33%', alignItems:'center', border:'', backgroundColor: ''}}>
+        <p style={{fontSize:'.5vw'}}>#{id.toadId}</p>
         <img onClick={ () => {
           playActionSelect()
           setPreviewToad(id.toadId.toString())
           setPlace(9*index + indexs)
-          console.log(id)
-          setShowToadStatus(true)} }
+          setShowToadStatus(true)
+          if ((id.fed == 0)&&(id.energy == 0) && (id.happiness == 0) && (id.health == 0)) {
+            SetToadDead(true)
+            console.log('true')
+          } else {
+            SetToadDead(false)
+            console.log('false')
+          }
+        }}
           src={'/img/' + id.toadId.toString() +'.gif'} onError={({ currentTarget }) => {
           currentTarget.onerror = null
           currentTarget.src="/img/unknown.png"
-        }} style={{cursor:'pointer',height:'50%'}}/>
-        <progress max={10} value={id.overall} style={{border: 'solid 1px black', width:'100px', height:'auto'}}></progress>
+        }} style={{cursor:'pointer',height:'80%'}}/>
+        {id.vibing == true && <progress max={100} value={id.overall} style={{border: 'solid 2px black', width:'5vw', height:'1vh'}}></progress> }
+        
       </div>))
   }
   useEffect(() => {
@@ -120,9 +129,19 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
       <div id='toadStatusRoot'>
           <ToadStatus
             show={showToadStatus}
+            Account={Account}
+            UpdateStats={UpdateStats}
+            Details={'My NFTs'}
+            ToadData={ToadData}
+            SetToadId={SetToadId}
+            SetToadDisplayState={SetToadDisplayState}
+            ToadDead={ToadDead}
+            SetToadDead={SetToadDead}
             vibingToadz={vibingToadz}
             PreviewToad={previewToad}
             place={place}
+            SetIsVibing={SetIsVibing}
+            SetPreviewToadVibe={setPreviewToadVibe}
             onBack={() => {
               setShowToadStatus(false)
             }} 
@@ -131,6 +150,7 @@ const MyToadz = ({ UpdateStats, Account, OwnsToadz, SetToadId, SetToadDisplaySta
               SetShowMyToadz(false)}}>
           </ToadStatus>
       </div>
+
       {/* {previewToadId >= 1 && (
       <div className='toadPreview' style={{position:'absolute', flexDirection:'row', alignItems: 'flex-start', flexWrap:'wrap', alignContent: 'flex-start', top:'11%', left:'50%', display:'flex', width:'45%', height:'85%'}}>
             <img src={'/img/' + previewToadId + '.gif'} style={{width:'35%', height: '35%'}} />
