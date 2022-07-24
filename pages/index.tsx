@@ -83,6 +83,7 @@ export const checkWeb3 = async(setIsWeb3Injected, setIsWalletConnected, setIsLoa
       //wallet with no toadz
       // account = '0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8'
       //wallet with multiple toadz
+      // account = '0xB0bf7FD6f02258b47F9f0D2dcC469a43f6f62c37'
       // account = '0xF6E1A43EB08120b2e0eDfADDdD53E1d5B71e86e8'
       // account = '0xC385cAee082Bb0E900bCcbBec8bB2Fe650369ECB'
       setIsWalletConnected(true)
@@ -156,6 +157,7 @@ export const requestAccount = async() => {
 
 function Home({toadData, ownerData, highestLevel, vibingToadz}) {
   const router = useRouter()
+  const [cursor, setCursor] = useState('grab')
   const [isLoading, setIsLoading] = useState(true)
   const [isNewPlayer, setIsNewPlayer] = useState(true)
   const [globalMessage, setGlobalMessage] = useState('')
@@ -362,6 +364,8 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
         for ( ; index < length; index++) {
             elems[index].classList.remove('disabled')
         }
+        document.getElementsByTagName("body")[0].style.cursor = "default"
+
       }, 4500);
       //to check if toad is sick, toadData wont update until next state action, so have toadAction be a state variable and run useeffect
     } else {
@@ -373,6 +377,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
         for ( ; index < length; index++) {
             elems[index].classList.remove('disabled')
         }
+        document.getElementsByTagName("body")[0].style.cursor = "default"
         document.getElementById('globalMessageContainer').classList.add('hidden')
       }, 2000);
     }
@@ -592,6 +597,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
                 for ( ; index < length; index++) {
                     elems[index].classList.add('disabled')
                 }
+                document.getElementsByTagName("body")[0].style.cursor = "url(/img/hourglass.png), auto"
                 setGlobalMessage('')
                 document.getElementById('typewriterText').classList.remove('typewriterEffect')
                 document.getElementById('typewriterText').classList.add('hidden')
@@ -633,6 +639,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
               for ( ; index < length; index++) {
                   elems[index].classList.add('disabled')
               }
+              document.getElementsByTagName("body")[0].style.cursor = "url(/img/hourglass.png), auto"
               setGlobalMessage('')
               document.getElementById('typewriterText').classList.remove('typewriterEffect')
               document.getElementById('typewriterText').classList.add('hidden')
@@ -674,6 +681,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
               for ( ; index < length; index++) {
                   elems[index].classList.add('disabled')
               }
+              document.getElementsByTagName("body")[0].style.cursor = "url(/img/hourglass.png), auto"
               setGlobalMessage('')
               document.getElementById('typewriterText').classList.remove('typewriterEffect')
               document.getElementById('typewriterText').classList.add('hidden')
@@ -802,7 +810,7 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
             style={{position: 'relative', height: '50%', width: '100%', left: '0%', paddingTop: '1.5vh'}}/>
           <img src='/img/buttonShadow.png' style={{zIndex:-10, position: 'absolute', height: '67%', width: '12%', left: '6%', top:'0%'}}/>
         </div>
-        <div id='test' style={{display:'flex', flexDirection:'column', alignItems: 'center', width: '24%'}}>
+        <div id='test' style={{display:'flex', flexDirection:'column', alignItems: 'center', width: '24%', cursor:`pointer` }}>
           <Button
             text=''
             img='/img/button.png'
@@ -820,7 +828,6 @@ function Home({toadData, ownerData, highestLevel, vibingToadz}) {
             padding='0px'
             border=''
             borderRadius=''
-            cursor= 'pointer'
             onClick={() => { 
               if (isWalletConnected) { 
                 if (showMyToadz == true) {

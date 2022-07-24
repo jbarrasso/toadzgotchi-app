@@ -30,7 +30,7 @@ const Button = ({ text, cName, textAlign, img, position, display, alignItems, fl
     //return value for ProgressBar component
     //}
     return (
-        <div
+        <div id='test'
             style={{
             color: color,
             display: display,
@@ -56,7 +56,7 @@ const Button = ({ text, cName, textAlign, img, position, display, alignItems, fl
 
             onClick={onClick}>
             
-            {img != '' && <img src={img} style={{position:'absolute', top:'0', left:'0', width:'100%', height:'100%'}}/> }
+            {img != '' && <img src={img} className='image' style={{position:'absolute', top:'0', left:'0', width:'100%', height:'100%'}}/> }
             {text}
             <style jsx>{`
             .image:active {
